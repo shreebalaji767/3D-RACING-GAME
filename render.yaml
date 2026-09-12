@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: neon-highway-3d
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    autoDeploy: true
