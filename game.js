@@ -1,11 +1,12 @@
 import * as THREE from "three";
+
 import {
     GLTFLoader
 } from "three/addons/loaders/GLTFLoader.js";
 
 
 /* =========================================================
-   CONFIG
+   CONFIGURATION
 ========================================================= */
 
 const CONFIG = {
@@ -14,76 +15,134 @@ const CONFIG = {
         "./assets/models/player-car.glb",
 
     trafficModels: [
+
         "./assets/models/traffic-car-01.glb",
+
         "./assets/models/traffic-car-02.glb",
+
         "./assets/models/traffic-car-03.glb"
+
     ],
 
-    roadWidth: 14.5,
 
-    startingSpeed: 42,
+    roadWidth:
+        14.5,
 
-    maxSpeed: 145,
 
-    acceleration: 20,
+    startingSpeed:
+        42,
 
-    braking: 45,
 
-    /* ==============================================
-       NEW SMOOTH SIDEWAYS CONTROL
-    ============================================== */
+    maxSpeed:
+        145,
 
-    steeringResponse: 12,
 
-    steeringReturn: 16,
+    acceleration:
+        24,
 
-    sidewaysSpeed: 8.5,
 
-    roadLimit: 5.9,
+    braking:
+        50,
 
-    /* ==============================================
-       COLLISION
-    ============================================== */
+
+    /*
+        Smooth mobile/desktop steering.
+    */
+
+    steeringResponse:
+        13,
+
+
+    steeringReturn:
+        17,
+
+
+    sidewaysSpeed:
+        8.5,
+
+
+    roadLimit:
+        5.9,
+
+
+    /*
+        Collision is intentionally strict.
+    */
 
     playerCollider: {
-        width: 1.72,
-        height: 1.30,
-        length: 4.35
+
+        width:
+            1.72,
+
+        height:
+            1.30,
+
+        length:
+            4.35
+
     },
+
 
     trafficCollider: {
-        width: 1.72,
-        height: 1.30,
-        length: 4.35
+
+        width:
+            1.72,
+
+        height:
+            1.30,
+
+        length:
+            4.35
+
     },
 
-    collisionTolerance: 0.055,
 
-    /* ==============================================
-       TRAFFIC
-    ============================================== */
+    collisionTolerance:
+        0.055,
 
-    trafficRemoveZ: 35,
 
-    trafficMinGap: 35,
+    segmentLength:
+        100,
 
-    /* ==============================================
-       WORLD
-    ============================================== */
 
-    segmentLength: 100,
+    segmentCount:
+        12,
 
-    segmentCount: 12,
 
-    /* ==============================================
-       GRAPHICS
-    ============================================== */
+    trafficMinGap:
+        35,
 
-    desktopPixelRatio: 1.8,
 
-    mobilePixelRatio: 1.25
+    trafficRemoveZ:
+        35,
+
+
+    desktopPixelRatio:
+        1.8,
+
+
+    mobilePixelRatio:
+        1.25
 
 };
+
+
+/* =========================================================
+   DEVICE
+========================================================= */
+
+const isMobile =
+
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+        .test(
+            navigator.userAgent
+        )
+
+    ||
+
+    window.matchMedia(
+        "(pointer: coarse)"
+    ).matches;
 
 
 /* =========================================================
@@ -95,95 +154,120 @@ const canvasContainer =
         "canvasContainer"
     );
 
+
 const loadingScreen =
     document.getElementById(
         "loadingScreen"
     );
+
 
 const loadingProgress =
     document.getElementById(
         "loadingProgress"
     );
 
+
 const loadingText =
     document.getElementById(
         "loadingText"
     );
+
 
 const menu =
     document.getElementById(
         "menu"
     );
 
+
 const hud =
     document.getElementById(
         "hud"
     );
+
 
 const pauseScreen =
     document.getElementById(
         "pause"
     );
 
+
 const gameOverScreen =
     document.getElementById(
         "over"
     );
+
 
 const howtoScreen =
     document.getElementById(
         "howtoScreen"
     );
 
+
 const settingsScreen =
     document.getElementById(
         "settingsScreen"
     );
+
 
 const touchControls =
     document.getElementById(
         "touchControls"
     );
 
+
+const touchSteeringArea =
+    document.getElementById(
+        "touchSteeringArea"
+    );
+
+
 const speedElement =
     document.getElementById(
         "speed"
     );
+
 
 const scoreElement =
     document.getElementById(
         "score"
     );
 
+
 const bestElement =
     document.getElementById(
         "best"
     );
+
 
 const menuBestElement =
     document.getElementById(
         "menuBest"
     );
 
+
 const finalScoreElement =
     document.getElementById(
         "finalScore"
     );
+
 
 const finalBestElement =
     document.getElementById(
         "finalBest"
     );
 
+
 const assetStatus =
     document.getElementById(
         "assetStatus"
     );
 
+
 const dangerFlash =
     document.getElementById(
         "dangerFlash"
     );
+
 
 const deviceMode =
     document.getElementById(
@@ -192,19 +276,8 @@ const deviceMode =
 
 
 /* =========================================================
-   DEVICE
+   DEVICE LABEL
 ========================================================= */
-
-const isMobile =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-        .test(
-            navigator.userAgent
-        )
-    ||
-    window.matchMedia(
-        "(pointer: coarse)"
-    ).matches;
-
 
 deviceMode.textContent =
     isMobile
@@ -226,10 +299,8 @@ let clock;
 
 
 /* =========================================================
-   GAME OBJECTS
+   WORLD
 ========================================================= */
-
-let player;
 
 let roadGroup;
 
@@ -241,17 +312,27 @@ let coinGroup;
 
 
 /* =========================================================
-   MODELS
+   PLAYER
+========================================================= */
+
+let player;
+
+
+/* =========================================================
+   MODEL LOADER
 ========================================================= */
 
 const gltfLoader =
     new GLTFLoader();
 
+
 let playerModelLoaded =
     false;
 
+
 let trafficModelsLoaded =
     0;
+
 
 let loadedTrafficTemplates =
     [];
@@ -264,17 +345,22 @@ let loadedTrafficTemplates =
 let gameRunning =
     false;
 
+
 let paused =
     false;
+
 
 let gameOver =
     false;
 
+
 let speed =
     CONFIG.startingSpeed;
 
+
 let score =
     0;
+
 
 let bestScore =
     Number(
@@ -285,54 +371,95 @@ let bestScore =
 
 
 /* =========================================================
-   INPUT
+   KEYBOARD STATE
 ========================================================= */
 
 const keys = {
 
-    left: false,
+    left:
+        false,
 
-    right: false,
+    right:
+        false,
 
-    accelerate: false,
+    accelerate:
+        false,
 
-    brake: false
+    brake:
+        false
 
 };
 
 
 /* =========================================================
-   NEW SMOOTH STEERING STATE
+   STEERING STATE
 ========================================================= */
 
-/*
-    steeringInput:
-
-        -1 = full left
-         0 = straight
-        +1 = full right
+let steeringInput =
+    0;
 
 
-    steeringTarget:
-
-        The direction the player is asking for.
-
-    There is NO sideways velocity anymore.
-
-    This is what removes the floaty/sliding feeling.
-*/
-
-let steeringInput = 0;
-
-let steeringTarget = 0;
+let steeringTarget =
+    0;
 
 
 /* =========================================================
-   LOOP
+   TOUCH STEERING
 ========================================================= */
 
-let lastTime =
-    performance.now();
+/*
+    Every finger gets its own steering record.
+
+    This means:
+
+    Finger 1 -> steer
+    Finger 2 -> boost/brake
+
+    at the same time.
+*/
+
+const touchPointers =
+    new Map();
+
+
+let steeringTouchId =
+    null;
+
+
+let steeringTouchStartX =
+    0;
+
+
+let steeringTouchCurrentX =
+    0;
+
+
+/*
+    How far the finger must move before
+    we consider it steering.
+*/
+
+const TOUCH_DEAD_ZONE =
+    10;
+
+
+/*
+    How much finger movement creates
+    full steering.
+*/
+
+const TOUCH_FULL_STEER_DISTANCE =
+    90;
+
+
+/*
+    Drag sensitivity.
+
+    Increase for faster steering.
+*/
+
+const TOUCH_STEERING_STRENGTH =
+    1.35;
 
 
 /* =========================================================
@@ -346,70 +473,90 @@ async function init() {
         "STARTING 3D ENGINE..."
     );
 
+
     createScene();
+
 
     setLoading(
         18,
         "BUILDING NIGHT SKY..."
     );
 
+
     createLighting();
+
 
     setLoading(
         30,
         "BUILDING HIGHWAY..."
     );
 
+
     createRoad();
+
 
     setLoading(
         43,
         "BUILDING CITY..."
     );
 
+
     createEnvironment();
+
 
     setLoading(
         56,
         "BUILDING PLAYER CAR..."
     );
 
+
     createPlayer();
+
 
     setLoading(
         66,
         "LOADING PLAYER CAR..."
     );
 
+
     await loadPlayerModel();
+
 
     setLoading(
         76,
         "LOADING TRAFFIC CARS..."
     );
 
+
     await loadTrafficModels();
+
 
     setLoading(
         88,
         "PREPARING TRAFFIC..."
     );
 
+
     createTraffic();
 
+
     createCoins();
+
 
     setLoading(
         96,
         "SETTING CONTROLS..."
     );
 
+
     setupEvents();
+
 
     setLoading(
         100,
         "READY"
     );
+
 
     setTimeout(
         () => {
@@ -418,9 +565,11 @@ async function init() {
                 "hidden"
             );
 
+
             menu.classList.remove(
                 "hidden"
             );
+
 
             updateMenu();
 
@@ -442,6 +591,7 @@ function setLoading(
     loadingProgress.style.width =
         `${percent}%`;
 
+
     loadingText.textContent =
         text;
 }
@@ -456,10 +606,12 @@ function createScene() {
     scene =
         new THREE.Scene();
 
+
     scene.background =
         new THREE.Color(
             0x02050c
         );
+
 
     scene.fog =
         new THREE.FogExp2(
@@ -469,10 +621,6 @@ function createScene() {
                 : 0.008
         );
 
-
-    /* ==============================================
-       CAMERA
-    ============================================== */
 
     camera =
         new THREE.PerspectiveCamera(
@@ -496,10 +644,6 @@ function createScene() {
     );
 
 
-    /* ==============================================
-       RENDERER
-    ============================================== */
-
     renderer =
         new THREE.WebGLRenderer({
 
@@ -521,7 +665,8 @@ function createScene() {
     );
 
 
-    const pixelRatio =
+    renderer.setPixelRatio(
+
         isMobile
 
             ? CONFIG.mobilePixelRatio
@@ -529,25 +674,26 @@ function createScene() {
             : Math.min(
                 window.devicePixelRatio,
                 CONFIG.desktopPixelRatio
-            );
+            )
 
-
-    renderer.setPixelRatio(
-        pixelRatio
     );
 
 
     renderer.shadowMap.enabled =
         true;
 
+
     renderer.shadowMap.type =
         THREE.PCFSoftShadowMap;
+
 
     renderer.outputColorSpace =
         THREE.SRGBColorSpace;
 
+
     renderer.toneMapping =
         THREE.ACESFilmicToneMapping;
+
 
     renderer.toneMappingExposure =
         1.1;
@@ -562,18 +708,17 @@ function createScene() {
         new THREE.Clock();
 
 
-    /* ==============================================
-       GROUPS
-    ============================================== */
-
     roadGroup =
         new THREE.Group();
+
 
     environmentGroup =
         new THREE.Group();
 
+
     trafficGroup =
         new THREE.Group();
+
 
     coinGroup =
         new THREE.Group();
@@ -583,13 +728,16 @@ function createScene() {
         roadGroup
     );
 
+
     scene.add(
         environmentGroup
     );
 
+
     scene.add(
         trafficGroup
     );
+
 
     scene.add(
         coinGroup
@@ -620,6 +768,7 @@ function createSky() {
             side:
                 THREE.BackSide,
 
+
             uniforms: {
 
                 topColor: {
@@ -631,6 +780,7 @@ function createSky() {
 
                 },
 
+
                 bottomColor: {
 
                     value:
@@ -640,15 +790,19 @@ function createSky() {
 
                 },
 
+
                 offset: {
 
-                    value: 33
+                    value:
+                        33
 
                 },
 
+
                 exponent: {
 
-                    value: 0.65
+                    value:
+                        0.65
 
                 }
 
@@ -740,10 +894,6 @@ function createSky() {
     );
 
 
-    /* ==============================================
-       MOON
-    ============================================== */
-
     const moon =
         new THREE.Mesh(
 
@@ -807,7 +957,7 @@ function createLighting() {
 
             0x06080d,
 
-            1.0
+            1
 
         );
 
@@ -843,6 +993,7 @@ function createLighting() {
             ? 1024
             : 2048;
 
+
     moonLight.shadow.mapSize.height =
         isMobile
             ? 1024
@@ -852,11 +1003,14 @@ function createLighting() {
     moonLight.shadow.camera.left =
         -80;
 
+
     moonLight.shadow.camera.right =
         80;
 
+
     moonLight.shadow.camera.top =
         100;
+
 
     moonLight.shadow.camera.bottom =
         -100;
@@ -880,6 +1034,7 @@ function createRoad() {
 
     asphaltTexture.wrapS =
         THREE.RepeatWrapping;
+
 
     asphaltTexture.wrapT =
         THREE.RepeatWrapping;
@@ -962,15 +1117,12 @@ function createRoad() {
             road.position.z
         );
 
+
         createRoadEdges(
             road.position.z
         );
     }
 
-
-    /* ==============================================
-       GROUND
-    ============================================== */
 
     const ground =
         new THREE.Mesh(
@@ -1016,7 +1168,7 @@ function createRoad() {
 
 
 /* =========================================================
-   ASPHALT
+   ASPHALT TEXTURE
 ========================================================= */
 
 function createAsphaltTexture() {
@@ -1029,6 +1181,7 @@ function createAsphaltTexture() {
 
     canvas.width =
         512;
+
 
     canvas.height =
         512;
@@ -1083,38 +1236,6 @@ function createAsphaltTexture() {
             Math.random() * 2
 
         );
-    }
-
-
-    ctx.strokeStyle =
-        "rgba(0,0,0,0.16)";
-
-
-    ctx.lineWidth =
-        10;
-
-
-    for (
-        let x = 120;
-
-        x < 512;
-
-        x += 150
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            x,
-            0
-        );
-
-        ctx.lineTo(
-            x + 5,
-            512
-        );
-
-        ctx.stroke();
     }
 
 
@@ -1275,6 +1396,7 @@ function createEnvironment() {
             z
         );
 
+
         createCityBlock(
             1,
             z - 18
@@ -1286,20 +1408,24 @@ function createEnvironment() {
         ) {
 
             createTree(
+
                 -12 -
                 Math.random() * 6,
 
                 z -
                 Math.random() * 30
+
             );
 
 
             createTree(
+
                 12 +
                 Math.random() * 6,
 
                 z -
                 Math.random() * 30
+
             );
         }
 
@@ -1313,6 +1439,7 @@ function createEnvironment() {
                 z
             );
 
+
             createStreetLight(
                 8.3,
                 z - 22
@@ -1323,7 +1450,7 @@ function createEnvironment() {
 
 
 /* =========================================================
-   CITY BLOCK
+   CITY
 ========================================================= */
 
 function createCityBlock(
@@ -1360,46 +1487,36 @@ function createCityBlock(
             Math.random() * 15;
 
 
-        const geometry =
-            new THREE.BoxGeometry(
-
-                width,
-                height,
-                depth
-
-            );
-
-
-        const material =
-            new THREE.MeshStandardMaterial({
-
-                color:
-                    new THREE.Color(
-
-                        0.025 +
-                        Math.random() * 0.035,
-
-                        0.04 +
-                        Math.random() * 0.04,
-
-                        0.07 +
-                        Math.random() * 0.08
-
-                    ),
-
-                roughness:
-                    0.8,
-
-                metalness:
-                    0.05
-
-            });
-
-
         const building =
             new THREE.Mesh(
-                geometry,
-                material
+
+                new THREE.BoxGeometry(
+                    width,
+                    height,
+                    depth
+                ),
+
+                new THREE.MeshStandardMaterial({
+
+                    color:
+                        new THREE.Color(
+
+                            0.025 +
+                            Math.random() * 0.035,
+
+                            0.04 +
+                            Math.random() * 0.04,
+
+                            0.07 +
+                            Math.random() * 0.08
+
+                        ),
+
+                    roughness:
+                        0.8
+
+                })
+
             );
 
 
@@ -1431,130 +1548,6 @@ function createCityBlock(
         environmentGroup.add(
             building
         );
-
-
-        createBuildingWindows(
-            building
-        );
-    }
-}
-
-
-/* =========================================================
-   WINDOWS
-========================================================= */
-
-function createBuildingWindows(
-    building
-) {
-
-    if (
-        isMobile
-    ) {
-        return;
-    }
-
-
-    const width =
-        building.geometry.parameters.width;
-
-    const height =
-        building.geometry.parameters.height;
-
-    const rows =
-        Math.floor(
-            height / 4
-        );
-
-    const cols =
-        Math.max(
-            2,
-            Math.floor(
-                width / 3
-            )
-        );
-
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color:
-                0x8fc5ff,
-
-            emissive:
-                0x2e5d9c,
-
-            emissiveIntensity:
-                1.3,
-
-            roughness:
-                0.3
-
-        });
-
-
-    for (
-        let row = 0;
-
-        row < rows;
-
-        row++
-    ) {
-
-        for (
-            let col = 0;
-
-            col < cols;
-
-            col++
-        ) {
-
-            if (
-                Math.random() < 0.28
-            ) {
-                continue;
-            }
-
-
-            const windowMesh =
-                new THREE.Mesh(
-
-                    new THREE.BoxGeometry(
-                        0.35,
-                        0.65,
-                        0.03
-                    ),
-
-                    material
-
-                );
-
-
-            windowMesh.position.set(
-
-                (
-                    col -
-                    (cols - 1) / 2
-                ) * 2.2,
-
-                (
-                    row + 0.7
-                ) * 3.2,
-
-                -(
-                    building
-                        .geometry
-                        .parameters
-                        .depth / 2
-                ) - 0.03
-
-            );
-
-
-            building.add(
-                windowMesh
-            );
-        }
     }
 }
 
@@ -1585,10 +1578,7 @@ function createTree(
             new THREE.MeshStandardMaterial({
 
                 color:
-                    0x3c2415,
-
-                roughness:
-                    1
+                    0x3c2415
 
             })
 
@@ -1597,10 +1587,6 @@ function createTree(
 
     trunk.position.y =
         1.5;
-
-
-    trunk.castShadow =
-        !isMobile;
 
 
     tree.add(
@@ -1612,22 +1598,15 @@ function createTree(
         new THREE.Mesh(
 
             new THREE.SphereGeometry(
-
                 2.2,
-
                 isMobile ? 8 : 14,
-
                 isMobile ? 8 : 14
-
             ),
 
             new THREE.MeshStandardMaterial({
 
                 color:
-                    0x0d311b,
-
-                roughness:
-                    1
+                    0x0d311b
 
             })
 
@@ -1636,10 +1615,6 @@ function createTree(
 
     foliage.position.y =
         4;
-
-
-    foliage.castShadow =
-        !isMobile;
 
 
     tree.add(
@@ -1726,10 +1701,7 @@ function createStreetLight(
                     0xb8d7ff,
 
                 emissiveIntensity:
-                    6,
-
-                roughness:
-                    0.2
+                    6
 
             })
 
@@ -1817,13 +1789,14 @@ function createPlayer() {
     player.userData.fallback =
         fallback;
 
+
     player.userData.model =
         null;
 }
 
 
 /* =========================================================
-   PLAYER GLB
+   LOAD PLAYER
 ========================================================= */
 
 async function loadPlayerModel() {
@@ -1879,7 +1852,7 @@ async function loadPlayerModel() {
 
 
 /* =========================================================
-   TRAFFIC GLB
+   LOAD TRAFFIC
 ========================================================= */
 
 async function loadTrafficModels() {
@@ -1914,7 +1887,6 @@ async function loadTrafficModels() {
 
 
             trafficModelsLoaded++;
-
 
         } catch (error) {
 
@@ -2112,7 +2084,7 @@ function improveMaterial(
 
 
 /* =========================================================
-   FALLBACK CAR
+   PROCEDURAL CAR
 ========================================================= */
 
 function createDetailedCar(
@@ -2189,8 +2161,6 @@ function createDetailedCar(
         });
 
 
-    /* BODY */
-
     const body =
         new THREE.Mesh(
 
@@ -2214,8 +2184,6 @@ function createDetailedCar(
     );
 
 
-    /* LOWER BODY */
-
     const lower =
         new THREE.Mesh(
 
@@ -2238,8 +2206,6 @@ function createDetailedCar(
         lower
     );
 
-
-    /* HOOD */
 
     const hood =
         new THREE.Mesh(
@@ -2267,8 +2233,6 @@ function createDetailedCar(
     );
 
 
-    /* CABIN */
-
     const cabin =
         new THREE.Mesh(
 
@@ -2294,8 +2258,6 @@ function createDetailedCar(
         cabin
     );
 
-
-    /* WINDSHIELD */
 
     const windshield =
         new THREE.Mesh(
@@ -2327,8 +2289,6 @@ function createDetailedCar(
     );
 
 
-    /* REAR GLASS */
-
     const rearGlass =
         new THREE.Mesh(
 
@@ -2358,8 +2318,6 @@ function createDetailedCar(
         rearGlass
     );
 
-
-    /* MIRRORS */
 
     [-1, 1].forEach(
         side => {
@@ -2391,8 +2349,6 @@ function createDetailedCar(
         }
     );
 
-
-    /* WHEELS */
 
     const wheelGeometry =
         new THREE.CylinderGeometry(
@@ -2499,8 +2455,6 @@ function createDetailedCar(
     );
 
 
-    /* HEADLIGHTS */
-
     const headlightMaterial =
         new THREE.MeshStandardMaterial({
 
@@ -2511,10 +2465,7 @@ function createDetailedCar(
                 0xbfe2ff,
 
             emissiveIntensity:
-                8,
-
-            roughness:
-                0.1
+                8
 
         });
 
@@ -2554,13 +2505,9 @@ function createDetailedCar(
 
                 const light =
                     new THREE.PointLight(
-
                         0xdceeff,
-
                         2.2,
-
                         22
-
                     );
 
 
@@ -2578,8 +2525,6 @@ function createDetailedCar(
         }
     );
 
-
-    /* BRAKE LIGHTS */
 
     const brakeMaterial =
         new THREE.MeshStandardMaterial({
@@ -2627,8 +2572,6 @@ function createDetailedCar(
     );
 
 
-    /* SPOILER */
-
     if (
         playerCar
     ) {
@@ -2656,37 +2599,6 @@ function createDetailedCar(
 
         car.add(
             spoiler
-        );
-
-
-        [-0.65, 0.65].forEach(
-            x => {
-
-                const support =
-                    new THREE.Mesh(
-
-                        new THREE.BoxGeometry(
-                            0.08,
-                            0.4,
-                            0.08
-                        ),
-
-                        chromeMaterial
-
-                    );
-
-
-                support.position.set(
-                    x,
-                    1.48,
-                    1.72
-                );
-
-
-                car.add(
-                    support
-                );
-            }
         );
     }
 
@@ -2775,14 +2687,10 @@ function spawnTrafficCar(
             ];
 
 
-        const model =
+        car.add(
             template.clone(
                 true
-            );
-
-
-        car.add(
-            model
+            )
         );
 
 
@@ -2805,7 +2713,8 @@ function spawnTrafficCar(
         ];
 
 
-        const fallback =
+        car.add(
+
             createDetailedCar(
 
                 colors[
@@ -2817,11 +2726,8 @@ function spawnTrafficCar(
 
                 false
 
-            );
+            )
 
-
-        car.add(
-            fallback
         );
     }
 
@@ -2843,8 +2749,7 @@ function spawnTrafficCar(
 
     car.userData.speed =
         20 +
-        Math.random() *
-        30;
+        Math.random() * 30;
 
 
     trafficGroup.add(
@@ -2860,6 +2765,19 @@ function spawnTrafficCar(
 function createCoins() {
 
     coinGroup.clear();
+
+
+    const lanes = [
+
+        -5.25,
+
+        -1.75,
+
+        1.75,
+
+        5.25
+
+    ];
 
 
     for (
@@ -2902,19 +2820,6 @@ function createCoins() {
             );
 
 
-        const lanes = [
-
-            -5.25,
-
-            -1.75,
-
-            1.75,
-
-            5.25
-
-        ];
-
-
         coin.position.set(
 
             lanes[
@@ -2955,8 +2860,10 @@ function getCollisionBox(
     const halfWidth =
         dimensions.width / 2;
 
+
     const halfHeight =
         dimensions.height / 2;
+
 
     const halfLength =
         dimensions.length / 2;
@@ -2996,21 +2903,32 @@ function getCollisionBox(
         );
 
 
-    const t =
+    const tolerance =
         CONFIG.collisionTolerance;
 
 
-    box.min.x -= t;
+    box.min.x -=
+        tolerance;
 
-    box.min.y -= t;
 
-    box.min.z -= t;
+    box.min.y -=
+        tolerance;
 
-    box.max.x += t;
 
-    box.max.y += t;
+    box.min.z -=
+        tolerance;
 
-    box.max.z += t;
+
+    box.max.x +=
+        tolerance;
+
+
+    box.max.y +=
+        tolerance;
+
+
+    box.max.z +=
+        tolerance;
 
 
     return box;
@@ -3018,7 +2936,7 @@ function getCollisionBox(
 
 
 /* =========================================================
-   COLLISION
+   CAR COLLISION
 ========================================================= */
 
 function carsCollide(
@@ -3088,8 +3006,10 @@ function startGame() {
     gameRunning =
         true;
 
+
     paused =
         false;
+
 
     gameOver =
         false;
@@ -3106,7 +3026,7 @@ function startGame() {
 
 
 /* =========================================================
-   RESET GAME
+   RESET
 ========================================================= */
 
 function resetGame() {
@@ -3119,14 +3039,9 @@ function resetGame() {
         0;
 
 
-    /*
-        IMPORTANT:
-
-        Reset new steering system.
-    */
-
     steeringInput =
         0;
+
 
     steeringTarget =
         0;
@@ -3150,6 +3065,9 @@ function resetGame() {
     clearInputs();
 
 
+    clearTouchState();
+
+
     trafficGroup.clear();
 
     createTraffic();
@@ -3168,6 +3086,10 @@ function resetGame() {
    GAME LOOP
 ========================================================= */
 
+let lastTime =
+    performance.now();
+
+
 function gameLoop(
     timestamp
 ) {
@@ -3175,6 +3097,7 @@ function gameLoop(
     if (
         !gameRunning
     ) {
+
         return;
     }
 
@@ -3183,6 +3106,7 @@ function gameLoop(
         paused ||
         gameOver
     ) {
+
         return;
     }
 
@@ -3242,6 +3166,14 @@ function updateGame(
     updateTraffic(
         delta
     );
+
+
+    if (
+        gameOver
+    ) {
+
+        return;
+    }
 
 
     updateCoins(
@@ -3320,7 +3252,7 @@ function updateSpeed(
 
 
 /* =========================================================
-   NEW SMOOTH SIDEWAYS MOVEMENT
+   PLAYER MOVEMENT
 ========================================================= */
 
 function updatePlayer(
@@ -3328,14 +3260,10 @@ function updatePlayer(
 ) {
 
     /*
-        ==============================================
-        STEP 1
-        ==============================================
-
-        Read left/right buttons.
+        Keyboard steering.
     */
 
-    let input =
+    let keyboardInput =
         0;
 
 
@@ -3343,7 +3271,8 @@ function updatePlayer(
         keys.left
     ) {
 
-        input -= 1;
+        keyboardInput -=
+            1;
     }
 
 
@@ -3351,75 +3280,69 @@ function updatePlayer(
         keys.right
     ) {
 
-        input += 1;
+        keyboardInput +=
+            1;
     }
 
 
     /*
-        ==============================================
-        STEP 2
-        ==============================================
+        Touch steering.
 
-        Smoothly move steering input.
-
-        This is NOT sideways velocity.
-
-        It is only the steering amount.
+        If a finger is actively dragging,
+        touch steering has priority.
     */
 
+    let finalInput =
+        keyboardInput;
+
+
     if (
-        input !== 0
+        steeringTouchId !== null
     ) {
 
-        steeringTarget =
-            input;
-
-
-        steeringInput =
-            THREE.MathUtils.damp(
-
-                steeringInput,
-
-                steeringTarget,
-
-                CONFIG.steeringResponse,
-
-                delta
-
-            );
-
-    } else {
-
-        steeringTarget =
-            0;
-
-
-        steeringInput =
-            THREE.MathUtils.damp(
-
-                steeringInput,
-
-                0,
-
-                CONFIG.steeringReturn,
-
-                delta
-
-            );
+        finalInput =
+            getTouchSteeringValue();
     }
 
 
     /*
-        ==============================================
-        STEP 3
-        ==============================================
+        Smooth steering response.
+    */
 
-        Calculate sideways movement.
+    steeringTarget =
+        THREE.MathUtils.clamp(
+            finalInput,
+            -1,
+            1
+        );
 
-        No accumulated velocity.
 
-        This makes the car feel controlled
-        rather than like it is drifting.
+    const response =
+        steeringTarget === 0
+            ? CONFIG.steeringReturn
+            : CONFIG.steeringResponse;
+
+
+    steeringInput =
+        THREE.MathUtils.damp(
+
+            steeringInput,
+
+            steeringTarget,
+
+            response,
+
+            delta
+
+        );
+
+
+    /*
+        Direct lateral movement.
+
+        NO sideways velocity.
+
+        This prevents sliding.
     */
 
     const speedRatio =
@@ -3430,12 +3353,12 @@ function updatePlayer(
 
             0.35,
 
-            1.0
+            1
 
         );
 
 
-    const sidewaysMovement =
+    const movement =
 
         steeringInput *
 
@@ -3447,15 +3370,11 @@ function updatePlayer(
 
 
     player.position.x +=
-        sidewaysMovement;
+        movement;
 
 
     /*
-        ==============================================
-        STEP 4
-        ==============================================
-
-        Road boundaries.
+        Hard road limit.
     */
 
     player.position.x =
@@ -3471,13 +3390,7 @@ function updatePlayer(
 
 
     /*
-        ==============================================
-        STEP 5
-        ==============================================
-
-        Smooth visual steering.
-
-        The car leans slightly into the turn.
+        Smooth visual body movement.
     */
 
     const targetRoll =
@@ -3520,6 +3433,66 @@ function updatePlayer(
 
 
 /* =========================================================
+   TOUCH STEERING VALUE
+========================================================= */
+
+function getTouchSteeringValue() {
+
+    if (
+        steeringTouchId === null
+    ) {
+
+        return 0;
+    }
+
+
+    const distance =
+        steeringTouchCurrentX -
+        steeringTouchStartX;
+
+
+    const absoluteDistance =
+        Math.abs(
+            distance
+        );
+
+
+    if (
+        absoluteDistance <
+        TOUCH_DEAD_ZONE
+    ) {
+
+        return 0;
+    }
+
+
+    const normalized =
+        THREE.MathUtils.clamp(
+
+            distance /
+            TOUCH_FULL_STEER_DISTANCE,
+
+            -1,
+
+            1
+
+        );
+
+
+    return THREE.MathUtils.clamp(
+
+        normalized *
+        TOUCH_STEERING_STRENGTH,
+
+        -1,
+
+        1
+
+    );
+}
+
+
+/* =========================================================
    TRAFFIC UPDATE
 ========================================================= */
 
@@ -3527,34 +3500,39 @@ function updateTraffic(
     delta
 ) {
 
-    trafficGroup.children.forEach(
-        car => {
+    for (
+        const car of
+        trafficGroup.children
+    ) {
 
-            car.position.z +=
+        car.position.z +=
 
-                (
-                    speed -
-                    car.userData.speed
-                ) *
+            (
+                speed -
+                car.userData.speed
+            ) *
 
-                delta;
+            delta;
 
 
-            /*
-                HARD COLLISION
-            */
+        /*
+            STRICT COLLISION.
 
-            if (
-                carsCollide(
-                    player,
-                    car
-                )
-            ) {
+            Even slight contact is game over.
+        */
 
-                crash();
-            }
+        if (
+            carsCollide(
+                player,
+                car
+            )
+        ) {
+
+            crash();
+
+            return;
         }
-    );
+    }
 
 
     for (
@@ -3601,83 +3579,84 @@ function updateCoins(
     delta
 ) {
 
-    coinGroup.children.forEach(
-        coin => {
+    for (
+        const coin of
+        coinGroup.children
+    ) {
 
-            coin.position.z +=
-                speed *
-                delta;
-
-
-            coin.rotation.y +=
-                delta * 5;
+        coin.position.z +=
+            speed *
+            delta;
 
 
-            coin.rotation.z +=
-                delta * 2;
+        coin.rotation.y +=
+            delta * 5;
 
 
-            const dx =
-                Math.abs(
+        coin.rotation.z +=
+            delta * 2;
 
-                    coin.position.x -
-                    player.position.x
 
+        const dx =
+            Math.abs(
+
+                coin.position.x -
+                player.position.x
+
+            );
+
+
+        const dz =
+            Math.abs(
+
+                coin.position.z -
+                player.position.z
+
+            );
+
+
+        if (
+            dx < 1.3 &&
+            dz < 2
+        ) {
+
+            score +=
+                250;
+
+
+            coin.position.z =
+                -400 -
+                Math.random() *
+                100;
+
+
+            coin.position.x =
+
+                CONFIG.roadLimit *
+
+                (
+                    Math.random() * 2 -
+                    1
                 );
-
-
-            const dz =
-                Math.abs(
-
-                    coin.position.z -
-                    player.position.z
-
-                );
-
-
-            if (
-                dx < 1.3 &&
-                dz < 2
-            ) {
-
-                score +=
-                    250;
-
-
-                coin.position.z =
-                    -400 -
-                    Math.random() *
-                    100;
-
-
-                coin.position.x =
-
-                    CONFIG.roadLimit *
-
-                    (
-                        Math.random() * 2 -
-                        1
-                    );
-            }
-
-
-            if (
-                coin.position.z >
-                25
-            ) {
-
-                coin.position.z =
-                    -400 -
-                    Math.random() *
-                    100;
-            }
         }
-    );
+
+
+        if (
+            coin.position.z >
+            25
+        ) {
+
+            coin.position.z =
+                -400 -
+                Math.random() *
+                100;
+        }
+    }
 }
 
 
 /* =========================================================
-   ROAD UPDATE
+   ROAD MOVEMENT
 ========================================================= */
 
 function updateRoad(
@@ -3706,6 +3685,7 @@ function updateRoad(
 
                         CONFIG.segmentCount *
                         CONFIG.segmentLength;
+
                 }
             }
         }
@@ -3714,7 +3694,7 @@ function updateRoad(
 
 
 /* =========================================================
-   ENVIRONMENT UPDATE
+   ENVIRONMENT MOVEMENT
 ========================================================= */
 
 function updateEnvironment(
@@ -3771,14 +3751,6 @@ function updateCamera(
         );
 
 
-    /*
-        Camera follows player sideways
-        very gently.
-
-        It does NOT snap directly to
-        the car.
-    */
-
     const desiredCameraX =
         player.position.x *
         0.28;
@@ -3803,7 +3775,7 @@ function updateCamera(
         player.position.x *
         0.35,
 
-        1.0,
+        1,
 
         -16
 
@@ -3820,6 +3792,7 @@ function crash() {
     if (
         gameOver
     ) {
+
         return;
     }
 
@@ -3830,6 +3803,12 @@ function crash() {
 
     gameRunning =
         false;
+
+
+    clearInputs();
+
+
+    clearTouchState();
 
 
     const finalScore =
@@ -3918,6 +3897,7 @@ function togglePause() {
         !gameRunning ||
         gameOver
     ) {
+
         return;
     }
 
@@ -3953,6 +3933,9 @@ function togglePause() {
         clearInputs();
 
 
+        clearTouchState();
+
+
         pauseScreen.classList.remove(
             "hidden"
         );
@@ -3984,14 +3967,19 @@ function exitGame() {
     gameRunning =
         false;
 
+
     paused =
         false;
+
 
     gameOver =
         false;
 
 
     clearInputs();
+
+
+    clearTouchState();
 
 
     pauseScreen.classList.add(
@@ -4073,8 +4061,6 @@ function setupKeyboard() {
 
             /*
                 ESC ONLY PAUSES.
-
-                SPACE DOES NOT PAUSE.
             */
 
             if (
@@ -4095,8 +4081,11 @@ function setupKeyboard() {
             */
 
             if (
-                event.code === "KeyA" ||
-                event.code === "ArrowLeft"
+                event.code ===
+                "KeyA" ||
+
+                event.code ===
+                "ArrowLeft"
             ) {
 
                 event.preventDefault();
@@ -4111,8 +4100,11 @@ function setupKeyboard() {
             */
 
             if (
-                event.code === "KeyD" ||
-                event.code === "ArrowRight"
+                event.code ===
+                "KeyD" ||
+
+                event.code ===
+                "ArrowRight"
             ) {
 
                 event.preventDefault();
@@ -4127,8 +4119,11 @@ function setupKeyboard() {
             */
 
             if (
-                event.code === "KeyW" ||
-                event.code === "ArrowUp"
+                event.code ===
+                "KeyW" ||
+
+                event.code ===
+                "ArrowUp"
             ) {
 
                 event.preventDefault();
@@ -4143,8 +4138,11 @@ function setupKeyboard() {
             */
 
             if (
-                event.code === "KeyS" ||
-                event.code === "ArrowDown"
+                event.code ===
+                "KeyS" ||
+
+                event.code ===
+                "ArrowDown"
             ) {
 
                 event.preventDefault();
@@ -4161,8 +4159,11 @@ function setupKeyboard() {
         event => {
 
             if (
-                event.code === "KeyA" ||
-                event.code === "ArrowLeft"
+                event.code ===
+                "KeyA" ||
+
+                event.code ===
+                "ArrowLeft"
             ) {
 
                 keys.left =
@@ -4171,8 +4172,11 @@ function setupKeyboard() {
 
 
             if (
-                event.code === "KeyD" ||
-                event.code === "ArrowRight"
+                event.code ===
+                "KeyD" ||
+
+                event.code ===
+                "ArrowRight"
             ) {
 
                 keys.right =
@@ -4181,8 +4185,11 @@ function setupKeyboard() {
 
 
             if (
-                event.code === "KeyW" ||
-                event.code === "ArrowUp"
+                event.code ===
+                "KeyW" ||
+
+                event.code ===
+                "ArrowUp"
             ) {
 
                 keys.accelerate =
@@ -4191,8 +4198,11 @@ function setupKeyboard() {
 
 
             if (
-                event.code === "KeyS" ||
-                event.code === "ArrowDown"
+                event.code ===
+                "KeyS" ||
+
+                event.code ===
+                "ArrowDown"
             ) {
 
                 keys.brake =
@@ -4217,6 +4227,8 @@ function setupKeyboard() {
             ) {
 
                 clearInputs();
+
+                clearTouchState();
             }
         }
     );
@@ -4224,7 +4236,265 @@ function setupKeyboard() {
 
 
 /* =========================================================
-   CLEAR INPUTS
+   TOUCH BUTTON HELPER
+========================================================= */
+
+function setupHoldButton(
+    element,
+    keyName
+) {
+
+    if (
+        !element
+    ) {
+
+        return;
+    }
+
+
+    element.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            element.setPointerCapture(
+                event.pointerId
+            );
+
+
+            touchPointers.set(
+
+                event.pointerId,
+
+                {
+
+                    type:
+                        keyName
+
+                }
+
+            );
+
+
+            keys[keyName] =
+                true;
+        }
+    );
+
+
+    const release =
+        event => {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            keys[keyName] =
+                false;
+
+
+            touchPointers.delete(
+                event.pointerId
+            );
+        };
+
+
+    element.addEventListener(
+        "pointerup",
+        release
+    );
+
+
+    element.addEventListener(
+        "pointercancel",
+        release
+    );
+
+
+    element.addEventListener(
+        "lostpointercapture",
+        release
+    );
+}
+
+
+/* =========================================================
+   TOUCH STEERING AREA
+========================================================= */
+
+function setupTouchSteering() {
+
+    if (
+        !touchSteeringArea
+    ) {
+
+        return;
+    }
+
+
+    touchSteeringArea.addEventListener(
+
+        "pointerdown",
+
+        event => {
+
+            event.preventDefault();
+
+
+            /*
+                Only use the first finger
+                specifically for steering.
+
+                Other fingers can still use
+                BOOST/BRAKE.
+            */
+
+            if (
+                steeringTouchId !== null
+            ) {
+
+                return;
+            }
+
+
+            steeringTouchId =
+                event.pointerId;
+
+
+            steeringTouchStartX =
+                event.clientX;
+
+
+            steeringTouchCurrentX =
+                event.clientX;
+
+
+            touchSteeringArea.setPointerCapture(
+                event.pointerId
+            );
+
+
+            touchPointers.set(
+
+                event.pointerId,
+
+                {
+
+                    type:
+                        "steering"
+
+                }
+
+            );
+        }
+    );
+
+
+    touchSteeringArea.addEventListener(
+
+        "pointermove",
+
+        event => {
+
+            if (
+                event.pointerId !==
+                steeringTouchId
+            ) {
+
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            steeringTouchCurrentX =
+                event.clientX;
+        }
+    );
+
+
+    const release =
+        event => {
+
+            if (
+                event.pointerId !==
+                steeringTouchId
+            ) {
+
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            steeringTouchId =
+                null;
+
+
+            steeringTouchStartX =
+                0;
+
+
+            steeringTouchCurrentX =
+                0;
+
+
+            touchPointers.delete(
+                event.pointerId
+            );
+        };
+
+
+    touchSteeringArea.addEventListener(
+        "pointerup",
+        release
+    );
+
+
+    touchSteeringArea.addEventListener(
+        "pointercancel",
+        release
+    );
+
+
+    touchSteeringArea.addEventListener(
+        "lostpointercapture",
+        release
+    );
+}
+
+
+/* =========================================================
+   CLEAR TOUCH
+========================================================= */
+
+function clearTouchState() {
+
+    steeringTouchId =
+        null;
+
+
+    steeringTouchStartX =
+        0;
+
+
+    steeringTouchCurrentX =
+        0;
+
+
+    touchPointers.clear();
+}
+
+
+/* =========================================================
+   CLEAR INPUT
 ========================================================= */
 
 function clearInputs() {
@@ -4232,11 +4502,14 @@ function clearInputs() {
     keys.left =
         false;
 
+
     keys.right =
         false;
 
+
     keys.accelerate =
         false;
+
 
     keys.brake =
         false;
@@ -4244,242 +4517,6 @@ function clearInputs() {
 
     steeringTarget =
         0;
-}
-
-
-/* =========================================================
-   TOUCH CONTROLS
-========================================================= */
-
-function setupTouchControls() {
-
-    const left =
-        document.getElementById(
-            "left"
-        );
-
-    const right =
-        document.getElementById(
-            "right"
-        );
-
-    const brake =
-        document.getElementById(
-            "brake"
-        );
-
-    const boost =
-        document.getElementById(
-            "boost"
-        );
-
-
-    /* ==============================================
-       LEFT
-    ============================================== */
-
-    left.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
-            left.setPointerCapture(
-                event.pointerId
-            );
-
-            keys.left =
-                true;
-        }
-    );
-
-
-    left.addEventListener(
-        "pointerup",
-        event => {
-
-            event.preventDefault();
-
-            keys.left =
-                false;
-        }
-    );
-
-
-    left.addEventListener(
-        "pointercancel",
-        () => {
-
-            keys.left =
-                false;
-        }
-    );
-
-
-    left.addEventListener(
-        "lostpointercapture",
-        () => {
-
-            keys.left =
-                false;
-        }
-    );
-
-
-    /* ==============================================
-       RIGHT
-    ============================================== */
-
-    right.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
-            right.setPointerCapture(
-                event.pointerId
-            );
-
-            keys.right =
-                true;
-        }
-    );
-
-
-    right.addEventListener(
-        "pointerup",
-        event => {
-
-            event.preventDefault();
-
-            keys.right =
-                false;
-        }
-    );
-
-
-    right.addEventListener(
-        "pointercancel",
-        () => {
-
-            keys.right =
-                false;
-        }
-    );
-
-
-    right.addEventListener(
-        "lostpointercapture",
-        () => {
-
-            keys.right =
-                false;
-        }
-    );
-
-
-    /* ==============================================
-       ACCELERATE
-    ============================================== */
-
-    boost.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
-            boost.setPointerCapture(
-                event.pointerId
-            );
-
-            keys.accelerate =
-                true;
-        }
-    );
-
-
-    boost.addEventListener(
-        "pointerup",
-        event => {
-
-            event.preventDefault();
-
-            keys.accelerate =
-                false;
-        }
-    );
-
-
-    boost.addEventListener(
-        "pointercancel",
-        () => {
-
-            keys.accelerate =
-                false;
-        }
-    );
-
-
-    boost.addEventListener(
-        "lostpointercapture",
-        () => {
-
-            keys.accelerate =
-                false;
-        }
-    );
-
-
-    /* ==============================================
-       BRAKE
-    ============================================== */
-
-    brake.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
-            brake.setPointerCapture(
-                event.pointerId
-            );
-
-            keys.brake =
-                true;
-        }
-    );
-
-
-    brake.addEventListener(
-        "pointerup",
-        event => {
-
-            event.preventDefault();
-
-            keys.brake =
-                false;
-        }
-    );
-
-
-    brake.addEventListener(
-        "pointercancel",
-        () => {
-
-            keys.brake =
-                false;
-        }
-    );
-
-
-    brake.addEventListener(
-        "lostpointercapture",
-        () => {
-
-            keys.brake =
-                false;
-        }
-    );
 }
 
 
@@ -4566,10 +4603,6 @@ function setupButtons() {
     );
 
 
-    /* ==============================================
-       HOW TO PLAY
-    ============================================== */
-
     document.getElementById(
         "howto"
     ).addEventListener(
@@ -4595,10 +4628,6 @@ function setupButtons() {
         }
     );
 
-
-    /* ==============================================
-       SETTINGS
-    ============================================== */
 
     document.getElementById(
         "settings"
@@ -4641,6 +4670,72 @@ function setupButtons() {
 
 
 /* =========================================================
+   TOUCH EVENTS
+========================================================= */
+
+function setupTouchControls() {
+
+    /*
+        LEFT button
+    */
+
+    setupHoldButton(
+        document.getElementById(
+            "left"
+        ),
+        "left"
+    );
+
+
+    /*
+        RIGHT button
+    */
+
+    setupHoldButton(
+        document.getElementById(
+            "right"
+        ),
+        "right"
+    );
+
+
+    /*
+        BOOST
+
+        Can be used at the same time as steering.
+    */
+
+    setupHoldButton(
+        document.getElementById(
+            "boost"
+        ),
+        "accelerate"
+    );
+
+
+    /*
+        BRAKE
+
+        Can also be used while steering.
+    */
+
+    setupHoldButton(
+        document.getElementById(
+            "brake"
+        ),
+        "brake"
+    );
+
+
+    /*
+        Large touch-and-drag steering area.
+    */
+
+    setupTouchSteering();
+}
+
+
+/* =========================================================
    RESIZE
 ========================================================= */
 
@@ -4663,7 +4758,8 @@ function onResize() {
     );
 
 
-    const pixelRatio =
+    renderer.setPixelRatio(
+
         isMobile
 
             ? CONFIG.mobilePixelRatio
@@ -4671,11 +4767,8 @@ function onResize() {
             : Math.min(
                 window.devicePixelRatio,
                 CONFIG.desktopPixelRatio
-            );
+            )
 
-
-    renderer.setPixelRatio(
-        pixelRatio
     );
 }
 
@@ -4694,7 +4787,9 @@ function setupEvents() {
 
     setupKeyboard();
 
+
     setupTouchControls();
+
 
     setupButtons();
 }
