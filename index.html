@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
+
 <head>
+
     <meta charset="utf-8">
 
     <meta
@@ -8,15 +10,21 @@
         content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
     >
 
+    <meta
+        name="theme-color"
+        content="#02050b"
+    >
+
     <title>Neon Highway 3D</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <!-- =====================================================
-     RACING HUD
+     IN-GAME HUD
 ===================================================== -->
 
 <div id="hud">
@@ -73,47 +81,90 @@
             PUSH THE LIMIT
         </p>
 
+
         <div class="menu-buttons">
 
-            <button id="start" class="game-button primary">
+            <button
+                id="start"
+                class="game-button primary"
+                type="button"
+            >
                 <span>▶</span>
                 START RACE
             </button>
 
-            <button id="howto" class="game-button secondary">
+
+            <button
+                id="howto"
+                class="game-button secondary"
+                type="button"
+            >
                 <span>🎮</span>
                 HOW TO PLAY
             </button>
 
-            <button id="settings" class="game-button secondary">
+
+            <button
+                id="settings"
+                class="game-button secondary"
+                type="button"
+            >
                 <span>⚙</span>
                 SETTINGS
             </button>
 
         </div>
 
+
         <div class="menu-info">
 
             <div>
-                <small>BEST SCORE</small>
-                <b id="menuBest">0</b>
+
+                <small>
+                    BEST SCORE
+                </small>
+
+                <b id="menuBest">
+                    0
+                </b>
+
             </div>
 
-            <div>
-                <small>MODE</small>
-                <b>ENDLESS</b>
-            </div>
 
             <div>
-                <small>VERSION</small>
-                <b>1.0</b>
+
+                <small>
+                    MODE
+                </small>
+
+                <b>
+                    ENDLESS
+                </b>
+
+            </div>
+
+
+            <div>
+
+                <small>
+                    VERSION
+                </small>
+
+                <b>
+                    1.0
+                </b>
+
             </div>
 
         </div>
 
+
         <div class="online-status">
+
             <i></i>
+
             SYSTEM ONLINE
+
         </div>
 
     </div>
@@ -125,59 +176,125 @@
      HOW TO PLAY
 ===================================================== -->
 
-<div id="howtoScreen" class="screen hidden">
+<div
+    id="howtoScreen"
+    class="screen hidden"
+>
 
     <div class="popup-card">
 
-        <button class="close-button" id="closeHowto">
+        <button
+            class="close-button"
+            id="closeHowto"
+            type="button"
+            aria-label="Close"
+        >
             ×
         </button>
+
 
         <div class="popup-icon">
             🎮
         </div>
 
-        <h2>HOW TO PLAY</h2>
+
+        <div class="game-label">
+            DRIVER TRAINING
+        </div>
+
+
+        <h2>
+            HOW TO PLAY
+        </h2>
+
 
         <div class="controls-list">
 
-            <div class="control-row">
-                <kbd>A</kbd>
-                <kbd>←</kbd>
-                <span>STEER LEFT</span>
-            </div>
 
             <div class="control-row">
-                <kbd>D</kbd>
-                <kbd>→</kbd>
-                <span>STEER RIGHT</span>
+
+                <div class="keys">
+                    <kbd>A</kbd>
+                    <kbd>←</kbd>
+                </div>
+
+                <span>
+                    STEER LEFT
+                </span>
+
             </div>
 
-            <div class="control-row">
-                <kbd>W</kbd>
-                <kbd>↑</kbd>
-                <span>ACCELERATE</span>
-            </div>
 
             <div class="control-row">
-                <kbd>S</kbd>
-                <kbd>↓</kbd>
-                <span>BRAKE</span>
+
+                <div class="keys">
+                    <kbd>D</kbd>
+                    <kbd>→</kbd>
+                </div>
+
+                <span>
+                    STEER RIGHT
+                </span>
+
             </div>
 
+
             <div class="control-row">
-                <kbd>ESC</kbd>
-                <span>PAUSE GAME</span>
+
+                <div class="keys">
+                    <kbd>W</kbd>
+                    <kbd>↑</kbd>
+                </div>
+
+                <span>
+                    ACCELERATE
+                </span>
+
+            </div>
+
+
+            <div class="control-row">
+
+                <div class="keys">
+                    <kbd>S</kbd>
+                    <kbd>↓</kbd>
+                </div>
+
+                <span>
+                    BRAKE
+                </span>
+
+            </div>
+
+
+            <div class="control-row">
+
+                <div class="keys">
+                    <kbd>ESC</kbd>
+                </div>
+
+                <span>
+                    PAUSE GAME
+                </span>
+
             </div>
 
         </div>
 
+
         <p class="help-text">
-            Collect coins, avoid traffic and survive as long
-            as possible to beat your high score.
+
+            Collect coins, avoid traffic and survive
+            as long as possible to beat your high score.
+
         </p>
 
-        <button id="closeHowto2" class="game-button primary">
+
+        <button
+            id="closeHowto2"
+            class="game-button primary"
+            type="button"
+        >
             GOT IT
         </button>
 
@@ -190,36 +307,95 @@
      SETTINGS
 ===================================================== -->
 
-<div id="settingsScreen" class="screen hidden">
+<div
+    id="settingsScreen"
+    class="screen hidden"
+>
 
     <div class="popup-card">
 
-        <button class="close-button" id="closeSettings">
+        <button
+            class="close-button"
+            id="closeSettings"
+            type="button"
+            aria-label="Close"
+        >
             ×
         </button>
+
 
         <div class="popup-icon">
             ⚙
         </div>
 
-        <h2>SETTINGS</h2>
 
-        <div class="setting-row">
-            <span>GRAPHICS</span>
-            <b>HIGH</b>
+        <div class="game-label">
+            SYSTEM CONFIGURATION
         </div>
 
-        <div class="setting-row">
-            <span>GAME MODE</span>
-            <b>ENDLESS</b>
-        </div>
+
+        <h2>
+            SETTINGS
+        </h2>
+
 
         <div class="setting-row">
-            <span>CONTROLS</span>
-            <b>KEYBOARD</b>
+
+            <span>
+                GRAPHICS
+            </span>
+
+            <b>
+                HIGH
+            </b>
+
         </div>
 
-        <button id="closeSettings2" class="game-button primary">
+
+        <div class="setting-row">
+
+            <span>
+                GAME MODE
+            </span>
+
+            <b>
+                ENDLESS
+            </b>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <span>
+                CONTROLS
+            </span>
+
+            <b>
+                KEYBOARD
+            </b>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <span>
+                THREE.JS
+            </span>
+
+            <b>
+                ENABLED
+            </b>
+
+        </div>
+
+
+        <button
+            id="closeSettings2"
+            class="game-button primary"
+            type="button"
+        >
             DONE
         </button>
 
@@ -232,7 +408,10 @@
      PAUSE MENU
 ===================================================== -->
 
-<div id="pause" class="screen hidden">
+<div
+    id="pause"
+    class="screen hidden"
+>
 
     <div class="pause-card">
 
@@ -240,35 +419,66 @@
             II
         </div>
 
+
         <div class="pause-label">
             RACE STATUS
         </div>
 
-        <h2>GAME PAUSED</h2>
+
+        <h2>
+            GAME PAUSED
+        </h2>
+
 
         <p>
             Your race is waiting.
         </p>
 
+
         <div class="pause-buttons">
 
-            <button id="resume" class="game-button primary">
-                ▶ PLAY
+
+            <button
+                id="resume"
+                class="game-button primary"
+                type="button"
+            >
+                <span>▶</span>
+                PLAY
             </button>
 
-            <button id="restart" class="game-button secondary">
-                ↻ RESTART RACE
+
+            <button
+                id="restart"
+                class="game-button secondary"
+                type="button"
+            >
+                <span>↻</span>
+                RESTART RACE
             </button>
 
-            <button id="pauseSettings" class="game-button secondary">
-                ⚙ SETTINGS
+
+            <button
+                id="pauseSettings"
+                class="game-button secondary"
+                type="button"
+            >
+                <span>⚙</span>
+                SETTINGS
             </button>
 
-            <button id="exit" class="game-button danger">
-                ✕ EXIT GAME
+
+            <button
+                id="exit"
+                class="game-button danger"
+                type="button"
+            >
+                <span>✕</span>
+                EXIT GAME
             </button>
 
         </div>
+
 
         <small>
             PRESS ESC TO RESUME
@@ -283,7 +493,10 @@
      GAME OVER
 ===================================================== -->
 
-<div id="over" class="screen hidden">
+<div
+    id="over"
+    class="screen hidden"
+>
 
     <div class="gameover-card">
 
@@ -291,32 +504,66 @@
             💥
         </div>
 
+
         <div class="game-label">
             RACE FINISHED
         </div>
 
-        <h2>GAME OVER</h2>
+
+        <h2>
+            GAME OVER
+        </h2>
+
 
         <div class="score-panel">
 
-            <div>
-                <small>SCORE</small>
-                <strong id="finalScore">0</strong>
-            </div>
 
             <div>
-                <small>BEST</small>
-                <strong id="finalBest">0</strong>
+
+                <small>
+                    SCORE
+                </small>
+
+                <strong id="finalScore">
+                    0
+                </strong>
+
             </div>
+
+
+            <div>
+
+                <small>
+                    BEST
+                </small>
+
+                <strong id="finalBest">
+                    0
+                </strong>
+
+            </div>
+
 
         </div>
 
-        <button id="again" class="game-button primary">
-            ↻ RACE AGAIN
+
+        <button
+            id="again"
+            class="game-button primary"
+            type="button"
+        >
+            <span>↻</span>
+            RACE AGAIN
         </button>
 
-        <button id="mainMenu" class="game-button secondary">
-            ⌂ MAIN MENU
+
+        <button
+            id="mainMenu"
+            class="game-button secondary"
+            type="button"
+        >
+            <span>⌂</span>
+            MAIN MENU
         </button>
 
     </div>
@@ -330,39 +577,72 @@
 
 <div id="touch">
 
-    <button id="left" aria-label="Steer left">
+
+    <button
+        id="left"
+        type="button"
+        aria-label="Steer left"
+    >
         ◀
     </button>
 
-    <button id="brake" aria-label="Brake">
+
+    <button
+        id="brake"
+        type="button"
+        aria-label="Brake"
+    >
         ▼
     </button>
 
-    <button id="right" aria-label="Steer right">
+
+    <button
+        id="right"
+        type="button"
+        aria-label="Steer right"
+    >
         ▶
     </button>
 
-    <button id="boost" aria-label="Accelerate">
+
+    <button
+        id="boost"
+        type="button"
+        aria-label="Accelerate"
+    >
         ▲
     </button>
+
 
 </div>
 
 
 <!-- =====================================================
-     THREE.JS
+     THREE.JS IMPORT MAP
 ===================================================== -->
 
 <script type="importmap">
+
 {
     "imports": {
         "three":
         "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
     }
 }
+
 </script>
 
-<script type="module" src="game.js"></script>
+
+<!-- =====================================================
+     GAME JAVASCRIPT
+===================================================== -->
+
+<script
+    type="module"
+    src="game.js"
+></script>
+
 
 </body>
+
 </html>
