@@ -1,648 +1,419 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
 
+    <meta name="theme-color" content="#05070d">
+
     <meta
-        name="theme-color"
-        content="#02050b"
+        name="description"
+        content="Neon Highway 3D - free browser racing game"
     >
 
     <title>Neon Highway 3D</title>
 
     <link rel="stylesheet" href="style.css">
 
+    <!--
+        Three.js and its addons must use the SAME version/CDN.
+    -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 
 <body>
 
-<!-- =====================================================
-     IN-GAME HUD
-===================================================== -->
+<div id="game">
 
-<div id="hud">
+    <!-- 3D canvas goes here -->
+    <div id="canvasContainer"></div>
 
-    <div class="brand">
-        NEON <span>HIGHWAY</span>
-    </div>
+    <!-- =====================================================
+         LOADING SCREEN
+    ====================================================== -->
+    <div id="loadingScreen" class="screen active">
 
-    <div class="stats">
+        <div class="loadingLogo">
+            <div class="logoSmall">NEON</div>
+            <div class="logoLarge">HIGHWAY</div>
+            <div class="logo3d">3D</div>
+        </div>
 
-        <span>
-            SPEED
-            <b id="speed">0</b>
-            KM/H
-        </span>
+        <div class="loadingBar">
+            <div id="loadingProgress"></div>
+        </div>
 
-        <span>
-            SCORE
-            <b id="score">0</b>
-        </span>
-
-        <span>
-            BEST
-            <b id="best">0</b>
-        </span>
+        <div id="loadingText">
+            INITIALIZING ENGINE...
+        </div>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         MAIN MENU
+    ====================================================== -->
+    <div id="menu" class="screen hidden">
 
-<!-- =====================================================
-     MAIN MENU
-===================================================== -->
+        <div class="menuTop">
 
-<div id="menu" class="screen">
+            <div class="brand">
+                <div class="brandSmall">NEON</div>
+                <div class="brandMain">HIGHWAY</div>
+                <div class="brand3D">3D</div>
+            </div>
 
-    <div class="menu-card">
+            <div class="menuTag">
+                REAL STREET RACING
+            </div>
 
-        <div class="game-logo">
-            🏎️
         </div>
 
-        <div class="game-label">
-            3D STREET RACING
-        </div>
 
-        <h1>
-            NEON
-            <strong>HIGHWAY</strong>
-        </h1>
+        <div class="menuCard">
 
-        <p class="tagline">
-            PUSH THE LIMIT
-        </p>
-
-
-        <div class="menu-buttons">
-
-            <button
-                id="start"
-                class="game-button primary"
-                type="button"
-            >
-                <span>▶</span>
-                START RACE
+            <button id="start" class="gameButton primary">
+                <span>START RACE</span>
+                <small>ENTER THE HIGHWAY</small>
             </button>
 
-
-            <button
-                id="howto"
-                class="game-button secondary"
-                type="button"
-            >
-                <span>🎮</span>
+            <button id="howto" class="gameButton secondary">
                 HOW TO PLAY
             </button>
 
-
-            <button
-                id="settings"
-                class="game-button secondary"
-                type="button"
-            >
-                <span>⚙</span>
+            <button id="settings" class="gameButton secondary">
                 SETTINGS
             </button>
 
-        </div>
+            <div class="menuStats">
 
+                <div>
+                    <span>BEST SCORE</span>
+                    <strong id="menuBest">0</strong>
+                </div>
 
-        <div class="menu-info">
+                <div>
+                    <span>MODE</span>
+                    <strong>ENDLESS</strong>
+                </div>
 
-            <div>
-
-                <small>
-                    BEST SCORE
-                </small>
-
-                <b id="menuBest">
-                    0
-                </b>
-
-            </div>
-
-
-            <div>
-
-                <small>
-                    MODE
-                </small>
-
-                <b>
-                    ENDLESS
-                </b>
+                <div>
+                    <span>VERSION</span>
+                    <strong>2.0</strong>
+                </div>
 
             </div>
 
-
-            <div>
-
-                <small>
-                    VERSION
-                </small>
-
-                <b>
-                    1.0
-                </b>
-
+            <div class="systemStatus">
+                <span class="statusDot"></span>
+                <span id="assetStatus">
+                    GRAPHICS SYSTEM READY
+                </span>
             </div>
 
         </div>
 
-
-        <div class="online-status">
-
-            <i></i>
-
-            SYSTEM ONLINE
-
+        <div class="menuFooter">
+            HTML5 • THREE.JS • MOBILE READY • FREE
         </div>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         HUD
+    ====================================================== -->
+    <div id="hud" class="hidden">
 
-<!-- =====================================================
-     HOW TO PLAY
-===================================================== -->
+        <div class="hudTop">
 
-<div
-    id="howtoScreen"
-    class="screen hidden"
->
-
-    <div class="popup-card">
-
-        <button
-            class="close-button"
-            id="closeHowto"
-            type="button"
-            aria-label="Close"
-        >
-            ×
-        </button>
-
-
-        <div class="popup-icon">
-            🎮
-        </div>
-
-
-        <div class="game-label">
-            DRIVER TRAINING
-        </div>
-
-
-        <h2>
-            HOW TO PLAY
-        </h2>
-
-
-        <div class="controls-list">
-
-
-            <div class="control-row">
-
-                <div class="keys">
-                    <kbd>A</kbd>
-                    <kbd>←</kbd>
-                </div>
-
-                <span>
-                    STEER LEFT
-                </span>
-
+            <div class="hudBrand">
+                NEON HIGHWAY
             </div>
 
+            <div class="hudStats">
 
-            <div class="control-row">
-
-                <div class="keys">
-                    <kbd>D</kbd>
-                    <kbd>→</kbd>
+                <div class="hudBox">
+                    <span>SPEED</span>
+                    <strong>
+                        <span id="speed">0</span>
+                        <small>KM/H</small>
+                    </strong>
                 </div>
 
-                <span>
-                    STEER RIGHT
-                </span>
-
-            </div>
-
-
-            <div class="control-row">
-
-                <div class="keys">
-                    <kbd>W</kbd>
-                    <kbd>↑</kbd>
+                <div class="hudBox">
+                    <span>SCORE</span>
+                    <strong id="score">0</strong>
                 </div>
 
-                <span>
-                    ACCELERATE
-                </span>
-
-            </div>
-
-
-            <div class="control-row">
-
-                <div class="keys">
-                    <kbd>S</kbd>
-                    <kbd>↓</kbd>
+                <div class="hudBox">
+                    <span>BEST</span>
+                    <strong id="best">0</strong>
                 </div>
-
-                <span>
-                    BRAKE
-                </span>
-
-            </div>
-
-
-            <div class="control-row">
-
-                <div class="keys">
-                    <kbd>ESC</kbd>
-                </div>
-
-                <span>
-                    PAUSE GAME
-                </span>
 
             </div>
 
         </div>
 
-
-        <p class="help-text">
-
-            Collect coins, avoid traffic and survive
-            as long as possible to beat your high score.
-
-        </p>
-
-
-        <button
-            id="closeHowto2"
-            class="game-button primary"
-            type="button"
-        >
-            GOT IT
-        </button>
+        <div class="dangerFlash" id="dangerFlash"></div>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         PAUSE
+    ====================================================== -->
+    <div id="pause" class="overlay hidden">
 
-<!-- =====================================================
-     SETTINGS
-===================================================== -->
+        <div class="popup pausePopup">
 
-<div
-    id="settingsScreen"
-    class="screen hidden"
->
+            <div class="popupLabel">
+                RACE PAUSED
+            </div>
 
-    <div class="popup-card">
+            <h2>PAUSED</h2>
 
-        <button
-            class="close-button"
-            id="closeSettings"
-            type="button"
-            aria-label="Close"
-        >
-            ×
-        </button>
-
-
-        <div class="popup-icon">
-            ⚙
-        </div>
-
-
-        <div class="game-label">
-            SYSTEM CONFIGURATION
-        </div>
-
-
-        <h2>
-            SETTINGS
-        </h2>
-
-
-        <div class="setting-row">
-
-            <span>
-                GRAPHICS
-            </span>
-
-            <b>
-                HIGH
-            </b>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <span>
-                GAME MODE
-            </span>
-
-            <b>
-                ENDLESS
-            </b>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <span>
-                CONTROLS
-            </span>
-
-            <b>
-                KEYBOARD
-            </b>
-
-        </div>
-
-
-        <div class="setting-row">
-
-            <span>
-                THREE.JS
-            </span>
-
-            <b>
-                ENABLED
-            </b>
-
-        </div>
-
-
-        <button
-            id="closeSettings2"
-            class="game-button primary"
-            type="button"
-        >
-            DONE
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     PAUSE MENU
-===================================================== -->
-
-<div
-    id="pause"
-    class="screen hidden"
->
-
-    <div class="pause-card">
-
-        <div class="pause-symbol">
-            II
-        </div>
-
-
-        <div class="pause-label">
-            RACE STATUS
-        </div>
-
-
-        <h2>
-            GAME PAUSED
-        </h2>
-
-
-        <p>
-            Your race is waiting.
-        </p>
-
-
-        <div class="pause-buttons">
-
-
-            <button
-                id="resume"
-                class="game-button primary"
-                type="button"
-            >
-                <span>▶</span>
+            <button id="resume" class="gameButton primary">
                 PLAY
             </button>
 
-
-            <button
-                id="restart"
-                class="game-button secondary"
-                type="button"
-            >
-                <span>↻</span>
+            <button id="restart" class="gameButton secondary">
                 RESTART RACE
             </button>
 
-
-            <button
-                id="pauseSettings"
-                class="game-button secondary"
-                type="button"
-            >
-                <span>⚙</span>
+            <button id="pauseSettings" class="gameButton secondary">
                 SETTINGS
             </button>
 
-
-            <button
-                id="exit"
-                class="game-button danger"
-                type="button"
-            >
-                <span>✕</span>
+            <button id="exit" class="gameButton danger">
                 EXIT GAME
+            </button>
+
+            <div class="pauseHint">
+                PRESS ESC TO RESUME
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GAME OVER
+    ====================================================== -->
+    <div id="over" class="overlay hidden">
+
+        <div class="popup gameOverPopup">
+
+            <div class="popupLabel dangerText">
+                RACE FINISHED
+            </div>
+
+            <h2>CRASHED</h2>
+
+            <div class="finalStats">
+
+                <div>
+                    <span>SCORE</span>
+                    <strong id="finalScore">0</strong>
+                </div>
+
+                <div>
+                    <span>BEST</span>
+                    <strong id="finalBest">0</strong>
+                </div>
+
+            </div>
+
+            <button id="again" class="gameButton primary">
+                RACE AGAIN
+            </button>
+
+            <button id="mainMenu" class="gameButton secondary">
+                MAIN MENU
             </button>
 
         </div>
 
+    </div>
 
-        <small>
-            PRESS ESC TO RESUME
-        </small>
+
+    <!-- =====================================================
+         HOW TO PLAY
+    ====================================================== -->
+    <div id="howtoScreen" class="overlay hidden">
+
+        <div class="popup informationPopup">
+
+            <button class="closeButton" id="closeHowto">
+                ×
+            </button>
+
+            <div class="popupLabel">
+                CONTROLS
+            </div>
+
+            <h2>HOW TO PLAY</h2>
+
+            <div class="controlList">
+
+                <div class="controlRow">
+                    <div class="keys">
+                        <kbd>A</kbd>
+                        <kbd>←</kbd>
+                    </div>
+                    <span>MOVE LEFT</span>
+                </div>
+
+                <div class="controlRow">
+                    <div class="keys">
+                        <kbd>D</kbd>
+                        <kbd>→</kbd>
+                    </div>
+                    <span>MOVE RIGHT</span>
+                </div>
+
+                <div class="controlRow">
+                    <div class="keys">
+                        <kbd>W</kbd>
+                        <kbd>↑</kbd>
+                    </div>
+                    <span>ACCELERATE</span>
+                </div>
+
+                <div class="controlRow">
+                    <div class="keys">
+                        <kbd>S</kbd>
+                        <kbd>↓</kbd>
+                    </div>
+                    <span>BRAKE</span>
+                </div>
+
+                <div class="controlRow">
+                    <div class="keys">
+                        <kbd>ESC</kbd>
+                    </div>
+                    <span>PAUSE / RESUME</span>
+                </div>
+
+            </div>
+
+            <div class="mobileInfo">
+                On Android, use the touch buttons.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SETTINGS
+    ====================================================== -->
+    <div id="settingsScreen" class="overlay hidden">
+
+        <div class="popup informationPopup">
+
+            <button class="closeButton" id="closeSettings">
+                ×
+            </button>
+
+            <div class="popupLabel">
+                OPTIONS
+            </div>
+
+            <h2>SETTINGS</h2>
+
+            <div class="settingsList">
+
+                <div class="settingRow">
+                    <span>GRAPHICS</span>
+                    <strong>HIGH / AUTO</strong>
+                </div>
+
+                <div class="settingRow">
+                    <span>SHADOWS</span>
+                    <strong>ON</strong>
+                </div>
+
+                <div class="settingRow">
+                    <span>WEATHER</span>
+                    <strong>NIGHT</strong>
+                </div>
+
+                <div class="settingRow">
+                    <span>COLLISION</span>
+                    <strong>HARD</strong>
+                </div>
+
+                <div class="settingRow">
+                    <span>DEVICE</span>
+                    <strong id="deviceMode">
+                        AUTO
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MOBILE CONTROLS
+    ====================================================== -->
+    <div id="touchControls" class="hidden">
+
+        <button
+            id="left"
+            class="touchButton leftButton"
+            aria-label="Move left"
+        >
+            <span>‹</span>
+        </button>
+
+        <button
+            id="brake"
+            class="touchButton brakeButton"
+            aria-label="Brake"
+        >
+            <span>▼</span>
+        </button>
+
+        <button
+            id="right"
+            class="touchButton rightButton"
+            aria-label="Move right"
+        >
+            <span>›</span>
+        </button>
+
+        <button
+            id="boost"
+            class="touchButton boostButton"
+            aria-label="Accelerate"
+        >
+            <span>▲</span>
+        </button>
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     GAME OVER
-===================================================== -->
-
-<div
-    id="over"
-    class="screen hidden"
->
-
-    <div class="gameover-card">
-
-        <div class="crash-icon">
-            💥
-        </div>
-
-
-        <div class="game-label">
-            RACE FINISHED
-        </div>
-
-
-        <h2>
-            GAME OVER
-        </h2>
-
-
-        <div class="score-panel">
-
-
-            <div>
-
-                <small>
-                    SCORE
-                </small>
-
-                <strong id="finalScore">
-                    0
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <small>
-                    BEST
-                </small>
-
-                <strong id="finalBest">
-                    0
-                </strong>
-
-            </div>
-
-
-        </div>
-
-
-        <button
-            id="again"
-            class="game-button primary"
-            type="button"
-        >
-            <span>↻</span>
-            RACE AGAIN
-        </button>
-
-
-        <button
-            id="mainMenu"
-            class="game-button secondary"
-            type="button"
-        >
-            <span>⌂</span>
-            MAIN MENU
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     MOBILE CONTROLS
-===================================================== -->
-
-<div id="touch">
-
-
-    <button
-        id="left"
-        type="button"
-        aria-label="Steer left"
-    >
-        ◀
-    </button>
-
-
-    <button
-        id="brake"
-        type="button"
-        aria-label="Brake"
-    >
-        ▼
-    </button>
-
-
-    <button
-        id="right"
-        type="button"
-        aria-label="Steer right"
-    >
-        ▶
-    </button>
-
-
-    <button
-        id="boost"
-        type="button"
-        aria-label="Accelerate"
-    >
-        ▲
-    </button>
-
-
-</div>
-
-
-<!-- =====================================================
-     THREE.JS IMPORT MAP
-===================================================== -->
-
-<script type="importmap">
-
-{
-    "imports": {
-        "three":
-        "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-    }
-}
-
-</script>
-
-
-<!-- =====================================================
-     GAME JAVASCRIPT
-===================================================== -->
-
-<script
-    type="module"
-    src="game.js"
-></script>
-
+<script type="module" src="game.js"></script>
 
 </body>
-
 </html>
