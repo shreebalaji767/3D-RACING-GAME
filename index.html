@@ -1,33 +1,33 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=1.0,
-                 user-scalable=no,
-                 viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
 
-    <meta name="theme-color" content="#02040a">
+    <meta
+        name="theme-color"
+        content="#030712"
+    >
 
     <meta
-        name="description"
-        content="Neon Highway 3D - Free 3D Racing Game"
+        name="apple-mobile-web-app-capable"
+        content="yes"
     >
 
     <title>Neon Highway 3D</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
-
-    <!-- THREE.JS -->
+    <!--
+        Three.js
+    -->
     <script type="importmap">
     {
         "imports": {
@@ -36,16 +36,12 @@
         }
     }
     </script>
-
 </head>
-
 
 <body>
 
-<div id="game">
-
     <!-- =====================================================
-         3D CANVAS
+         GAME CANVAS
     ====================================================== -->
 
     <div id="canvasContainer"></div>
@@ -55,34 +51,37 @@
          LOADING SCREEN
     ====================================================== -->
 
-    <div id="loadingScreen" class="screen">
+    <div
+        id="loadingScreen"
+        class="screen loading-screen"
+    >
 
-        <div class="loadingLogo">
+        <div class="loading-card">
 
-            <div class="logoSmall">
-                NEON
+            <div class="game-logo">
+                <span>NEON</span>
+                <strong>HIGHWAY</strong>
+                <small>3D</small>
             </div>
 
-            <div class="logoLarge">
-                HIGHWAY
+            <div class="loading-subtitle">
+                EXTREME NIGHT RACING
             </div>
 
-            <div class="logo3d">
-                3D
+            <div class="loading-bar">
+                <div
+                    id="loadingProgress"
+                    class="loading-progress"
+                ></div>
             </div>
 
-        </div>
+            <div
+                id="loadingText"
+                class="loading-text"
+            >
+                STARTING 3D ENGINE...
+            </div>
 
-
-        <div class="loadingBar">
-
-            <div id="loadingProgress"></div>
-
-        </div>
-
-
-        <div id="loadingText">
-            INITIALIZING ENGINE...
         </div>
 
     </div>
@@ -92,75 +91,66 @@
          MAIN MENU
     ====================================================== -->
 
-    <div id="menu" class="screen hidden">
+    <div
+        id="menu"
+        class="screen menu-screen hidden"
+    >
 
-        <div class="menuTop">
+        <div class="menu-panel">
 
-            <div class="brand">
+            <div class="menu-logo">
 
-                <div class="brandSmall">
+                <div class="logo-small">
                     NEON
                 </div>
 
-                <div class="brandMain">
+                <div class="logo-large">
                     HIGHWAY
                 </div>
 
-                <div class="brand3D">
+                <div class="logo-3d">
                     3D
                 </div>
 
             </div>
 
-
-            <div class="menuTag">
-                REAL STREET RACING
+            <div class="menu-tagline">
+                NIGHT DRIVE // NO LIMITS
             </div>
 
-        </div>
 
+            <div class="menu-buttons">
 
-        <div class="menuCard">
-
-            <button
-                id="start"
-                class="gameButton primary"
-            >
-
-                <span>
+                <button
+                    id="start"
+                    class="game-button primary"
+                >
+                    <span>▶</span>
                     START RACE
-                </span>
+                </button>
 
-                <small>
-                    ENTER THE HIGHWAY
-                </small>
+                <button
+                    id="howto"
+                    class="game-button"
+                >
+                    HOW TO PLAY
+                </button>
 
-            </button>
+                <button
+                    id="settings"
+                    class="game-button"
+                >
+                    SETTINGS
+                </button>
 
-
-            <button
-                id="howto"
-                class="gameButton secondary"
-            >
-                HOW TO PLAY
-            </button>
-
-
-            <button
-                id="settings"
-                class="gameButton secondary"
-            >
-                SETTINGS
-            </button>
+            </div>
 
 
-            <div class="menuStats">
+            <div class="menu-stats">
 
-                <div>
+                <div class="stat-box">
 
-                    <span>
-                        BEST SCORE
-                    </span>
+                    <span>BEST SCORE</span>
 
                     <strong id="menuBest">
                         0
@@ -168,28 +158,12 @@
 
                 </div>
 
+                <div class="stat-box">
 
-                <div>
+                    <span>MODE</span>
 
-                    <span>
-                        MODE
-                    </span>
-
-                    <strong>
-                        ENDLESS
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        VERSION
-                    </span>
-
-                    <strong>
-                        2.1
+                    <strong id="deviceMode">
+                        DESKTOP
                     </strong>
 
                 </div>
@@ -197,21 +171,17 @@
             </div>
 
 
-            <div class="systemStatus">
-
-                <span class="statusDot"></span>
-
-                <span id="assetStatus">
-                    GRAPHICS SYSTEM READY
-                </span>
-
+            <div
+                id="assetStatus"
+                class="asset-status"
+            >
+                LOADING ASSETS...
             </div>
 
-        </div>
+            <div class="version">
+                NEON HIGHWAY 3D • v1.0
+            </div>
 
-
-        <div class="menuFooter">
-            HTML5 • THREE.JS • ANDROID READY • FREE
         </div>
 
     </div>
@@ -221,72 +191,204 @@
          HUD
     ====================================================== -->
 
-    <div id="hud" class="hidden">
+    <div
+        id="hud"
+        class="hud hidden"
+    >
 
-        <div class="hudTop">
+        <div class="hud-top">
 
-            <div class="hudBrand">
-                NEON HIGHWAY
+            <div class="hud-box speed-box">
+
+                <span class="hud-label">
+                    SPEED
+                </span>
+
+                <div class="speed-value">
+
+                    <strong id="speed">
+                        42
+                    </strong>
+
+                    <small>
+                        KM/H
+                    </small>
+
+                </div>
+
             </div>
 
 
-            <div class="hudStats">
+            <div class="hud-box score-box">
 
-                <div class="hudBox">
+                <span class="hud-label">
+                    SCORE
+                </span>
 
-                    <span>
-                        SPEED
-                    </span>
+                <strong id="score">
+                    0
+                </strong>
 
-                    <strong>
-
-                        <span id="speed">
-                            0
-                        </span>
-
-                        <small>
-                            KM/H
-                        </small>
-
-                    </strong>
-
-                </div>
+            </div>
 
 
-                <div class="hudBox">
+            <div class="hud-box best-box">
 
-                    <span>
-                        SCORE
-                    </span>
+                <span class="hud-label">
+                    BEST
+                </span>
 
-                    <strong id="score">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="hudBox">
-
-                    <span>
-                        BEST
-                    </span>
-
-                    <strong id="best">
-                        0
-                    </strong>
-
-                </div>
+                <strong id="best">
+                    0
+                </strong>
 
             </div>
 
         </div>
 
 
+        <div class="hud-title">
+            NEON HIGHWAY
+        </div>
+
+        <div class="hud-pause-hint">
+            ESC = PAUSE
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DANGER FLASH
+    ====================================================== -->
+
+    <div
+        id="dangerFlash"
+        class="danger-flash"
+    ></div>
+
+
+    <!-- =====================================================
+         ANDROID TOUCH CONTROLS
+    ====================================================== -->
+
+    <div
+        id="touchControls"
+        class="touch-controls hidden"
+    >
+
+        <!--
+            FULL TOUCH STEERING AREA
+
+            The player can drag anywhere in this lower
+            steering zone to move the car.
+
+            It also supports multi-touch.
+        -->
+
         <div
-            id="dangerFlash"
-            class="dangerFlash"
-        ></div>
+            id="touchSteeringArea"
+            class="touch-steering-area"
+        >
+
+            <div class="steering-guide">
+
+                <span>
+                    ◀
+                </span>
+
+                <small>
+                    TOUCH / DRAG TO STEER
+                </small>
+
+                <span>
+                    ▶
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LEFT HAND CONTROL
+        ================================================== -->
+
+        <div
+            class="steering-side left-side"
+        >
+
+            <button
+                id="left"
+                class="steering-button"
+                aria-label="Steer left"
+            >
+                <span>‹</span>
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT HAND CONTROL
+        ================================================== -->
+
+        <div
+            class="steering-side right-side"
+        >
+
+            <button
+                id="right"
+                class="steering-button"
+                aria-label="Steer right"
+            >
+                <span>›</span>
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTION CONTROLS
+        ================================================== -->
+
+        <div class="action-controls">
+
+            <button
+                id="brake"
+                class="action-button brake-button"
+            >
+                <span class="action-icon">
+                    ■
+                </span>
+
+                <span>
+                    BRAKE
+                </span>
+
+            </button>
+
+
+            <button
+                id="boost"
+                class="action-button boost-button"
+            >
+                <span class="action-icon">
+                    ⚡
+                </span>
+
+                <span>
+                    BOOST
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <div class="touch-control-note">
+            TWO-FINGER CONTROL ENABLED
+        </div>
 
     </div>
 
@@ -300,50 +402,49 @@
         class="overlay hidden"
     >
 
-        <div class="popup pausePopup">
+        <div class="overlay-card">
 
-            <div class="popupLabel">
-                RACE PAUSED
+            <div class="overlay-title">
+                PAUSED
             </div>
 
-            <h2>
-                PAUSED
-            </h2>
+            <div class="overlay-subtitle">
+                RACE TEMPORARILY STOPPED
+            </div>
 
+            <div class="overlay-buttons">
 
-            <button
-                id="resume"
-                class="gameButton primary"
-            >
-                PLAY
-            </button>
+                <button
+                    id="resume"
+                    class="game-button primary"
+                >
+                    ▶ PLAY
+                </button>
 
+                <button
+                    id="restart"
+                    class="game-button"
+                >
+                    ↻ RESTART RACE
+                </button>
 
-            <button
-                id="restart"
-                class="gameButton secondary"
-            >
-                RESTART RACE
-            </button>
+                <button
+                    id="pauseSettings"
+                    class="game-button"
+                >
+                    SETTINGS
+                </button>
 
+                <button
+                    id="exit"
+                    class="game-button danger"
+                >
+                    EXIT GAME
+                </button>
 
-            <button
-                id="pauseSettings"
-                class="gameButton secondary"
-            >
-                SETTINGS
-            </button>
+            </div>
 
-
-            <button
-                id="exit"
-                class="gameButton danger"
-            >
-                EXIT GAME
-            </button>
-
-
-            <div class="pauseHint">
+            <div class="pause-key">
                 PRESS ESC TO RESUME
             </div>
 
@@ -361,18 +462,22 @@
         class="overlay hidden"
     >
 
-        <div class="popup gameOverPopup">
+        <div class="overlay-card game-over-card">
 
-            <div class="popupLabel dangerText">
-                RACE FINISHED
+            <div class="crash-icon">
+                ✦
             </div>
 
-            <h2>
+            <div class="overlay-title danger-title">
                 CRASHED
-            </h2>
+            </div>
+
+            <div class="overlay-subtitle">
+                YOUR RACE HAS ENDED
+            </div>
 
 
-            <div class="finalStats">
+            <div class="final-stats">
 
                 <div>
 
@@ -402,20 +507,23 @@
             </div>
 
 
-            <button
-                id="again"
-                class="gameButton primary"
-            >
-                RACE AGAIN
-            </button>
+            <div class="overlay-buttons">
 
+                <button
+                    id="again"
+                    class="game-button primary"
+                >
+                    ↻ RACE AGAIN
+                </button>
 
-            <button
-                id="mainMenu"
-                class="gameButton secondary"
-            >
-                MAIN MENU
-            </button>
+                <button
+                    id="mainMenu"
+                    class="game-button"
+                >
+                    MAIN MENU
+                </button>
+
+            </div>
 
         </div>
 
@@ -431,115 +539,147 @@
         class="overlay hidden"
     >
 
-        <div class="popup informationPopup">
+        <div class="overlay-card info-card">
+
+            <div class="overlay-title">
+                HOW TO PLAY
+            </div>
+
+
+            <div class="instruction-list">
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        ← →
+                    </div>
+
+                    <div>
+                        <strong>
+                            STEER
+                        </strong>
+
+                        <span>
+                            Use A/D or arrow keys on PC.
+                            On Android, use the large steering
+                            controls or drag across the touch
+                            steering area.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        ⚡
+                    </div>
+
+                    <div>
+                        <strong>
+                            BOOST
+                        </strong>
+
+                        <span>
+                            Hold BOOST to accelerate.
+                            You can use BOOST with another
+                            finger while steering.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        ■
+                    </div>
+
+                    <div>
+                        <strong>
+                            BRAKE
+                        </strong>
+
+                        <span>
+                            Hold BRAKE to reduce speed.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        ◆
+                    </div>
+
+                    <div>
+                        <strong>
+                            COLLECT COINS
+                        </strong>
+
+                        <span>
+                            Collect glowing coins for extra score.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        !
+                    </div>
+
+                    <div>
+                        <strong>
+                            AVOID TRAFFIC
+                        </strong>
+
+                        <span>
+                            Even a small contact with another
+                            car ends the race.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="instruction">
+
+                    <div class="instruction-icon">
+                        ESC
+                    </div>
+
+                    <div>
+                        <strong>
+                            PAUSE
+                        </strong>
+
+                        <span>
+                            Press ESC to pause or resume.
+                            SPACE does not pause the game.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
 
             <button
-                class="closeButton"
                 id="closeHowto"
+                class="game-button primary"
             >
-                ×
+                BACK
             </button>
-
-
-            <div class="popupLabel">
-                CONTROLS
-            </div>
-
-
-            <h2>
-                HOW TO PLAY
-            </h2>
-
-
-            <div class="controlList">
-
-                <div class="controlRow">
-
-                    <div class="keys">
-
-                        <kbd>A</kbd>
-                        <kbd>←</kbd>
-
-                    </div>
-
-                    <span>
-                        STEER LEFT
-                    </span>
-
-                </div>
-
-
-                <div class="controlRow">
-
-                    <div class="keys">
-
-                        <kbd>D</kbd>
-                        <kbd>→</kbd>
-
-                    </div>
-
-                    <span>
-                        STEER RIGHT
-                    </span>
-
-                </div>
-
-
-                <div class="controlRow">
-
-                    <div class="keys">
-
-                        <kbd>W</kbd>
-                        <kbd>↑</kbd>
-
-                    </div>
-
-                    <span>
-                        ACCELERATE
-                    </span>
-
-                </div>
-
-
-                <div class="controlRow">
-
-                    <div class="keys">
-
-                        <kbd>S</kbd>
-                        <kbd>↓</kbd>
-
-                    </div>
-
-                    <span>
-                        BRAKE
-                    </span>
-
-                </div>
-
-
-                <div class="controlRow">
-
-                    <div class="keys">
-
-                        <kbd>ESC</kbd>
-
-                    </div>
-
-                    <span>
-                        PAUSE / RESUME
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="mobileInfo">
-
-                On Android, press and hold
-                the steering buttons.
-
-            </div>
 
         </div>
 
@@ -555,106 +695,79 @@
         class="overlay hidden"
     >
 
-        <div class="popup informationPopup">
+        <div class="overlay-card">
 
-            <button
-                class="closeButton"
-                id="closeSettings"
-            >
-                ×
-            </button>
-
-
-            <div class="popupLabel">
-                OPTIONS
+            <div class="overlay-title">
+                SETTINGS
             </div>
 
+            <div class="settings-list">
 
-            <h2>
-                SETTINGS
-            </h2>
+                <div class="setting-row">
 
+                    <div>
+                        <strong>
+                            GRAPHICS
+                        </strong>
 
-            <div class="settingsList">
+                        <span>
+                            High-quality 3D rendering
+                        </span>
+                    </div>
 
-                <div class="settingRow">
-
-                    <span>
-                        GRAPHICS
-                    </span>
-
-                    <strong>
-                        HIGH / AUTO
+                    <strong class="setting-value">
+                        AUTO
                     </strong>
 
                 </div>
 
 
-                <div class="settingRow">
+                <div class="setting-row">
 
-                    <span>
-                        SHADOWS
-                    </span>
+                    <div>
+                        <strong>
+                            MOBILE CONTROL
+                        </strong>
 
-                    <strong>
+                        <span>
+                            Multi-touch + drag steering
+                        </span>
+                    </div>
+
+                    <strong class="setting-value">
                         ON
                     </strong>
 
                 </div>
 
 
-                <div class="settingRow">
+                <div class="setting-row">
 
-                    <span>
-                        WEATHER
-                    </span>
+                    <div>
+                        <strong>
+                            COLLISION
+                        </strong>
 
-                    <strong>
-                        NIGHT
-                    </strong>
+                        <span>
+                            Strict
+                        </span>
+                    </div>
 
-                </div>
-
-
-                <div class="settingRow">
-
-                    <span>
-                        COLLISION
-                    </span>
-
-                    <strong>
-                        HARD
-                    </strong>
-
-                </div>
-
-
-                <div class="settingRow">
-
-                    <span>
-                        STEERING
-                    </span>
-
-                    <strong>
-                        SMOOTH
-                    </strong>
-
-                </div>
-
-
-                <div class="settingRow">
-
-                    <span>
-                        DEVICE
-                    </span>
-
-                    <strong id="deviceMode">
-                        AUTO
+                    <strong class="setting-value">
+                        ON
                     </strong>
 
                 </div>
 
             </div>
+
+
+            <button
+                id="closeSettings"
+                class="game-button primary"
+            >
+                BACK
+            </button>
 
         </div>
 
@@ -662,67 +775,13 @@
 
 
     <!-- =====================================================
-         ANDROID TOUCH CONTROLS
+         GAME SCRIPT
     ====================================================== -->
 
-    <div
-        id="touchControls"
-        class="hidden"
-    >
-
-        <button
-            id="left"
-            class="touchButton leftButton"
-            aria-label="Steer left"
-        >
-            <span>
-                ‹
-            </span>
-        </button>
-
-
-        <button
-            id="brake"
-            class="touchButton brakeButton"
-            aria-label="Brake"
-        >
-            <span>
-                ▼
-            </span>
-        </button>
-
-
-        <button
-            id="right"
-            class="touchButton rightButton"
-            aria-label="Steer right"
-        >
-            <span>
-                ›
-            </span>
-        </button>
-
-
-        <button
-            id="boost"
-            class="touchButton boostButton"
-            aria-label="Accelerate"
-        >
-            <span>
-                ▲
-            </span>
-        </button>
-
-    </div>
-
-</div>
-
-
-<script
-    type="module"
-    src="game.js"
-></script>
+    <script
+        type="module"
+        src="game.js"
+    ></script>
 
 </body>
 </html>
-
