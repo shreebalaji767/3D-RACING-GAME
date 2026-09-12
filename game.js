@@ -1,4 +1,3 @@
-```javascript
 import * as THREE from "three";
 import {
     GLTFLoader
@@ -6,7 +5,7 @@ import {
 
 
 /* =========================================================
-   CONFIGURATION
+   CONFIG
 ========================================================= */
 
 const CONFIG = {
@@ -15,96 +14,70 @@ const CONFIG = {
         "./assets/models/player-car.glb",
 
     trafficModels: [
-
         "./assets/models/traffic-car-01.glb",
-
         "./assets/models/traffic-car-02.glb",
-
         "./assets/models/traffic-car-03.glb"
-
     ],
-
-
-    lanes: [
-        -5.25,
-        -1.75,
-        1.75,
-        5.25
-    ],
-
 
     roadWidth: 14.5,
-
 
     startingSpeed: 42,
 
     maxSpeed: 145,
 
-
     acceleration: 20,
 
     braking: 45,
 
+    /* ==============================================
+       NEW SMOOTH SIDEWAYS CONTROL
+    ============================================== */
 
-    /* =====================================================
-       SMOOTH STEERING
-    ====================================================== */
+    steeringResponse: 12,
 
-    steeringAcceleration: 24,
+    steeringReturn: 16,
 
-    steeringDamping: 9,
-
-    maxSteeringSpeed: 7.5,
+    sidewaysSpeed: 8.5,
 
     roadLimit: 5.9,
 
-
-    /* =====================================================
+    /* ==============================================
        COLLISION
-    ====================================================== */
+    ============================================== */
 
     playerCollider: {
-
         width: 1.72,
-
         height: 1.30,
-
         length: 4.35
-
     },
-
 
     trafficCollider: {
-
         width: 1.72,
-
         height: 1.30,
-
         length: 4.35
-
     },
-
 
     collisionTolerance: 0.055,
 
+    /* ==============================================
+       TRAFFIC
+    ============================================== */
 
-    /* =====================================================
+    trafficRemoveZ: 35,
+
+    trafficMinGap: 35,
+
+    /* ==============================================
        WORLD
-    ====================================================== */
+    ============================================== */
 
     segmentLength: 100,
 
     segmentCount: 12,
 
-
-    trafficMinGap: 35,
-
-    trafficRemoveZ: 35,
-
-
-    /* =====================================================
+    /* ==============================================
        GRAPHICS
-    ====================================================== */
+    ============================================== */
 
     desktopPixelRatio: 1.8,
 
@@ -122,114 +95,95 @@ const canvasContainer =
         "canvasContainer"
     );
 
-
 const loadingScreen =
     document.getElementById(
         "loadingScreen"
     );
-
 
 const loadingProgress =
     document.getElementById(
         "loadingProgress"
     );
 
-
 const loadingText =
     document.getElementById(
         "loadingText"
     );
-
 
 const menu =
     document.getElementById(
         "menu"
     );
 
-
 const hud =
     document.getElementById(
         "hud"
     );
-
 
 const pauseScreen =
     document.getElementById(
         "pause"
     );
 
-
 const gameOverScreen =
     document.getElementById(
         "over"
     );
-
 
 const howtoScreen =
     document.getElementById(
         "howtoScreen"
     );
 
-
 const settingsScreen =
     document.getElementById(
         "settingsScreen"
     );
-
 
 const touchControls =
     document.getElementById(
         "touchControls"
     );
 
-
 const speedElement =
     document.getElementById(
         "speed"
     );
-
 
 const scoreElement =
     document.getElementById(
         "score"
     );
 
-
 const bestElement =
     document.getElementById(
         "best"
     );
-
 
 const menuBestElement =
     document.getElementById(
         "menuBest"
     );
 
-
 const finalScoreElement =
     document.getElementById(
         "finalScore"
     );
-
 
 const finalBestElement =
     document.getElementById(
         "finalBest"
     );
 
-
 const assetStatus =
     document.getElementById(
         "assetStatus"
     );
 
-
 const dangerFlash =
     document.getElementById(
         "dangerFlash"
     );
-
 
 const deviceMode =
     document.getElementById(
@@ -259,7 +213,7 @@ deviceMode.textContent =
 
 
 /* =========================================================
-   THREE.JS VARIABLES
+   THREE.JS
 ========================================================= */
 
 let scene;
@@ -270,6 +224,10 @@ let renderer;
 
 let clock;
 
+
+/* =========================================================
+   GAME OBJECTS
+========================================================= */
 
 let player;
 
@@ -282,37 +240,41 @@ let trafficGroup;
 let coinGroup;
 
 
+/* =========================================================
+   MODELS
+========================================================= */
+
+const gltfLoader =
+    new GLTFLoader();
+
 let playerModelLoaded =
     false;
 
-
 let trafficModelsLoaded =
     0;
-
 
 let loadedTrafficTemplates =
     [];
 
 
+/* =========================================================
+   GAME STATE
+========================================================= */
+
 let gameRunning =
     false;
-
 
 let paused =
     false;
 
-
 let gameOver =
     false;
-
 
 let speed =
     CONFIG.startingSpeed;
 
-
 let score =
     0;
-
 
 let bestScore =
     Number(
@@ -320,14 +282,6 @@ let bestScore =
             "neonHighwayBest"
         ) || 0
     );
-
-
-bestElement.textContent =
-    bestScore;
-
-
-menuBestElement.textContent =
-    bestScore;
 
 
 /* =========================================================
@@ -348,120 +302,114 @@ const keys = {
 
 
 /* =========================================================
-   SMOOTH STEERING STATE
+   NEW SMOOTH STEERING STATE
 ========================================================= */
 
-let steeringVelocity =
-    0;
+/*
+    steeringInput:
+
+        -1 = full left
+         0 = straight
+        +1 = full right
 
 
-let steeringInput =
-    0;
+    steeringTarget:
+
+        The direction the player is asking for.
+
+    There is NO sideways velocity anymore.
+
+    This is what removes the floaty/sliding feeling.
+*/
+
+let steeringInput = 0;
+
+let steeringTarget = 0;
 
 
 /* =========================================================
-   GLTF LOADER
+   LOOP
 ========================================================= */
 
-const gltfLoader =
-    new GLTFLoader();
+let lastTime =
+    performance.now();
 
 
 /* =========================================================
-   INITIALIZATION
+   INIT
 ========================================================= */
 
 async function init() {
 
     setLoading(
-        10,
+        5,
         "STARTING 3D ENGINE..."
     );
 
-
     createScene();
 
-
     setLoading(
-        20,
+        18,
         "BUILDING NIGHT SKY..."
     );
 
-
     createLighting();
-
 
     setLoading(
         30,
         "BUILDING HIGHWAY..."
     );
 
-
     createRoad();
 
-
     setLoading(
-        42,
+        43,
         "BUILDING CITY..."
     );
 
-
     createEnvironment();
 
-
     setLoading(
-        55,
+        56,
         "BUILDING PLAYER CAR..."
     );
 
-
     createPlayer();
 
-
     setLoading(
-        65,
-        "LOADING HIGH GRAPHICS CAR..."
+        66,
+        "LOADING PLAYER CAR..."
     );
-
 
     await loadPlayerModel();
 
-
     setLoading(
-        75,
+        76,
         "LOADING TRAFFIC CARS..."
     );
 
-
     await loadTrafficModels();
-
 
     setLoading(
         88,
         "PREPARING TRAFFIC..."
     );
 
-
     createTraffic();
-
 
     createCoins();
 
-
     setLoading(
         96,
-        "OPTIMIZING FOR DEVICE..."
+        "SETTING CONTROLS..."
     );
 
-
     setupEvents();
-
 
     setLoading(
         100,
         "READY"
     );
-
 
     setTimeout(
         () => {
@@ -470,11 +418,9 @@ async function init() {
                 "hidden"
             );
 
-
             menu.classList.remove(
                 "hidden"
             );
-
 
             updateMenu();
 
@@ -496,14 +442,13 @@ function setLoading(
     loadingProgress.style.width =
         `${percent}%`;
 
-
     loadingText.textContent =
         text;
 }
 
 
 /* =========================================================
-   SCENE
+   CREATE SCENE
 ========================================================= */
 
 function createScene() {
@@ -511,12 +456,10 @@ function createScene() {
     scene =
         new THREE.Scene();
 
-
     scene.background =
         new THREE.Color(
             0x02050c
         );
-
 
     scene.fog =
         new THREE.FogExp2(
@@ -526,6 +469,10 @@ function createScene() {
                 : 0.008
         );
 
+
+    /* ==============================================
+       CAMERA
+    ============================================== */
 
     camera =
         new THREE.PerspectiveCamera(
@@ -548,6 +495,10 @@ function createScene() {
         10
     );
 
+
+    /* ==============================================
+       RENDERER
+    ============================================== */
 
     renderer =
         new THREE.WebGLRenderer({
@@ -572,7 +523,9 @@ function createScene() {
 
     const pixelRatio =
         isMobile
+
             ? CONFIG.mobilePixelRatio
+
             : Math.min(
                 window.devicePixelRatio,
                 CONFIG.desktopPixelRatio
@@ -587,18 +540,14 @@ function createScene() {
     renderer.shadowMap.enabled =
         true;
 
-
     renderer.shadowMap.type =
         THREE.PCFSoftShadowMap;
-
 
     renderer.outputColorSpace =
         THREE.SRGBColorSpace;
 
-
     renderer.toneMapping =
         THREE.ACESFilmicToneMapping;
-
 
     renderer.toneMappingExposure =
         1.1;
@@ -613,17 +562,18 @@ function createScene() {
         new THREE.Clock();
 
 
+    /* ==============================================
+       GROUPS
+    ============================================== */
+
     roadGroup =
         new THREE.Group();
-
 
     environmentGroup =
         new THREE.Group();
 
-
     trafficGroup =
         new THREE.Group();
-
 
     coinGroup =
         new THREE.Group();
@@ -633,16 +583,13 @@ function createScene() {
         roadGroup
     );
 
-
     scene.add(
         environmentGroup
     );
 
-
     scene.add(
         trafficGroup
     );
-
 
     scene.add(
         coinGroup
@@ -659,7 +606,7 @@ function createScene() {
 
 function createSky() {
 
-    const skyGeometry =
+    const geometry =
         new THREE.SphereGeometry(
             500,
             32,
@@ -667,12 +614,11 @@ function createSky() {
         );
 
 
-    const skyMaterial =
+    const material =
         new THREE.ShaderMaterial({
 
             side:
                 THREE.BackSide,
-
 
             uniforms: {
 
@@ -685,7 +631,6 @@ function createSky() {
 
                 },
 
-
                 bottomColor: {
 
                     value:
@@ -695,13 +640,11 @@ function createSky() {
 
                 },
 
-
                 offset: {
 
                     value: 33
 
                 },
-
 
                 exponent: {
 
@@ -752,7 +695,6 @@ function createSky() {
 
                 varying vec3 vWorldPosition;
 
-
                 void main() {
 
                     float h =
@@ -760,7 +702,6 @@ function createSky() {
                             vWorldPosition +
                             offset
                         ).y;
-
 
                     float factor =
                         pow(
@@ -771,20 +712,15 @@ function createSky() {
                             exponent
                         );
 
-
                     gl_FragColor =
                         vec4(
-
                             mix(
                                 bottomColor,
                                 topColor,
                                 factor
                             ),
-
                             1.0
-
                         );
-
                 }
 
             `
@@ -794,8 +730,8 @@ function createSky() {
 
     const sky =
         new THREE.Mesh(
-            skyGeometry,
-            skyMaterial
+            geometry,
+            material
         );
 
 
@@ -804,27 +740,26 @@ function createSky() {
     );
 
 
-    const moonGeometry =
-        new THREE.SphereGeometry(
-            10,
-            32,
-            32
-        );
-
-
-    const moonMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color:
-                0xe8efff
-
-        });
-
+    /* ==============================================
+       MOON
+    ============================================== */
 
     const moon =
         new THREE.Mesh(
-            moonGeometry,
-            moonMaterial
+
+            new THREE.SphereGeometry(
+                10,
+                32,
+                32
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    0xe8efff
+
+            })
+
         );
 
 
@@ -840,7 +775,7 @@ function createSky() {
     );
 
 
-    const glow =
+    const moonGlow =
         new THREE.PointLight(
             0x667dff,
             1.5,
@@ -848,13 +783,13 @@ function createSky() {
         );
 
 
-    glow.position.copy(
+    moonGlow.position.copy(
         moon.position
     );
 
 
     scene.add(
-        glow
+        moonGlow
     );
 }
 
@@ -887,7 +822,7 @@ function createLighting() {
 
             0x9bb5ff,
 
-            2.0
+            2
 
         );
 
@@ -908,7 +843,6 @@ function createLighting() {
             ? 1024
             : 2048;
 
-
     moonLight.shadow.mapSize.height =
         isMobile
             ? 1024
@@ -918,14 +852,11 @@ function createLighting() {
     moonLight.shadow.camera.left =
         -80;
 
-
     moonLight.shadow.camera.right =
         80;
 
-
     moonLight.shadow.camera.top =
         100;
-
 
     moonLight.shadow.camera.bottom =
         -100;
@@ -949,7 +880,6 @@ function createRoad() {
 
     asphaltTexture.wrapS =
         THREE.RepeatWrapping;
-
 
     asphaltTexture.wrapT =
         THREE.RepeatWrapping;
@@ -1019,6 +949,10 @@ function createRoad() {
             true;
 
 
+        road.userData.isRoad =
+            true;
+
+
         roadGroup.add(
             road
         );
@@ -1028,36 +962,34 @@ function createRoad() {
             road.position.z
         );
 
-
         createRoadEdges(
             road.position.z
         );
     }
 
 
-    const groundGeometry =
-        new THREE.PlaneGeometry(
-            1000,
-            1200
-        );
-
-
-    const groundMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color:
-                0x07100b,
-
-            roughness:
-                1
-
-        });
-
+    /* ==============================================
+       GROUND
+    ============================================== */
 
     const ground =
         new THREE.Mesh(
-            groundGeometry,
-            groundMaterial
+
+            new THREE.PlaneGeometry(
+                1000,
+                1200
+            ),
+
+            new THREE.MeshStandardMaterial({
+
+                color:
+                    0x07100b,
+
+                roughness:
+                    1
+
+            })
+
         );
 
 
@@ -1084,7 +1016,7 @@ function createRoad() {
 
 
 /* =========================================================
-   ASPHALT TEXTURE
+   ASPHALT
 ========================================================= */
 
 function createAsphaltTexture() {
@@ -1097,7 +1029,6 @@ function createAsphaltTexture() {
 
     canvas.width =
         512;
-
 
     canvas.height =
         512;
@@ -1141,26 +1072,16 @@ function createAsphaltTexture() {
             `rgb(${value},${value},${value})`;
 
 
-        const x =
-            Math.random() *
-            512;
-
-
-        const y =
-            Math.random() *
-            512;
-
-
-        const size =
-            Math.random() *
-            2;
-
-
         ctx.fillRect(
-            x,
-            y,
-            size,
-            size
+
+            Math.random() * 512,
+
+            Math.random() * 512,
+
+            Math.random() * 2,
+
+            Math.random() * 2
+
         );
     }
 
@@ -1215,7 +1136,9 @@ function createAsphaltTexture() {
    LANE LINES
 ========================================================= */
 
-function createLaneLines(z) {
+function createLaneLines(
+    z
+) {
 
     for (
         let lane = 0;
@@ -1227,41 +1150,28 @@ function createLaneLines(z) {
 
         const x =
             -3.5 +
-            lane *
-            3.5;
-
-
-        const geometry =
-            new THREE.BoxGeometry(
-
-                0.08,
-
-                0.025,
-
-                5.5
-
-            );
-
-
-        const material =
-            new THREE.MeshStandardMaterial({
-
-                color:
-                    0xcfd6dc,
-
-                emissive:
-                    0x111111,
-
-                roughness:
-                    0.55
-
-            });
+            lane * 3.5;
 
 
         const line =
             new THREE.Mesh(
-                geometry,
-                material
+
+                new THREE.BoxGeometry(
+                    0.08,
+                    0.025,
+                    5.5
+                ),
+
+                new THREE.MeshStandardMaterial({
+
+                    color:
+                        0xcfd6dc,
+
+                    roughness:
+                        0.55
+
+                })
+
             );
 
 
@@ -1270,6 +1180,10 @@ function createLaneLines(z) {
             0.02,
             z
         );
+
+
+        line.userData.isRoadPart =
+            true;
 
 
         roadGroup.add(
@@ -1283,7 +1197,9 @@ function createLaneLines(z) {
    ROAD EDGES
 ========================================================= */
 
-function createRoadEdges(z) {
+function createRoadEdges(
+    z
+) {
 
     const material =
         new THREE.MeshStandardMaterial({
@@ -1303,22 +1219,21 @@ function createRoadEdges(z) {
     [-7.05, 7.05].forEach(
         x => {
 
-            const geometry =
-                new THREE.BoxGeometry(
-
-                    0.12,
-
-                    0.035,
-
-                    CONFIG.segmentLength
-
-                );
-
-
             const edge =
                 new THREE.Mesh(
-                    geometry,
+
+                    new THREE.BoxGeometry(
+
+                        0.12,
+
+                        0.035,
+
+                        CONFIG.segmentLength
+
+                    ),
+
                     material
+
                 );
 
 
@@ -1327,6 +1242,10 @@ function createRoadEdges(z) {
                 0.025,
                 z
             );
+
+
+            edge.userData.isRoadPart =
+                true;
 
 
             roadGroup.add(
@@ -1356,7 +1275,6 @@ function createEnvironment() {
             z
         );
 
-
         createCityBlock(
             1,
             z - 18
@@ -1368,28 +1286,20 @@ function createEnvironment() {
         ) {
 
             createTree(
-
                 -12 -
-                Math.random() *
-                6,
+                Math.random() * 6,
 
                 z -
-                Math.random() *
-                30
-
+                Math.random() * 30
             );
 
 
             createTree(
-
                 12 +
-                Math.random() *
-                6,
+                Math.random() * 6,
 
                 z -
-                Math.random() *
-                30
-
+                Math.random() * 30
             );
         }
 
@@ -1403,7 +1313,6 @@ function createEnvironment() {
                 z
             );
 
-
             createStreetLight(
                 8.3,
                 z - 22
@@ -1414,7 +1323,7 @@ function createEnvironment() {
 
 
 /* =========================================================
-   CITY
+   CITY BLOCK
 ========================================================= */
 
 function createCityBlock(
@@ -1438,29 +1347,24 @@ function createCityBlock(
 
         const width =
             5 +
-            Math.random() *
-            9;
+            Math.random() * 9;
 
 
         const height =
             10 +
-            Math.random() *
-            35;
+            Math.random() * 35;
 
 
         const depth =
             8 +
-            Math.random() *
-            15;
+            Math.random() * 15;
 
 
         const geometry =
             new THREE.BoxGeometry(
 
                 width,
-
                 height,
-
                 depth
 
             );
@@ -1473,16 +1377,13 @@ function createCityBlock(
                     new THREE.Color(
 
                         0.025 +
-                        Math.random() *
-                        0.035,
+                        Math.random() * 0.035,
 
                         0.04 +
-                        Math.random() *
-                        0.04,
+                        Math.random() * 0.04,
 
                         0.07 +
-                        Math.random() *
-                        0.08
+                        Math.random() * 0.08
 
                     ),
 
@@ -1507,17 +1408,14 @@ function createCityBlock(
             side *
             (
                 15 +
-                i *
-                12 +
-                Math.random() *
-                6
+                i * 12 +
+                Math.random() * 6
             ),
 
             height / 2,
 
             z -
-            Math.random() *
-            20
+            Math.random() * 20
 
         );
 
@@ -1543,7 +1441,7 @@ function createCityBlock(
 
 
 /* =========================================================
-   BUILDING WINDOWS
+   WINDOWS
 ========================================================= */
 
 function createBuildingWindows(
@@ -1560,16 +1458,13 @@ function createBuildingWindows(
     const width =
         building.geometry.parameters.width;
 
-
     const height =
         building.geometry.parameters.height;
-
 
     const rows =
         Math.floor(
             height / 4
         );
-
 
     const cols =
         Math.max(
@@ -1580,7 +1475,7 @@ function createBuildingWindows(
         );
 
 
-    const windowMaterial =
+    const material =
         new THREE.MeshStandardMaterial({
 
             color:
@@ -1621,22 +1516,17 @@ function createBuildingWindows(
             }
 
 
-            const geometry =
-                new THREE.BoxGeometry(
-
-                    0.35,
-
-                    0.65,
-
-                    0.03
-
-                );
-
-
             const windowMesh =
                 new THREE.Mesh(
-                    geometry,
-                    windowMaterial
+
+                    new THREE.BoxGeometry(
+                        0.35,
+                        0.65,
+                        0.03
+                    ),
+
+                    material
+
                 );
 
 
@@ -1644,25 +1534,19 @@ function createBuildingWindows(
 
                 (
                     col -
-                    (cols - 1) /
-                    2
-                ) *
-                2.2,
+                    (cols - 1) / 2
+                ) * 2.2,
 
                 (
-                    row +
-                    0.7
-                ) *
-                3.2,
+                    row + 0.7
+                ) * 3.2,
 
                 -(
                     building
                         .geometry
                         .parameters
-                        .depth /
-                    2
-                ) -
-                0.03
+                        .depth / 2
+                ) - 0.03
 
             );
 
@@ -1676,7 +1560,7 @@ function createBuildingWindows(
 
 
 /* =========================================================
-   TREES
+   TREE
 ========================================================= */
 
 function createTree(
@@ -1731,13 +1615,9 @@ function createTree(
 
                 2.2,
 
-                isMobile
-                    ? 8
-                    : 14,
+                isMobile ? 8 : 14,
 
-                isMobile
-                    ? 8
-                    : 14
+                isMobile ? 8 : 14
 
             ),
 
@@ -1871,13 +1751,9 @@ function createStreetLight(
 
         const light =
             new THREE.PointLight(
-
                 0x9ccaff,
-
                 4,
-
                 20
-
             );
 
 
@@ -1933,10 +1809,6 @@ function createPlayer() {
         );
 
 
-    fallback.name =
-        "fallbackPlayerCar";
-
-
     player.add(
         fallback
     );
@@ -1945,14 +1817,13 @@ function createPlayer() {
     player.userData.fallback =
         fallback;
 
-
     player.userData.model =
         null;
 }
 
 
 /* =========================================================
-   LOAD PLAYER GLB
+   PLAYER GLB
 ========================================================= */
 
 async function loadPlayerModel() {
@@ -1996,19 +1867,19 @@ async function loadPlayerModel() {
     } catch (error) {
 
         console.warn(
-            "Player GLB not found. Using fallback.",
+            "Player GLB unavailable.",
             error
         );
 
 
         assetStatus.textContent =
-            "HIGH GRAPHICS FALLBACK READY";
+            "PROCEDURAL HIGH GRAPHICS READY";
     }
 }
 
 
 /* =========================================================
-   LOAD TRAFFIC GLB
+   TRAFFIC GLB
 ========================================================= */
 
 async function loadTrafficModels() {
@@ -2048,7 +1919,7 @@ async function loadTrafficModels() {
         } catch (error) {
 
             console.warn(
-                "Traffic GLB not found:",
+                "Traffic GLB unavailable:",
                 path
             );
         }
@@ -2071,7 +1942,7 @@ async function loadTrafficModels() {
 
 
 /* =========================================================
-   PREPARE GLB
+   PREPARE MODEL
 ========================================================= */
 
 function prepareCarModel(
@@ -2142,19 +2013,20 @@ function prepareCarModel(
             : 4.3;
 
 
-    if (
+    const largest =
         Math.max(
             size.z,
             size.x
-        ) > 0
+        );
+
+
+    if (
+        largest > 0
     ) {
 
         const scale =
             targetLength /
-            Math.max(
-                size.z,
-                size.x
-            );
+            largest;
 
 
         model.scale.setScalar(
@@ -2196,7 +2068,7 @@ function prepareCarModel(
 
 
 /* =========================================================
-   MATERIALS
+   MATERIAL
 ========================================================= */
 
 function improveMaterial(
@@ -2317,6 +2189,8 @@ function createDetailedCar(
         });
 
 
+    /* BODY */
+
     const body =
         new THREE.Mesh(
 
@@ -2340,6 +2214,8 @@ function createDetailedCar(
     );
 
 
+    /* LOWER BODY */
+
     const lower =
         new THREE.Mesh(
 
@@ -2362,6 +2238,8 @@ function createDetailedCar(
         lower
     );
 
+
+    /* HOOD */
 
     const hood =
         new THREE.Mesh(
@@ -2389,6 +2267,8 @@ function createDetailedCar(
     );
 
 
+    /* CABIN */
+
     const cabin =
         new THREE.Mesh(
 
@@ -2414,6 +2294,8 @@ function createDetailedCar(
         cabin
     );
 
+
+    /* WINDSHIELD */
 
     const windshield =
         new THREE.Mesh(
@@ -2445,6 +2327,8 @@ function createDetailedCar(
     );
 
 
+    /* REAR GLASS */
+
     const rearGlass =
         new THREE.Mesh(
 
@@ -2475,6 +2359,8 @@ function createDetailedCar(
     );
 
 
+    /* MIRRORS */
+
     [-1, 1].forEach(
         side => {
 
@@ -2493,11 +2379,8 @@ function createDetailedCar(
 
 
             mirror.position.set(
-                side *
-                1.12,
-
+                side * 1.12,
                 1.25,
-
                 -0.35
             );
 
@@ -2508,6 +2391,8 @@ function createDetailedCar(
         }
     );
 
+
+    /* WHEELS */
 
     const wheelGeometry =
         new THREE.CylinderGeometry(
@@ -2554,7 +2439,7 @@ function createDetailedCar(
         });
 
 
-    [
+    const wheelPositions = [
 
         [-1.08, 0.48, -1.38],
 
@@ -2564,7 +2449,10 @@ function createDetailedCar(
 
         [1.08, 0.48, 1.38]
 
-    ].forEach(
+    ];
+
+
+    wheelPositions.forEach(
         position => {
 
             const wheel =
@@ -2611,6 +2499,8 @@ function createDetailedCar(
     );
 
 
+    /* HEADLIGHTS */
+
     const headlightMaterial =
         new THREE.MeshStandardMaterial({
 
@@ -2622,9 +2512,6 @@ function createDetailedCar(
 
             emissiveIntensity:
                 8,
-
-            metalness:
-                0.1,
 
             roughness:
                 0.1
@@ -2692,6 +2579,8 @@ function createDetailedCar(
     );
 
 
+    /* BRAKE LIGHTS */
+
     const brakeMaterial =
         new THREE.MeshStandardMaterial({
 
@@ -2737,6 +2626,8 @@ function createDetailedCar(
         }
     );
 
+
+    /* SPOILER */
 
     if (
         playerCar
@@ -2828,9 +2719,11 @@ function createTraffic() {
     ) {
 
         spawnTrafficCar(
+
             -60 -
             i *
             CONFIG.trafficMinGap
+
         );
     }
 }
@@ -2844,10 +2737,23 @@ function spawnTrafficCar(
     z
 ) {
 
+    const lanes = [
+
+        -5.25,
+
+        -1.75,
+
+        1.75,
+
+        5.25
+
+    ];
+
+
     const lane =
         Math.floor(
             Math.random() *
-            CONFIG.lanes.length
+            lanes.length
         );
 
 
@@ -2878,10 +2784,6 @@ function spawnTrafficCar(
         car.add(
             model
         );
-
-
-        car.userData.isGLTF =
-            true;
 
 
     } else {
@@ -2921,16 +2823,12 @@ function spawnTrafficCar(
         car.add(
             fallback
         );
-
-
-        car.userData.isGLTF =
-            false;
     }
 
 
     car.position.set(
 
-        CONFIG.lanes[lane],
+        lanes[lane],
 
         0,
 
@@ -2972,59 +2870,64 @@ function createCoins() {
         i++
     ) {
 
-        const geometry =
-            new THREE.TorusGeometry(
-                0.35,
-                0.09,
-                10,
-                24
-            );
-
-
-        const material =
-            new THREE.MeshStandardMaterial({
-
-                color:
-                    0xffd52f,
-
-                emissive:
-                    0xffa900,
-
-                emissiveIntensity:
-                    3,
-
-                metalness:
-                    0.85,
-
-                roughness:
-                    0.15
-
-            });
-
-
         const coin =
             new THREE.Mesh(
-                geometry,
-                material
+
+                new THREE.TorusGeometry(
+                    0.35,
+                    0.09,
+                    10,
+                    24
+                ),
+
+                new THREE.MeshStandardMaterial({
+
+                    color:
+                        0xffd52f,
+
+                    emissive:
+                        0xffa900,
+
+                    emissiveIntensity:
+                        3,
+
+                    metalness:
+                        0.85,
+
+                    roughness:
+                        0.15
+
+                })
+
             );
 
 
-        const lane =
-            Math.floor(
-                Math.random() *
-                CONFIG.lanes.length
-            );
+        const lanes = [
+
+            -5.25,
+
+            -1.75,
+
+            1.75,
+
+            5.25
+
+        ];
 
 
         coin.position.set(
 
-            CONFIG.lanes[lane],
+            lanes[
+                Math.floor(
+                    Math.random() *
+                    lanes.length
+                )
+            ],
 
             1.2,
 
             -40 -
-            i *
-            55
+            i * 55
 
         );
 
@@ -3050,18 +2953,13 @@ function getCollisionBox(
 ) {
 
     const halfWidth =
-        dimensions.width /
-        2;
-
+        dimensions.width / 2;
 
     const halfHeight =
-        dimensions.height /
-        2;
-
+        dimensions.height / 2;
 
     const halfLength =
-        dimensions.length /
-        2;
+        dimensions.length / 2;
 
 
     const box =
@@ -3081,7 +2979,6 @@ function getCollisionBox(
 
             ),
 
-
             new THREE.Vector3(
 
                 object.position.x +
@@ -3099,28 +2996,21 @@ function getCollisionBox(
         );
 
 
-    const tolerance =
+    const t =
         CONFIG.collisionTolerance;
 
 
-    box.min.x -=
-        tolerance;
+    box.min.x -= t;
 
-    box.min.y -=
-        tolerance;
+    box.min.y -= t;
 
-    box.min.z -=
-        tolerance;
+    box.min.z -= t;
 
+    box.max.x += t;
 
-    box.max.x +=
-        tolerance;
+    box.max.y += t;
 
-    box.max.y +=
-        tolerance;
-
-    box.max.z +=
-        tolerance;
+    box.max.z += t;
 
 
     return box;
@@ -3128,7 +3018,7 @@ function getCollisionBox(
 
 
 /* =========================================================
-   STRICT COLLISION
+   COLLISION
 ========================================================= */
 
 function carsCollide(
@@ -3138,21 +3028,15 @@ function carsCollide(
 
     const playerBox =
         getCollisionBox(
-
             playerCar,
-
             CONFIG.playerCollider
-
         );
 
 
     const trafficBox =
         getCollisionBox(
-
             trafficCar,
-
             CONFIG.trafficCollider
-
         );
 
 
@@ -3204,10 +3088,8 @@ function startGame() {
     gameRunning =
         true;
 
-
     paused =
         false;
-
 
     gameOver =
         false;
@@ -3224,7 +3106,7 @@ function startGame() {
 
 
 /* =========================================================
-   RESET
+   RESET GAME
 ========================================================= */
 
 function resetGame() {
@@ -3237,11 +3119,16 @@ function resetGame() {
         0;
 
 
-    steeringVelocity =
-        0;
+    /*
+        IMPORTANT:
 
+        Reset new steering system.
+    */
 
     steeringInput =
+        0;
+
+    steeringTarget =
         0;
 
 
@@ -3260,30 +3147,15 @@ function resetGame() {
     );
 
 
-    keys.left =
-        false;
-
-
-    keys.right =
-        false;
-
-
-    keys.accelerate =
-        false;
-
-
-    keys.brake =
-        false;
+    clearInputs();
 
 
     trafficGroup.clear();
-
 
     createTraffic();
 
 
     coinGroup.clear();
-
 
     createCoins();
 
@@ -3295,10 +3167,6 @@ function resetGame() {
 /* =========================================================
    GAME LOOP
 ========================================================= */
-
-let lastTime =
-    performance.now();
-
 
 function gameLoop(
     timestamp
@@ -3325,8 +3193,7 @@ function gameLoop(
             (
                 timestamp -
                 lastTime
-            ) /
-            1000,
+            ) / 1000,
 
             0.05
 
@@ -3423,7 +3290,6 @@ function updateSpeed(
             CONFIG.acceleration *
             delta;
 
-
     } else if (
         keys.brake
     ) {
@@ -3431,7 +3297,6 @@ function updateSpeed(
         speed -=
             CONFIG.braking *
             delta;
-
 
     } else {
 
@@ -3455,7 +3320,7 @@ function updateSpeed(
 
 
 /* =========================================================
-   SMOOTH PLAYER STEERING
+   NEW SMOOTH SIDEWAYS MOVEMENT
 ========================================================= */
 
 function updatePlayer(
@@ -3463,14 +3328,14 @@ function updatePlayer(
 ) {
 
     /*
-        Determine steering input.
+        ==============================================
+        STEP 1
+        ==============================================
 
-        LEFT  = -1
-        RIGHT = +1
-        NONE  = 0
+        Read left/right buttons.
     */
 
-    steeringInput =
+    let input =
         0;
 
 
@@ -3478,8 +3343,7 @@ function updatePlayer(
         keys.left
     ) {
 
-        steeringInput -=
-            1;
+        input -= 1;
     }
 
 
@@ -3487,61 +3351,57 @@ function updatePlayer(
         keys.right
     ) {
 
-        steeringInput +=
-            1;
+        input += 1;
     }
 
 
     /*
-        Steering acceleration.
+        ==============================================
+        STEP 2
+        ==============================================
 
-        The car does NOT instantly move.
+        Smoothly move steering input.
 
-        It builds steering velocity.
+        This is NOT sideways velocity.
+
+        It is only the steering amount.
     */
 
     if (
-        steeringInput !== 0
+        input !== 0
     ) {
 
-        steeringVelocity +=
-
-            steeringInput *
-
-            CONFIG.steeringAcceleration *
-
-            delta;
+        steeringTarget =
+            input;
 
 
-        steeringVelocity =
-            THREE.MathUtils.clamp(
+        steeringInput =
+            THREE.MathUtils.damp(
 
-                steeringVelocity,
+                steeringInput,
 
-                -CONFIG.maxSteeringSpeed,
+                steeringTarget,
 
-                CONFIG.maxSteeringSpeed
+                CONFIG.steeringResponse,
+
+                delta
 
             );
 
-
     } else {
 
-        /*
-            No button pressed.
+        steeringTarget =
+            0;
 
-            Smoothly return steering
-            velocity toward zero.
-        */
 
-        steeringVelocity =
+        steeringInput =
             THREE.MathUtils.damp(
 
-                steeringVelocity,
+                steeringInput,
 
                 0,
 
-                CONFIG.steeringDamping,
+                CONFIG.steeringReturn,
 
                 delta
 
@@ -3550,43 +3410,52 @@ function updatePlayer(
 
 
     /*
-        High speed makes steering
-        slightly less aggressive.
+        ==============================================
+        STEP 3
+        ==============================================
+
+        Calculate sideways movement.
+
+        No accumulated velocity.
+
+        This makes the car feel controlled
+        rather than like it is drifting.
     */
 
-    const speedFactor =
-        THREE.MathUtils.mapLinear(
+    const speedRatio =
+        THREE.MathUtils.clamp(
 
-            speed,
-
-            20,
-
+            speed /
             CONFIG.maxSpeed,
 
-            1.0,
+            0.35,
 
-            0.62
+            1.0
 
         );
 
 
-    /*
-        Continuous movement.
+    const sidewaysMovement =
 
-        There are NO lane jumps.
-    */
+        steeringInput *
 
-    player.position.x +=
+        CONFIG.sidewaysSpeed *
 
-        steeringVelocity *
-
-        speedFactor *
+        speedRatio *
 
         delta;
 
 
+    player.position.x +=
+        sidewaysMovement;
+
+
     /*
-        Keep car on road.
+        ==============================================
+        STEP 4
+        ==============================================
+
+        Road boundaries.
     */
 
     player.position.x =
@@ -3602,25 +3471,23 @@ function updatePlayer(
 
 
     /*
-        Realistic visual body movement.
+        ==============================================
+        STEP 5
+        ==============================================
 
-        When steering left:
-        car leans slightly left.
+        Smooth visual steering.
 
-        When steering right:
-        car leans slightly right.
+        The car leans slightly into the turn.
     */
 
     const targetRoll =
-
-        -steeringVelocity *
-        0.035;
+        -steeringInput *
+        0.075;
 
 
     const targetYaw =
-
-        -steeringVelocity *
-        0.018;
+        -steeringInput *
+        0.035;
 
 
     player.rotation.z =
@@ -3630,7 +3497,7 @@ function updatePlayer(
 
             targetRoll,
 
-            8,
+            10,
 
             delta
 
@@ -3644,7 +3511,7 @@ function updatePlayer(
 
             targetYaw,
 
-            7,
+            9,
 
             delta
 
@@ -3653,7 +3520,7 @@ function updatePlayer(
 
 
 /* =========================================================
-   TRAFFIC
+   TRAFFIC UPDATE
 ========================================================= */
 
 function updateTraffic(
@@ -3674,10 +3541,7 @@ function updateTraffic(
 
 
             /*
-                STRICT COLLISION.
-
-                Even a small touch
-                results in game over.
+                HARD COLLISION
             */
 
             if (
@@ -3688,8 +3552,6 @@ function updateTraffic(
             ) {
 
                 crash();
-
-                return;
             }
         }
     );
@@ -3748,13 +3610,11 @@ function updateCoins(
 
 
             coin.rotation.y +=
-                delta *
-                5;
+                delta * 5;
 
 
             coin.rotation.z +=
-                delta *
-                2;
+                delta * 2;
 
 
             const dx =
@@ -3777,7 +3637,7 @@ function updateCoins(
 
             if (
                 dx < 1.3 &&
-                dz < 2.0
+                dz < 2
             ) {
 
                 score +=
@@ -3791,14 +3651,13 @@ function updateCoins(
 
 
                 coin.position.x =
-                    CONFIG.lanes[
-                        Math.floor(
 
-                            Math.random() *
-                            CONFIG.lanes.length
+                    CONFIG.roadLimit *
 
-                        )
-                    ];
+                    (
+                        Math.random() * 2 -
+                        1
+                    );
             }
 
 
@@ -3818,7 +3677,7 @@ function updateCoins(
 
 
 /* =========================================================
-   ROAD MOVEMENT
+   ROAD UPDATE
 ========================================================= */
 
 function updateRoad(
@@ -3829,9 +3688,8 @@ function updateRoad(
         object => {
 
             if (
-                object.geometry &&
-                object.geometry.type ===
-                "PlaneGeometry"
+                object.userData.isRoad ||
+                object.userData.isRoadPart
             ) {
 
                 object.position.z +=
@@ -3847,7 +3705,6 @@ function updateRoad(
                     object.position.z -=
 
                         CONFIG.segmentCount *
-
                         CONFIG.segmentLength;
                 }
             }
@@ -3857,7 +3714,7 @@ function updateRoad(
 
 
 /* =========================================================
-   ENVIRONMENT MOVEMENT
+   ENVIRONMENT UPDATE
 ========================================================= */
 
 function updateEnvironment(
@@ -3867,13 +3724,19 @@ function updateEnvironment(
     environmentGroup.children.forEach(
         object => {
 
+            object.position.z +=
+                speed *
+                delta *
+                0.72;
+
+
             if (
                 object.position.z >
-                50
+                70
             ) {
 
                 object.position.z -=
-                    700;
+                    770;
             }
         }
     );
@@ -3909,19 +3772,26 @@ function updateCamera(
 
 
     /*
-        Camera follows the car
-        smoothly instead of snapping.
+        Camera follows player sideways
+        very gently.
+
+        It does NOT snap directly to
+        the car.
     */
+
+    const desiredCameraX =
+        player.position.x *
+        0.28;
+
 
     camera.position.x =
         THREE.MathUtils.damp(
 
             camera.position.x,
 
-            player.position.x *
-            0.28,
+            desiredCameraX,
 
-            4,
+            5,
 
             delta
 
@@ -4057,6 +3927,7 @@ function togglePause() {
             "hidden"
         )
     ) {
+
         return;
     }
 
@@ -4066,6 +3937,7 @@ function togglePause() {
             "hidden"
         )
     ) {
+
         return;
     }
 
@@ -4078,10 +3950,12 @@ function togglePause() {
         paused
     ) {
 
+        clearInputs();
+
+
         pauseScreen.classList.remove(
             "hidden"
         );
-
 
     } else {
 
@@ -4102,7 +3976,7 @@ function togglePause() {
 
 
 /* =========================================================
-   EXIT
+   EXIT GAME
 ========================================================= */
 
 function exitGame() {
@@ -4110,13 +3984,14 @@ function exitGame() {
     gameRunning =
         false;
 
-
     paused =
         false;
 
-
     gameOver =
         false;
+
+
+    clearInputs();
 
 
     pauseScreen.classList.add(
@@ -4187,7 +4062,7 @@ function updateHUD() {
 
 
 /* =========================================================
-   KEYBOARD EVENTS
+   KEYBOARD
 ========================================================= */
 
 function setupKeyboard() {
@@ -4197,7 +4072,9 @@ function setupKeyboard() {
         event => {
 
             /*
-                ESC = ONLY pause key
+                ESC ONLY PAUSES.
+
+                SPACE DOES NOT PAUSE.
             */
 
             if (
@@ -4325,11 +4202,6 @@ function setupKeyboard() {
     );
 
 
-    /*
-        Prevent stuck controls if the
-        browser loses focus.
-    */
-
     window.addEventListener(
         "blur",
         clearInputs
@@ -4368,11 +4240,15 @@ function clearInputs() {
 
     keys.brake =
         false;
+
+
+    steeringTarget =
+        0;
 }
 
 
 /* =========================================================
-   MOBILE TOUCH CONTROLS
+   TOUCH CONTROLS
 ========================================================= */
 
 function setupTouchControls() {
@@ -4382,18 +4258,15 @@ function setupTouchControls() {
             "left"
         );
 
-
     const right =
         document.getElementById(
             "right"
         );
 
-
     const brake =
         document.getElementById(
             "brake"
         );
-
 
     const boost =
         document.getElementById(
@@ -4401,11 +4274,9 @@ function setupTouchControls() {
         );
 
 
-    /*
-        LEFT
-
-        HOLD = continuous steering
-    */
+    /* ==============================================
+       LEFT
+    ============================================== */
 
     left.addEventListener(
         "pointerdown",
@@ -4445,9 +4316,19 @@ function setupTouchControls() {
     );
 
 
-    /*
-        RIGHT
-    */
+    left.addEventListener(
+        "lostpointercapture",
+        () => {
+
+            keys.left =
+                false;
+        }
+    );
+
+
+    /* ==============================================
+       RIGHT
+    ============================================== */
 
     right.addEventListener(
         "pointerdown",
@@ -4487,9 +4368,19 @@ function setupTouchControls() {
     );
 
 
-    /*
-        ACCELERATE
-    */
+    right.addEventListener(
+        "lostpointercapture",
+        () => {
+
+            keys.right =
+                false;
+        }
+    );
+
+
+    /* ==============================================
+       ACCELERATE
+    ============================================== */
 
     boost.addEventListener(
         "pointerdown",
@@ -4529,9 +4420,19 @@ function setupTouchControls() {
     );
 
 
-    /*
-        BRAKE
-    */
+    boost.addEventListener(
+        "lostpointercapture",
+        () => {
+
+            keys.accelerate =
+                false;
+        }
+    );
+
+
+    /* ==============================================
+       BRAKE
+    ============================================== */
 
     brake.addEventListener(
         "pointerdown",
@@ -4569,11 +4470,21 @@ function setupTouchControls() {
                 false;
         }
     );
+
+
+    brake.addEventListener(
+        "lostpointercapture",
+        () => {
+
+            keys.brake =
+                false;
+        }
+    );
 }
 
 
 /* =========================================================
-   BUTTON EVENTS
+   BUTTONS
 ========================================================= */
 
 function setupButtons() {
@@ -4620,6 +4531,10 @@ function setupButtons() {
                 false;
 
 
+            gameOver =
+                false;
+
+
             gameRunning =
                 true;
 
@@ -4651,6 +4566,10 @@ function setupButtons() {
     );
 
 
+    /* ==============================================
+       HOW TO PLAY
+    ============================================== */
+
     document.getElementById(
         "howto"
     ).addEventListener(
@@ -4676,6 +4595,10 @@ function setupButtons() {
         }
     );
 
+
+    /* ==============================================
+       SETTINGS
+    ============================================== */
 
     document.getElementById(
         "settings"
@@ -4742,13 +4665,12 @@ function onResize() {
 
     const pixelRatio =
         isMobile
+
             ? CONFIG.mobilePixelRatio
+
             : Math.min(
-
                 window.devicePixelRatio,
-
                 CONFIG.desktopPixelRatio
-
             );
 
 
@@ -4772,17 +4694,14 @@ function setupEvents() {
 
     setupKeyboard();
 
-
     setupTouchControls();
-
 
     setupButtons();
 }
 
 
 /* =========================================================
-   START ENGINE
+   START
 ========================================================= */
 
 init();
-```
