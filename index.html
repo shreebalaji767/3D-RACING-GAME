@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Neon Highway 3D</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="hud">
+  <div class="brand">NEON HIGHWAY</div>
+  <div class="stats"><span>SPEED <b id="speed">0</b> KM/H</span><span>SCORE <b id="score">0</b></span><span>BEST <b id="best">0</b></span></div>
+</div>
+<div id="menu" class="screen"><div class="card"><div class="logo">🏎️</div><h1>NEON HIGHWAY</h1><p>3D browser racing — free to host on GitHub Pages.</p><button id="start">START RACE</button><small>Keyboard: A/D or ←/→ • W/S or ↑/↓ • Space = pause</small></div></div>
+<div id="pause" class="screen hidden"><div class="card"><h2>PAUSED</h2><button id="resume">RESUME</button></div></div>
+<div id="over" class="screen hidden"><div class="card"><div class="logo">💥</div><h2>RACE OVER</h2><p>Score: <b id="finalScore">0</b></p><p>Best: <b id="finalBest">0</b></p><button id="again">RACE AGAIN</button></div></div>
+<div id="touch"><button id="left">◀</button><button id="brake">▼</button><button id="right">▶</button><button id="boost">▲</button></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}</script>
+<script type="module" src="game.js"></script>
+</body></html>
