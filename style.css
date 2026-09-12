@@ -1,234 +1,359 @@
-```css
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 :root {
 
-    --cyan: #00d9ff;
+    --bg:
+        #02040a;
 
-    --blue: #1677ff;
+    --panel:
+        rgba(5, 10, 22, 0.88);
 
-    --red: #ff2748;
-
-    --gold: #ffd33d;
-
-    --bg: #03050b;
+    --panel-light:
+        rgba(12, 20, 38, 0.78);
 
     --border:
-        rgba(255,255,255,0.13);
+        rgba(87, 180, 255, 0.25);
 
-    --text: #f4f7ff;
+    --cyan:
+        #00d9ff;
 
-    --muted: #8d98ad;
+    --blue:
+        #247cff;
+
+    --blue-bright:
+        #4da3ff;
+
+    --red:
+        #ff3152;
+
+    --gold:
+        #ffd52f;
+
+    --green:
+        #2cffb0;
+
+    --white:
+        #f5f9ff;
+
+    --muted:
+        #8d9bb5;
+
+    --shadow:
+        rgba(0, 0, 0, 0.55);
+
 }
 
 
 * {
 
-    box-sizing: border-box;
+    box-sizing:
+        border-box;
 
-    margin: 0;
+    margin:
+        0;
 
-    padding: 0;
+    padding:
+        0;
+
+    -webkit-tap-highlight-color:
+        transparent;
+
 }
 
 
 html,
 body {
 
-    width: 100%;
+    width:
+        100%;
 
-    height: 100%;
+    height:
+        100%;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
-    background: #02040a;
-
-    color: var(--text);
+    background:
+        var(--bg);
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    user-select: none;
+    color:
+        var(--white);
 
-    -webkit-user-select: none;
-
-    touch-action: none;
 }
 
 
 body {
 
-    position: fixed;
+    user-select:
+        none;
 
-    inset: 0;
+    -webkit-user-select:
+        none;
+
+    touch-action:
+        none;
+
 }
 
 
-button {
-
-    font: inherit;
-}
-
-
-#game {
-
-    position: fixed;
-
-    inset: 0;
-
-    overflow: hidden;
-
-    background: #02040a;
-}
-
+/* =========================================================
+   CANVAS
+========================================================= */
 
 #canvasContainer {
 
-    position: absolute;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 1;
+    width:
+        100%;
+
+    height:
+        100%;
+
+    overflow:
+        hidden;
+
+    z-index:
+        1;
+
 }
 
 
 #canvasContainer canvas {
 
-    display: block;
+    display:
+        block;
 
-    width: 100%;
+    width:
+        100%;
 
-    height: 100%;
+    height:
+        100%;
+
 }
 
 
-/* =====================================================
+/* =========================================================
    COMMON
-===================================================== */
+========================================================= */
 
 .hidden {
 
-    display: none !important;
+    display:
+        none !important;
+
 }
 
 
-.screen,
+.screen {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        100;
+
+}
+
+
 .overlay {
 
-    position: absolute;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 20;
+    z-index:
+        300;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        24px;
+
+    background:
+        rgba(0, 0, 0, 0.58);
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
 }
 
 
-/* =====================================================
+/* =========================================================
    LOADING
-===================================================== */
+========================================================= */
 
-#loadingScreen {
+.loading-screen {
 
-    display: flex;
+    display:
+        flex;
 
-    flex-direction: column;
+    align-items:
+        center;
 
-    align-items: center;
-
-    justify-content: center;
+    justify-content:
+        center;
 
     background:
         radial-gradient(
-            circle at 50% 45%,
-            #0d1830 0%,
-            #050912 42%,
-            #010207 100%
+            circle at center,
+            #101d38 0%,
+            #040711 48%,
+            #010208 100%
         );
+
 }
 
 
-.loadingLogo {
+.loading-card {
 
-    text-align: center;
+    width:
+        min(460px, 88vw);
 
-    margin-bottom: 55px;
+    text-align:
+        center;
 
-    transform:
-        skew(-8deg);
 }
 
 
-.logoSmall {
+.game-logo {
 
-    font-size:
-        clamp(14px, 2vw, 22px);
+    font-weight:
+        900;
 
-    font-weight: 900;
+    font-style:
+        italic;
 
     letter-spacing:
-        0.55em;
+        5px;
+
+    font-size:
+        clamp(36px, 8vw, 68px);
+
+    line-height:
+        0.9;
+
+    text-shadow:
+        0 0 30px rgba(0, 210, 255, 0.55);
+
+}
+
+
+.game-logo span {
+
+    display:
+        block;
 
     color:
         var(--cyan);
+
 }
 
 
-.logoLarge {
+.game-logo strong {
 
-    font-size:
-        clamp(48px, 9vw, 110px);
+    display:
+        block;
 
-    line-height: 0.85;
+    color:
+        var(--white);
 
-    font-weight: 1000;
-
-    letter-spacing:
-        -0.07em;
-
-    text-shadow:
-        0 0 30px
-        rgba(0,217,255,0.45);
 }
 
 
-.logo3d {
+.game-logo small {
 
-    font-size:
-        clamp(20px, 3vw, 40px);
+    display:
+        block;
 
-    font-weight: 1000;
+    margin-top:
+        7px;
 
     color:
         var(--red);
 
-    text-align: right;
+    font-size:
+        18px;
 
     letter-spacing:
-        0.1em;
+        10px;
+
 }
 
 
-.loadingBar {
+.loading-subtitle {
+
+    margin-top:
+        20px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        11px;
+
+    letter-spacing:
+        4px;
+
+}
+
+
+.loading-bar {
 
     width:
-        min(460px, 72vw);
+        100%;
 
-    height: 4px;
+    height:
+        5px;
+
+    margin-top:
+        42px;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        10px;
 
     background:
-        rgba(255,255,255,0.1);
+        rgba(255,255,255,0.08);
 
-    overflow: hidden;
-
-    border-radius: 20px;
 }
 
 
-#loadingProgress {
+.loading-progress {
 
-    height: 100%;
+    width:
+        0%;
 
-    width: 0%;
+    height:
+        100%;
 
     background:
         linear-gradient(
@@ -241,900 +366,1071 @@ button {
         0 0 18px var(--cyan);
 
     transition:
-        width 0.25s ease;
+        width 0.2s ease;
+
 }
 
 
-#loadingText {
+.loading-text {
 
-    margin-top: 18px;
+    margin-top:
+        14px;
 
-    font-size: 11px;
+    color:
+        var(--muted);
 
-    letter-spacing: 0.24em;
+    font-size:
+        11px;
 
-    color: #8995aa;
+    letter-spacing:
+        2px;
+
 }
 
 
-/* =====================================================
-   MENU
-===================================================== */
+/* =========================================================
+   MAIN MENU
+========================================================= */
 
-#menu {
+.menu-screen {
 
-    display: flex;
+    display:
+        flex;
 
-    flex-direction: column;
+    align-items:
+        center;
 
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 30px;
+    justify-content:
+        center;
 
     background:
         linear-gradient(
             90deg,
-            rgba(0,0,0,0.55),
-            transparent 55%,
-            rgba(0,0,0,0.55)
+            rgba(1,4,10,0.96),
+            rgba(1,4,10,0.58),
+            rgba(1,4,10,0.88)
         );
+
 }
 
 
-.menuTop {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-}
-
-
-.brand {
-
-    transform:
-        skew(-8deg);
-}
-
-
-.brandSmall {
-
-    color:
-        var(--cyan);
-
-    font-size: 12px;
-
-    font-weight: 900;
-
-    letter-spacing:
-        0.55em;
-}
-
-
-.brandMain {
-
-    font-size:
-        clamp(44px, 7vw, 82px);
-
-    line-height: 0.82;
-
-    font-weight: 1000;
-
-    letter-spacing:
-        -0.07em;
-
-    text-shadow:
-        0 0 35px
-        rgba(0,217,255,0.35);
-}
-
-
-.brand3D {
-
-    color:
-        var(--red);
-
-    text-align: right;
-
-    font-size: 25px;
-
-    font-weight: 1000;
-}
-
-
-.menuTag {
-
-    margin-top: 13px;
-
-    font-size: 10px;
-
-    letter-spacing: 0.35em;
-
-    color:
-        var(--muted);
-}
-
-
-.menuCard {
+.menu-panel {
 
     width:
-        min(440px, 92vw);
+        min(480px, 92vw);
 
-    padding: 26px;
+    padding:
+        30px;
+
+    text-align:
+        center;
 
     border:
         1px solid var(--border);
 
-    border-radius: 22px;
+    border-radius:
+        24px;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(13,20,35,0.86),
-            rgba(4,8,16,0.78)
-        );
+        rgba(4, 9, 20, 0.74);
 
     box-shadow:
-        0 25px 80px
-        rgba(0,0,0,0.55),
-
-        inset 0 1px 0
-        rgba(255,255,255,0.06);
+        0 30px 90px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.05);
 
     backdrop-filter:
         blur(18px);
 
     -webkit-backdrop-filter:
         blur(18px);
+
 }
 
 
-.gameButton {
+.menu-logo {
 
-    width: 100%;
-
-    min-height: 54px;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.12);
-
-    border-radius: 12px;
-
-    margin-bottom: 12px;
-
-    cursor: pointer;
-
-    color: white;
-
-    font-weight: 900;
-
-    letter-spacing: 0.1em;
-
-    transition:
-        transform .15s ease,
-        filter .15s ease,
-        border-color .15s ease;
-
-    -webkit-tap-highlight-color:
-        transparent;
-}
-
-
-.gameButton:active {
-
-    transform:
-        scale(0.97);
-}
-
-
-.gameButton:hover {
-
-    filter:
-        brightness(1.15);
-
-    border-color:
-        rgba(255,255,255,0.3);
-}
-
-
-.gameButton.primary {
-
-    min-height: 70px;
-
-    background:
-        linear-gradient(
-            110deg,
-            #075ce7,
-            #00aeea
-        );
-
-    box-shadow:
-        0 8px 30px
-        rgba(0,156,255,0.22);
-}
-
-
-.gameButton.primary span {
-
-    display: block;
-
-    font-size: 18px;
-}
-
-
-.gameButton.primary small {
-
-    display: block;
-
-    margin-top: 4px;
-
-    font-size: 9px;
-
-    letter-spacing: 0.2em;
-
-    opacity: .72;
-}
-
-
-.gameButton.secondary {
-
-    background:
-        rgba(255,255,255,0.045);
-}
-
-
-.gameButton.danger {
-
-    background:
-        linear-gradient(
-            110deg,
-            #a8102e,
-            #f21f43
-        );
-
-    border-color:
-        rgba(255,60,90,.3);
-}
-
-
-.menuStats {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 8px;
-
-    margin-top: 22px;
-}
-
-
-.menuStats div {
-
-    padding: 12px 7px;
-
-    border-radius: 10px;
-
-    background:
-        rgba(255,255,255,0.035);
-
-    text-align: center;
-}
-
-
-.menuStats span {
-
-    display: block;
-
-    font-size: 8px;
-
-    letter-spacing: .13em;
-
-    color:
-        var(--muted);
-}
-
-
-.menuStats strong {
-
-    display: block;
-
-    margin-top: 4px;
-
-    font-size: 13px;
-}
-
-
-.systemStatus {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    margin-top: 20px;
-
-    font-size: 8px;
-
-    letter-spacing: .18em;
-
-    color: #748095;
-}
-
-
-.statusDot {
-
-    width: 6px;
-
-    height: 6px;
-
-    border-radius: 50%;
-
-    background:
-        #25f7a0;
-
-    box-shadow:
-        0 0 10px #25f7a0;
-}
-
-
-.menuFooter {
-
-    position: absolute;
-
-    bottom: 22px;
-
-    font-size: 8px;
-
-    letter-spacing: .2em;
-
-    color:
-        rgba(255,255,255,.3);
-
-    text-align: center;
-}
-
-
-/* =====================================================
-   HUD
-===================================================== */
-
-#hud {
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 10;
-
-    pointer-events: none;
-}
-
-
-.hudTop {
-
-    position: absolute;
-
-    top:
-        max(
-            18px,
-            env(safe-area-inset-top)
-        );
-
-    left: 18px;
-
-    right: 18px;
-
-    display: flex;
+    display:
+        flex;
 
     justify-content:
-        space-between;
+        center;
 
     align-items:
-        flex-start;
+        baseline;
+
+    gap:
+        8px;
+
+    font-style:
+        italic;
+
+    font-weight:
+        900;
+
 }
 
 
-.hudBrand {
-
-    padding: 10px 13px;
-
-    border-radius: 10px;
-
-    background:
-        rgba(4,9,17,.56);
-
-    border:
-        1px solid
-        rgba(255,255,255,.09);
-
-    backdrop-filter:
-        blur(12px);
-
-    font-size: 9px;
-
-    font-weight: 900;
-
-    letter-spacing: .22em;
-}
-
-
-.hudStats {
-
-    display: flex;
-
-    gap: 7px;
-}
-
-
-.hudBox {
-
-    min-width: 72px;
-
-    padding: 8px 10px;
-
-    border:
-        1px solid
-        rgba(255,255,255,.09);
-
-    border-radius: 10px;
-
-    background:
-        rgba(4,9,17,.56);
-
-    backdrop-filter:
-        blur(12px);
-
-    text-align: center;
-}
-
-
-.hudBox span {
-
-    display: block;
-
-    font-size: 7px;
-
-    letter-spacing: .15em;
-
-    color: #7f8aa0;
-}
-
-
-.hudBox strong {
-
-    display: block;
-
-    margin-top: 3px;
-
-    font-size: 17px;
-
-    font-weight: 1000;
-}
-
-
-.hudBox small {
-
-    font-size: 6px;
-
-    color: #7f8aa0;
-}
-
-
-.dangerFlash {
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        rgba(255,0,40,.4);
-
-    opacity: 0;
-
-    pointer-events: none;
-}
-
-
-.dangerFlash.active {
-
-    animation:
-        danger .35s ease;
-}
-
-
-@keyframes danger {
-
-    0% {
-        opacity: 0;
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-
-/* =====================================================
-   OVERLAYS
-===================================================== */
-
-.overlay {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        rgba(0,0,0,0.46);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
-}
-
-
-.popup {
-
-    width:
-        min(420px, 90vw);
-
-    padding: 28px;
-
-    border:
-        1px solid
-        rgba(255,255,255,.12);
-
-    border-radius: 22px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(12,19,34,.94),
-            rgba(3,7,14,.94)
-        );
-
-    box-shadow:
-        0 30px 100px
-        rgba(0,0,0,.7);
-
-    backdrop-filter:
-        blur(22px);
-
-    position: relative;
-
-    text-align: center;
-}
-
-
-.popupLabel {
-
-    font-size: 9px;
-
-    font-weight: 900;
-
-    letter-spacing: .28em;
+.logo-small {
 
     color:
         var(--cyan);
 
-    margin-bottom: 7px;
+    font-size:
+        24px;
+
 }
 
 
-.popup h2 {
+.logo-large {
+
+    color:
+        var(--white);
 
     font-size:
-        clamp(34px, 7vw, 55px);
+        clamp(30px, 7vw, 48px);
 
-    line-height: 1;
+    letter-spacing:
+        -2px;
 
-    margin-bottom: 24px;
-
-    font-weight: 1000;
-
-    letter-spacing: -.04em;
 }
 
 
-.dangerText {
+.logo-3d {
 
     color:
         var(--red);
+
+    font-size:
+        18px;
+
 }
 
 
-.closeButton {
+.menu-tagline {
 
-    position: absolute;
-
-    top: 13px;
-
-    right: 15px;
-
-    width: 36px;
-
-    height: 36px;
-
-    border: 0;
-
-    background:
-        rgba(255,255,255,.06);
-
-    color: white;
-
-    border-radius: 50%;
-
-    font-size: 25px;
-
-    cursor: pointer;
-}
-
-
-.pauseHint {
-
-    margin-top: 5px;
+    margin-top:
+        8px;
 
     color:
-        #657086;
+        var(--muted);
 
-    font-size: 8px;
+    font-size:
+        10px;
 
-    letter-spacing: .16em;
+    letter-spacing:
+        4px;
+
 }
 
 
-/* =====================================================
-   FINAL SCORE
-===================================================== */
+.menu-buttons {
 
-.finalStats {
+    display:
+        grid;
 
-    display: grid;
+    gap:
+        12px;
+
+    margin-top:
+        34px;
+
+}
+
+
+.game-button {
+
+    width:
+        100%;
+
+    min-height:
+        54px;
+
+    border:
+        1px solid rgba(120,180,255,0.2);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(18, 28, 49, 0.86);
+
+    color:
+        var(--white);
+
+    font-size:
+        13px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1.5px;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease;
+
+}
+
+
+.game-button:active {
+
+    transform:
+        scale(0.97);
+
+}
+
+
+.game-button.primary {
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879ff,
+            #00bce8
+        );
+
+    border-color:
+        rgba(255,255,255,0.28);
+
+    box-shadow:
+        0 10px 35px rgba(0,160,255,0.25);
+
+}
+
+
+.game-button.danger {
+
+    background:
+        rgba(110, 10, 30, 0.72);
+
+    border-color:
+        rgba(255, 50, 80, 0.35);
+
+}
+
+
+.menu-stats {
+
+    display:
+        grid;
 
     grid-template-columns:
         1fr 1fr;
 
-    gap: 10px;
+    gap:
+        10px;
 
-    margin-bottom: 20px;
+    margin-top:
+        18px;
+
 }
 
 
-.finalStats div {
+.stat-box {
 
-    padding: 16px;
-
-    border-radius: 12px;
-
-    background:
-        rgba(255,255,255,.045);
-}
-
-
-.finalStats span {
-
-    display: block;
-
-    font-size: 8px;
-
-    letter-spacing: .15em;
-
-    color: #7f8ba0;
-}
-
-
-.finalStats strong {
-
-    display: block;
-
-    font-size: 28px;
-
-    margin-top: 4px;
-}
-
-
-/* =====================================================
-   HOW TO PLAY
-===================================================== */
-
-.controlList {
-
-    margin-top: 5px;
-
-    text-align: left;
-}
-
-
-.controlRow {
-
-    display: flex;
-
-    justify-content:
-        space-between;
-
-    align-items: center;
-
-    padding: 10px 0;
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.06);
-
-    font-size: 10px;
-
-    letter-spacing: .12em;
-
-    color: #b7c0d1;
-}
-
-
-.keys {
-
-    display: flex;
-
-    gap: 5px;
-}
-
-
-kbd {
-
-    min-width: 32px;
-
-    height: 30px;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 7px;
+    padding:
+        13px;
 
     border:
-        1px solid
-        rgba(255,255,255,.14);
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius:
+        12px;
 
     background:
-        rgba(255,255,255,.07);
+        rgba(255,255,255,0.035);
 
-    font-size: 10px;
-
-    font-weight: 900;
 }
 
 
-.mobileInfo {
+.stat-box span {
 
-    margin-top: 20px;
+    display:
+        block;
 
     color:
-        #748096;
+        var(--muted);
 
-    font-size: 10px;
+    font-size:
+        9px;
 
-    line-height: 1.5;
+    letter-spacing:
+        1.5px;
+
 }
 
 
-/* =====================================================
-   SETTINGS
-===================================================== */
+.stat-box strong {
 
-.settingsList {
+    display:
+        block;
 
-    text-align: left;
-}
-
-
-.settingRow {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content:
-        space-between;
-
-    padding: 15px 0;
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.06);
-
-    font-size: 10px;
-
-    letter-spacing: .12em;
-}
-
-
-.settingRow span {
-
-    color:
-        #8591a6;
-}
-
-
-.settingRow strong {
+    margin-top:
+        5px;
 
     color:
         var(--cyan);
 
-    font-size: 9px;
+    font-size:
+        17px;
+
 }
 
 
-/* =====================================================
-   TOUCH CONTROLS
-===================================================== */
+.asset-status {
 
-#touchControls {
+    margin-top:
+        17px;
 
-    position: absolute;
+    color:
+        var(--green);
 
-    inset: 0;
+    font-size:
+        9px;
 
-    z-index: 15;
+    letter-spacing:
+        1px;
 
-    pointer-events: none;
 }
 
 
-.touchButton {
+.version {
 
-    position: absolute;
+    margin-top:
+        18px;
 
-    width:
-        clamp(
-            58px,
-            15vw,
-            82px
-        );
+    color:
+        rgba(255,255,255,0.3);
 
-    height:
-        clamp(
-            58px,
-            15vw,
-            82px
-        );
+    font-size:
+        9px;
 
-    border-radius: 50%;
+    letter-spacing:
+        1px;
+
+}
+
+
+/* =========================================================
+   HUD
+========================================================= */
+
+.hud {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        20;
+
+    pointer-events:
+        none;
+
+}
+
+
+.hud-top {
+
+    position:
+        absolute;
+
+    top:
+        max(18px, env(safe-area-inset-top));
+
+    left:
+        18px;
+
+    right:
+        18px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr;
+
+    gap:
+        9px;
+
+}
+
+
+.hud-box {
+
+    padding:
+        10px 13px;
 
     border:
-        1px solid
-        rgba(255,255,255,.2);
+        1px solid rgba(150,200,255,0.14);
+
+    border-radius:
+        12px;
 
     background:
-        rgba(5,10,20,.55);
-
-    color: white;
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.35),
-
-        inset 0 1px 0
-        rgba(255,255,255,.1);
+        rgba(3,8,18,0.62);
 
     backdrop-filter:
-        blur(10px);
+        blur(8px);
+
+}
+
+
+.hud-label {
+
+    display:
+        block;
+
+    color:
+        var(--muted);
+
+    font-size:
+        8px;
+
+    letter-spacing:
+        1.5px;
+
+}
+
+
+.hud-box strong {
+
+    display:
+        block;
+
+    margin-top:
+        3px;
+
+    color:
+        var(--white);
+
+    font-size:
+        18px;
+
+}
+
+
+.speed-value {
+
+    display:
+        flex;
+
+    align-items:
+        baseline;
+
+    gap:
+        5px;
+
+}
+
+
+.speed-value strong {
+
+    color:
+        var(--cyan);
+
+    font-size:
+        23px;
+
+}
+
+
+.speed-value small {
+
+    color:
+        var(--muted);
+
+    font-size:
+        8px;
+
+}
+
+
+.score-box strong {
+
+    color:
+        var(--gold);
+
+}
+
+
+.best-box strong {
+
+    color:
+        var(--green);
+
+}
+
+
+.hud-title {
+
+    position:
+        absolute;
+
+    top:
+        96px;
+
+    left:
+        50%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(255,255,255,0.5);
+
+    font-size:
+        9px;
+
+    letter-spacing:
+        4px;
+
+}
+
+
+.hud-pause-hint {
+
+    position:
+        absolute;
+
+    right:
+        20px;
+
+    bottom:
+        20px;
+
+    color:
+        rgba(255,255,255,0.45);
+
+    font-size:
+        9px;
+
+    letter-spacing:
+        1px;
+
+}
+
+
+/* =========================================================
+   DANGER FLASH
+========================================================= */
+
+.danger-flash {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        250;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0;
+
+    border:
+        8px solid var(--red);
+
+}
+
+
+.danger-flash.active {
+
+    animation:
+        crashFlash 0.28s ease-out;
+
+}
+
+
+@keyframes crashFlash {
+
+    0% {
+
+        opacity:
+            0;
+
+    }
+
+    25% {
+
+        opacity:
+            0.85;
+
+    }
+
+    100% {
+
+        opacity:
+            0;
+
+    }
+
+}
+
+
+/* =========================================================
+   OVERLAY CARD
+========================================================= */
+
+.overlay-card {
+
+    width:
+        min(470px, 94vw);
+
+    max-height:
+        90vh;
+
+    overflow-y:
+        auto;
+
+    padding:
+        30px;
+
+    border:
+        1px solid rgba(110,180,255,0.2);
+
+    border-radius:
+        22px;
+
+    background:
+        var(--panel);
+
+    box-shadow:
+        0 30px 100px rgba(0,0,0,0.7);
+
+    backdrop-filter:
+        blur(20px);
 
     -webkit-backdrop-filter:
-        blur(10px);
+        blur(20px);
+
+    text-align:
+        center;
+
+}
+
+
+.overlay-title {
+
+    font-size:
+        clamp(28px, 8vw, 42px);
+
+    font-weight:
+        900;
+
+    font-style:
+        italic;
+
+    letter-spacing:
+        2px;
+
+}
+
+
+.overlay-subtitle {
+
+    margin-top:
+        7px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+    letter-spacing:
+        2px;
+
+}
+
+
+.overlay-buttons {
+
+    display:
+        grid;
+
+    gap:
+        10px;
+
+    margin-top:
+        26px;
+
+}
+
+
+.pause-key {
+
+    margin-top:
+        16px;
+
+    color:
+        rgba(255,255,255,0.38);
+
+    font-size:
+        9px;
+
+    letter-spacing:
+        1px;
+
+}
+
+
+.danger-title {
+
+    color:
+        var(--red);
+
+    text-shadow:
+        0 0 24px rgba(255,40,70,0.35);
+
+}
+
+
+.crash-icon {
+
+    color:
+        var(--red);
+
+    font-size:
+        36px;
+
+}
+
+
+.final-stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        10px;
+
+    margin-top:
+        24px;
+
+}
+
+
+.final-stats div {
+
+    padding:
+        15px;
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(255,255,255,0.03);
+
+}
+
+
+.final-stats span {
+
+    display:
+        block;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+}
+
+
+.final-stats strong {
+
+    display:
+        block;
+
+    margin-top:
+        5px;
+
+    color:
+        var(--cyan);
+
+    font-size:
+        23px;
+
+}
+
+
+/* =========================================================
+   HOW TO PLAY
+========================================================= */
+
+.info-card {
+
+    text-align:
+        left;
+
+}
+
+
+.info-card > .overlay-title {
+
+    text-align:
+        center;
+
+}
+
+
+.instruction-list {
+
+    display:
+        grid;
+
+    gap:
+        10px;
+
+    margin-top:
+        24px;
+
+}
+
+
+.instruction {
+
+    display:
+        flex;
+
+    gap:
+        13px;
+
+    padding:
+        12px;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(255,255,255,0.025);
+
+}
+
+
+.instruction-icon {
+
+    flex:
+        0 0 48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(0,180,255,0.1);
+
+    color:
+        var(--cyan);
+
+    font-weight:
+        900;
+
+    font-size:
+        12px;
+
+}
+
+
+.instruction strong {
+
+    display:
+        block;
+
+    font-size:
+        11px;
+
+}
+
+
+.instruction span {
+
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+
+    line-height:
+        1.5;
+
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+.settings-list {
+
+    display:
+        grid;
+
+    gap:
+        10px;
+
+    margin-top:
+        24px;
+
+}
+
+
+.setting-row {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        15px;
+
+    padding:
+        15px;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(255,255,255,0.025);
+
+    text-align:
+        left;
+
+}
+
+
+.setting-row strong {
+
+    display:
+        block;
+
+    font-size:
+        11px;
+
+}
+
+
+.setting-row span {
+
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+}
+
+
+.setting-value {
+
+    color:
+        var(--green);
+
+}
+
+
+/* =========================================================
+   ANDROID TOUCH SYSTEM
+========================================================= */
+
+.touch-controls {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        50;
+
+    pointer-events:
+        none;
+
+    touch-action:
+        none;
+
+}
+
+
+/*
+    LOWER STEERING AREA
+
+    This is intentionally large.
+
+    The user can put one or two fingers here and
+    drag left/right.
+*/
+
+.touch-steering-area {
+
+    position:
+        absolute;
+
+    left:
+        0;
+
+    right:
+        0;
+
+    bottom:
+        0;
+
+    height:
+        42%;
 
     pointer-events:
         auto;
@@ -1142,247 +1438,647 @@ kbd {
     touch-action:
         none;
 
-    -webkit-tap-highlight-color:
-        transparent;
-
-    transition:
-        transform .08s ease,
-        background .08s ease;
 }
 
 
-.touchButton:active {
+.steering-guide {
+
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    bottom:
+        22px;
 
     transform:
-        scale(.91);
+        translateX(-50%);
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        15px;
+
+    padding:
+        8px 13px;
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-radius:
+        30px;
 
     background:
-        rgba(0,150,220,.38);
+        rgba(3,8,18,0.36);
+
+    color:
+        rgba(255,255,255,0.42);
+
+    font-size:
+        19px;
+
+    pointer-events:
+        none;
+
 }
 
 
-.touchButton span {
+.steering-guide small {
 
-    font-size: 30px;
+    white-space:
+        nowrap;
 
-    font-weight: 900;
+    font-size:
+        8px;
+
+    letter-spacing:
+        1px;
+
 }
 
 
-.leftButton {
+/* =========================================================
+   LEFT / RIGHT BIG BUTTONS
+========================================================= */
+
+.steering-side {
+
+    position:
+        absolute;
+
+    bottom:
+        calc(
+            13% +
+            env(safe-area-inset-bottom)
+        );
+
+    pointer-events:
+        none;
+
+}
+
+
+.left-side {
 
     left:
-        max(
-            20px,
-            env(safe-area-inset-left)
-        );
+        max(16px, env(safe-area-inset-left));
 
-    bottom:
-        max(
-            28px,
-            env(safe-area-inset-bottom)
-        );
 }
 
 
-.rightButton {
+.right-side {
 
     left:
-        calc(
-            max(
-                20px,
-                env(safe-area-inset-left)
-            )
-            + 88px
-        );
+        50%;
 
-    bottom:
-        max(
-            28px,
-            env(safe-area-inset-bottom)
-        );
+    transform:
+        translateX(-50%);
+
+    /*
+        This right-side steering button is centered
+        so either hand can reach it.
+    */
+
 }
 
 
-.brakeButton {
+.steering-button {
 
-    right:
-        calc(
-            max(
-                20px,
-                env(safe-area-inset-right)
-            )
-            + 88px
+    width:
+        clamp(72px, 19vw, 105px);
+
+    height:
+        clamp(72px, 19vw, 105px);
+
+    border:
+        2px solid rgba(120,200,255,0.22);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 40% 30%,
+            rgba(40,100,180,0.46),
+            rgba(4,10,25,0.82)
         );
 
-    bottom:
-        max(
-            28px,
-            env(safe-area-inset-bottom)
-        );
+    color:
+        var(--white);
+
+    font-size:
+        60px;
+
+    line-height:
+        1;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+
+    pointer-events:
+        auto;
+
+    touch-action:
+        none;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 0.08s ease,
+        background 0.08s ease;
+
 }
 
 
-.boostButton {
+.steering-button:active {
+
+    transform:
+        scale(0.91);
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,190,255,0.6),
+            rgba(0,60,130,0.75)
+        );
+
+}
+
+
+/*
+    RIGHT SIDE BUTTON IS POSITIONED independently
+    so we can have two useful steering buttons.
+*/
+
+.right-side {
+
+    left:
+        auto;
+
+    right:
+        max(16px, env(safe-area-inset-right));
+
+    transform:
+        none;
+
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.action-controls {
+
+    position:
+        absolute;
 
     right:
         max(
-            20px,
+            16px,
             env(safe-area-inset-right)
         );
 
     bottom:
-        max(
-            28px,
+        calc(
+            13% +
+            clamp(85px, 20vw, 110px) +
+            20px +
             env(safe-area-inset-bottom)
         );
 
-    border-color:
-        rgba(0,217,255,.35);
+    display:
+        flex;
 
-    background:
-        rgba(0,80,130,.42);
+    flex-direction:
+        column;
+
+    gap:
+        10px;
+
+    pointer-events:
+        auto;
+
 }
 
 
-/* =====================================================
+.action-button {
+
+    width:
+        clamp(72px, 18vw, 96px);
+
+    height:
+        clamp(48px, 13vw, 62px);
+
+    border:
+        1px solid rgba(255,255,255,0.16);
+
+    border-radius:
+        14px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        3px;
+
+    color:
+        white;
+
+    font-size:
+        8px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        1px;
+
+    pointer-events:
+        auto;
+
+    touch-action:
+        none;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 0.08s ease;
+
+}
+
+
+.action-button:active {
+
+    transform:
+        scale(0.93);
+
+}
+
+
+.boost-button {
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,126,255,0.92),
+            rgba(0,213,255,0.78)
+        );
+
+    box-shadow:
+        0 8px 30px rgba(0,180,255,0.2);
+
+}
+
+
+.brake-button {
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(160,20,50,0.9),
+            rgba(80,8,25,0.88)
+        );
+
+}
+
+
+.action-icon {
+
+    font-size:
+        16px;
+
+}
+
+
+.touch-control-note {
+
+    position:
+        absolute;
+
+    bottom:
+        calc(
+            4px +
+            env(safe-area-inset-bottom)
+        );
+
+    left:
+        50%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(255,255,255,0.24);
+
+    font-size:
+        7px;
+
+    letter-spacing:
+        1px;
+
+    white-space:
+        nowrap;
+
+}
+
+
+/* =========================================================
    MOBILE
-===================================================== */
+========================================================= */
 
 @media (
     max-width: 700px
 ) {
 
-    .hudTop {
+    .menu-panel {
 
-        left: 10px;
+        padding:
+            23px;
 
-        right: 10px;
+        border-radius:
+            20px;
+
     }
 
 
-    .hudBrand {
+    .hud-top {
 
-        display: none;
+        top:
+            max(
+                10px,
+                env(safe-area-inset-top)
+            );
+
+        left:
+            9px;
+
+        right:
+            9px;
+
+        gap:
+            6px;
+
     }
 
 
-    .hudStats {
+    .hud-box {
 
-        margin-left: auto;
+        padding:
+            8px 9px;
+
+        border-radius:
+            10px;
+
     }
 
 
-    .hudBox {
+    .hud-box strong {
 
-        min-width: 58px;
+        font-size:
+            14px;
 
-        padding: 7px 6px;
     }
 
 
-    .hudBox strong {
+    .speed-value strong {
 
-        font-size: 14px;
+        font-size:
+            18px;
+
     }
 
 
-    .menuCard {
+    .hud-title {
 
-        padding: 20px;
+        top:
+            78px;
 
-        border-radius: 18px;
+        font-size:
+            7px;
+
     }
 
 
-    .menuTop {
+    .hud-pause-hint {
 
-        margin-bottom: 20px;
+        display:
+            none;
+
     }
 
 
-    .brandMain {
+    .overlay {
 
-        font-size: 52px;
+        padding:
+            12px;
+
     }
 
 
-    .menuTag {
+    .overlay-card {
 
-        font-size: 8px;
+        padding:
+            21px;
+
+        border-radius:
+            18px;
+
+        max-height:
+            92vh;
+
     }
 
 
-    .gameButton {
+    .instruction {
 
-        min-height: 50px;
+        padding:
+            9px;
+
     }
 
 
-    .gameButton.primary {
+    .instruction-icon {
 
-        min-height: 62px;
+        flex-basis:
+            40px;
+
+        width:
+            40px;
+
+        height:
+            40px;
+
     }
 
-
-    .popup {
-
-        padding: 22px;
-
-        border-radius: 18px;
-    }
 }
 
 
-/* =====================================================
+/* =========================================================
    SMALL PHONES
-===================================================== */
+========================================================= */
 
 @media (
-    max-height: 650px
+    max-width: 390px
 ) {
 
-    .menuTop {
+    .menu-panel {
 
-        margin-bottom: 10px;
+        padding:
+            18px;
+
     }
 
 
-    .brandMain {
+    .menu-buttons {
 
-        font-size: 42px;
+        margin-top:
+            23px;
+
     }
 
 
-    .menuCard {
+    .game-button {
 
-        padding: 14px;
+        min-height:
+            48px;
+
     }
 
 
-    .gameButton {
+    .steering-button {
 
-        min-height: 43px;
+        width:
+            68px;
 
-        margin-bottom: 7px;
+        height:
+            68px;
+
+        font-size:
+            48px;
+
     }
 
 
-    .gameButton.primary {
+    .action-controls {
 
-        min-height: 52px;
+        bottom:
+            calc(
+                13% +
+                86px +
+                16px +
+                env(safe-area-inset-bottom)
+            );
+
     }
 
 
-    .menuStats {
+    .action-button {
 
-        margin-top: 10px;
+        width:
+            70px;
+
+        height:
+            47px;
+
     }
 
-
-    .menuFooter {
-
-        display: none;
-    }
 }
-```
+
+
+/* =========================================================
+   LANDSCAPE MOBILE
+========================================================= */
+
+@media (
+    max-height: 500px
+) and (
+    orientation: landscape
+) {
+
+    .touch-steering-area {
+
+        height:
+            48%;
+
+    }
+
+
+    .steering-side {
+
+        bottom:
+            calc(
+                8% +
+                env(safe-area-inset-bottom)
+            );
+
+    }
+
+
+    .action-controls {
+
+        bottom:
+            calc(
+                8% +
+                80px +
+                12px +
+                env(safe-area-inset-bottom)
+            );
+
+    }
+
+
+    .steering-guide {
+
+        display:
+            none;
+
+    }
+
+
+    .menu-panel {
+
+        max-height:
+            92vh;
+
+        overflow-y:
+            auto;
+
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP TOUCH CONTROLS
+========================================================= */
+
+@media (
+    min-width: 701px
+) {
+
+    .touch-controls {
+
+        display:
+            none !important;
+
+    }
+
+}
