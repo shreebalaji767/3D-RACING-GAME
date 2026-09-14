@@ -23,3 +23,9 @@ Free browser 3D racing game for GitHub Pages.
 
 ## Important
 The game loads Three.js from jsDelivr. This is free, but players need internet access for the library CDN.
+
+## 🚀 Live Demo
+
+🌐 **[Play Neon Highway 3D Online](https://threed-racing-game-8wvg.onrender.com/)**
+
+> Try the game directly in your browser — no installation required.
