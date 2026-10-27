@@ -2125,3 +2125,5 @@ body {
 .mission-card>span:last-of-type { display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45; }
 .mission-meter { display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:var(--green);font-size:9px;font-weight:800;letter-spacing:.8px; }
 .hud-mission { color:#dbe9ff;text-shadow:0 2px 8px #000; }
+
+#downloadReplay { display:flex;align-items:center;justify-content:center;text-decoration:none; }
