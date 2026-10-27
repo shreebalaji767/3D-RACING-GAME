@@ -2161,3 +2161,35 @@ body {
 @media (max-width: 480px) {
     .brand-logo-image { width: 100%; }
 }
+
+
+/* Persistent clickable brand logo: visible during gameplay, pause and results. */
+.home-logo-button {
+    position: fixed;
+    z-index: 120;
+    top: max(12px, env(safe-area-inset-top));
+    left: max(12px, env(safe-area-inset-left));
+    width: clamp(112px, 17vw, 188px);
+    padding: 5px 8px;
+    border: 1px solid rgba(66, 245, 255, .38);
+    border-radius: 12px;
+    background: rgba(3, 7, 18, .86);
+    box-shadow: 0 0 22px rgba(8, 124, 255, .16);
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+.home-logo-button img { display: block; width: 100%; height: auto; }
+.home-logo-button:hover, .home-logo-button:focus-visible {
+    border-color: #42f5ff;
+    box-shadow: 0 0 22px rgba(66, 245, 255, .32);
+}
+.home-logo-button:focus-visible { outline: 2px solid #42f5ff; outline-offset: 3px; }
+@media (max-width: 520px) {
+    .home-logo-button {
+        width: 112px;
+        padding: 4px 6px;
+        top: max(8px, env(safe-area-inset-top));
+        left: max(8px, env(safe-area-inset-left));
+    }
+}
