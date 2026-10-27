@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 180" role="img" aria-labelledby="title desc">
+  <title id="title">Neon Highway 3D</title>
+  <desc id="desc">Futuristic neon racing emblem with a road vanishing toward the horizon.</desc>
+  <defs>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42f5ff"/><stop offset="1" stop-color="#087cff"/></linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4c9a"/><stop offset="1" stop-color="#a879ff"/></linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g transform="translate(12 12)">
+    <path d="M78 4 144 42 144 118 78 156 12 118 12 42Z" fill="#071426" stroke="url(#cyan)" stroke-width="3"/>
+    <path d="M78 18 130 48 130 111 78 141 26 111 26 48Z" fill="none" stroke="#244a68" stroke-width="1.5"/>
+    <g filter="url(#glow)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M46 118 65 83 72 51" stroke="url(#cyan)" stroke-width="8"/>
+      <path d="M110 118 91 83 84 51" stroke="url(#pink)" stroke-width="8"/>
+      <path d="M78 124V103M78 87V75M78 62V54" stroke="#f5fbff" stroke-width="5"/>
+      <path d="M38 46 60 59M118 46 96 59" stroke="#42f5ff" stroke-width="3"/>
+    </g>
+    <path d="M53 82 65 65H91L103 82 96 91H60Z" fill="#eafaff" stroke="#42f5ff" stroke-width="2"/>
+    <path d="M65 68H91L97 79H59Z" fill="#10263d"/>
+    <circle cx="61" cy="91" r="4" fill="#ff4c9a"/><circle cx="95" cy="91" r="4" fill="#42f5ff"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900">
+    <text x="178" y="79" font-size="51" letter-spacing="5" fill="#f5fbff">NEON</text>
+    <text x="176" y="129" font-size="44" letter-spacing="2" fill="url(#cyan)">HIGHWAY</text>
+    <text x="494" y="127" font-size="20" letter-spacing="2" fill="#ff4c9a">3D</text>
+    <path d="M180 143H590" stroke="#244a68" stroke-width="2"/>
+    <path d="M180 143H315" stroke="url(#pink)" stroke-width="3" filter="url(#glow)"/>
+    <text x="181" y="163" font-size="10" letter-spacing="4" fill="#91a9c8">EXTREME NIGHT RACING</text>
+  </g>
+</svg>
