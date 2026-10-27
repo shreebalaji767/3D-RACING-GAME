@@ -4854,7 +4854,10 @@ function onResize() {
 
 function setupEvents() {
 
-    homeLogoButton.addEventListener("click", showLandingPage);
+    homeLogoButton.addEventListener("click", () => {
+        sessionStorage.setItem("neonHighwayView", "landing");
+        window.location.assign("./");
+    });
     document.getElementById("enterGame").addEventListener("click", () => {
         sessionStorage.setItem("neonHighwayView", "menu");
         landingPage.classList.add("hidden");
@@ -4863,7 +4866,8 @@ function setupEvents() {
     });
     document.getElementById("landingBrand").addEventListener("click", event => {
         event.preventDefault();
-        showLandingPage();
+        sessionStorage.setItem("neonHighwayView", "landing");
+        window.location.assign("./");
     });
     document.getElementById("landingHowto").addEventListener("click", () => {
         sessionStorage.setItem("neonHighwayView", "menu");
