@@ -585,10 +585,14 @@ async function init() {
             );
 
 
-            // Always open on the landing page when the site is loaded or refreshed.
-            // Starting a race should only happen after the user presses START RACE.
-            menu.classList.remove("hidden");
-            updateMenu();
+            // A fresh tab starts on the landing page. A refresh in this tab
+            // preserves the current view: return to gameplay if a race was active.
+            if (sessionStorage.getItem("neonHighwayView") === "game") {
+                startGame();
+            } else {
+                menu.classList.remove("hidden");
+                updateMenu();
+            }
 
         },
         500
@@ -3013,6 +3017,7 @@ function carsCollide(
 ========================================================= */
 
 function startGame() {
+    sessionStorage.setItem("neonHighwayView", "game");
     homeLogoButton.classList.remove("hidden");
     levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
@@ -3993,6 +3998,7 @@ function togglePause() {
 
 function exitGame() {
 
+    sessionStorage.removeItem("neonHighwayView");
     homeLogoButton.classList.add("hidden");
 
     gameRunning =
