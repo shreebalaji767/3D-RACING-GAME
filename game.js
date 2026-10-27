@@ -251,10 +251,14 @@ const finalScoreElement =
     );
 
 
-const finalBestElement =
-    document.getElementById(
-        "finalBest"
-    );
+const finalBestElement = document.getElementById("finalBest");
+const levelCompleteScreen = document.getElementById("levelComplete");
+const levelLabelElement = document.getElementById("levelLabel");
+const levelDistanceLabelElement = document.getElementById("levelDistanceLabel");
+const levelProgressFillElement = document.getElementById("levelProgressFill");
+const completeScoreElement = document.getElementById("completeScore");
+const completeCoinsElement = document.getElementById("completeCoins");
+const pauseLevelLabelElement = document.getElementById("pauseLevelLabel");
 
 
 const assetStatus =
@@ -350,9 +354,25 @@ let paused =
     false;
 
 
-let gameOver =
-    false;
-
+let gameOver = false;
+let levelComplete = false;
+let currentLevel = Math.max(1, Number(localStorage.getItem("neonHighwayLevel") || 1));
+let levelDistance = 0;
+let levelStartScore = 0;
+const LEVEL_DISTANCE_TARGET = 1500;
+function selectedDifficulty() {
+    const allowed = ["easy", "normal", "hard", "expert"];
+    const saved = localStorage.getItem("neonHighwayDifficulty") || "normal";
+    return allowed.includes(saved) ? saved : "normal";
+}
+function difficultySettings() {
+    return {
+        easy: { speed: 0.82, traffic: 0.72, score: 1.0 },
+        normal: { speed: 1.00, traffic: 1.00, score: 1.0 },
+        hard: { speed: 1.12, traffic: 1.22, score: 1.25 },
+        expert: { speed: 1.25, traffic: 1.48, score: 1.6 }
+    }[selectedDifficulty()];
+}
 
 let speed =
     CONFIG.startingSpeed;
@@ -2616,10 +2636,8 @@ function createTraffic() {
     trafficGroup.clear();
 
 
-    const count =
-        isMobile
-            ? 7
-            : 10;
+    const baseCount = isMobile ? 7 : 10;
+    const count = Math.max(4, Math.round(baseCount * difficultySettings().traffic) + Math.min(4, Math.floor((currentLevel - 1) / 5)));
 
 
     for (
@@ -2747,9 +2765,8 @@ function spawnTrafficCar(
         lane;
 
 
-    car.userData.speed =
-        20 +
-        Math.random() * 30;
+    const levelTrafficBonus = Math.min(28, (currentLevel - 1) * 1.2);
+    car.userData.speed = (20 + Math.random() * 30 + levelTrafficBonus) * difficultySettings().speed;
 
 
     trafficGroup.add(
@@ -2969,7 +2986,7 @@ function carsCollide(
 ========================================================= */
 
 function startGame() {
-
+    levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
         "hidden"
     );
@@ -3030,13 +3047,11 @@ function startGame() {
 ========================================================= */
 
 function resetGame() {
-
-    speed =
-        CONFIG.startingSpeed;
-
-
-    score =
-        0;
+    speed = CONFIG.startingSpeed * difficultySettings().speed;
+    levelDistance = 0;
+    levelStartScore = 0;
+    levelComplete = false;
+    score = 0;
 
 
     steeringInput =
@@ -3196,13 +3211,11 @@ function updateGame(
     );
 
 
-    score +=
-        speed *
-        delta *
-        0.8;
-
-
+    score += speed * delta * 0.8 * difficultySettings().score;
+    levelDistance += speed * delta;
     updateHUD();
+    updateLevelHUD();
+    if (levelDistance >= LEVEL_DISTANCE_TARGET) completeLevel();
 }
 
 
@@ -3238,16 +3251,9 @@ function updateSpeed(
     }
 
 
-    speed =
-        THREE.MathUtils.clamp(
-
-            speed,
-
-            20,
-
-            CONFIG.maxSpeed
-
-        );
+    const difficulty = difficultySettings();
+    const levelBonus = Math.min(45, (currentLevel - 1) * 1.5);
+    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed + levelBonus);
 }
 
 
@@ -3788,19 +3794,14 @@ function updateCamera(
 ========================================================= */
 
 function crash() {
-
-    if (
-        gameOver
-    ) {
+    if (gameOver || levelComplete) {
 
         return;
     }
 
 
-    gameOver =
-        true;
-
-
+    gameOver = true;
+    levelCompleteScreen.classList.add("hidden");
     gameRunning =
         false;
 
@@ -3842,10 +3843,8 @@ function crash() {
         finalScore;
 
 
-    finalBestElement.textContent =
-        bestScore;
-
-
+    finalBestElement.textContent = bestScore;
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, reason: "crash" } }));
     bestElement.textContent =
         bestScore;
 
@@ -3892,11 +3891,7 @@ function crash() {
 ========================================================= */
 
 function togglePause() {
-
-    if (
-        !gameRunning ||
-        gameOver
-    ) {
+    if (!gameRunning || gameOver || levelComplete) {
 
         return;
     }
@@ -3922,13 +3917,9 @@ function togglePause() {
     }
 
 
-    paused =
-        !paused;
-
-
-    if (
-        paused
-    ) {
+    paused = !paused;
+    pauseLevelLabelElement.textContent = `LEVEL ${currentLevel} · ${selectedDifficulty().toUpperCase()} MODE`;
+    if (paused) {
 
         clearInputs();
 
@@ -3972,10 +3963,9 @@ function exitGame() {
         false;
 
 
-    gameOver =
-        false;
-
-
+    gameOver = false;
+    levelComplete = false;
+    levelCompleteScreen.classList.add("hidden");
     clearInputs();
 
 
@@ -4016,13 +4006,11 @@ function exitGame() {
 ========================================================= */
 
 function updateMenu() {
-
-    menuBestElement.textContent =
-        bestScore;
-
-
-    bestElement.textContent =
-        bestScore;
+    menuBestElement.textContent = bestScore;
+    levelLabelElement.textContent = `LEVEL ${currentLevel}`;
+    levelDistanceLabelElement.textContent = `0 / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
+    levelProgressFillElement.style.width = "0%";
+    bestElement.textContent = bestScore;
 }
 
 
@@ -4030,8 +4018,38 @@ function updateMenu() {
    HUD
 ========================================================= */
 
+function updateLevelHUD() {
+    const progress = Math.min(100, levelDistance / LEVEL_DISTANCE_TARGET * 100);
+    levelLabelElement.textContent = `LEVEL ${currentLevel}`;
+    levelDistanceLabelElement.textContent = `${Math.floor(levelDistance).toLocaleString()} / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
+    levelProgressFillElement.style.width = `${progress}%`;
+}
+function completeLevel() {
+    if (levelComplete || gameOver) return;
+    levelComplete = true;
+    gameRunning = false;
+    paused = false;
+    clearInputs();
+    clearTouchState();
+    hud.classList.add("hidden");
+    touchControls.classList.add("hidden");
+    pauseScreen.classList.add("hidden");
+    completeScoreElement.textContent = Math.floor(score).toLocaleString();
+    completeCoinsElement.textContent = Math.max(0, Math.floor((score - levelStartScore) / 100)).toLocaleString();
+    document.getElementById("completeSubtitle").textContent = `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
+    levelCompleteScreen.classList.remove("hidden");
+    localStorage.setItem("neonHighwayLevel", String(currentLevel));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, reason: "complete" } }));
+}
+function advanceLevel() {
+    currentLevel += 1;
+    localStorage.setItem("neonHighwayLevel", String(currentLevel));
+    levelComplete = false;
+    gameOver = false;
+    levelCompleteScreen.classList.add("hidden");
+    startGame();
+}
 function updateHUD() {
-
     speedElement.textContent =
         Math.round(
             speed
@@ -4044,8 +4062,8 @@ function updateHUD() {
         );
 
 
-    bestElement.textContent =
-        bestScore;
+    bestElement.textContent = bestScore;
+    updateLevelHUD();
 }
 
 
@@ -4595,12 +4613,10 @@ function setupButtons() {
     );
 
 
-    document.getElementById(
-        "mainMenu"
-    ).addEventListener(
-        "click",
-        exitGame
-    );
+    document.getElementById("mainMenu").addEventListener("click", exitGame);
+    document.getElementById("nextLevel").addEventListener("click", advanceLevel);
+    document.getElementById("replayCompletedLevel").addEventListener("click", startGame);
+    document.getElementById("completeMainMenu").addEventListener("click", exitGame);
 
 
     document.getElementById(
