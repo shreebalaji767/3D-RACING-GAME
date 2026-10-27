@@ -586,9 +586,12 @@ async function init() {
             );
 
 
-            // Fresh visits start on the dedicated landing page. Refresh keeps
-            // the current section in this tab (landing, setup menu, or active race).
-            const savedView = sessionStorage.getItem("neonHighwayView");
+            // A new navigation/tab always opens the landing page.
+            // A browser refresh restores the section that was open in this tab.
+            const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+            const savedView = navigationType === "reload"
+                ? sessionStorage.getItem("neonHighwayView")
+                : null;
             if (savedView === "game") {
                 startGame();
             } else if (savedView === "menu") {
