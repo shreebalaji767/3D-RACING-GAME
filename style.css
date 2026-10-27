@@ -2193,3 +2193,7 @@ body {
         left: max(8px, env(safe-area-inset-left));
     }
 }
+
+
+/* Level selector helper text */
+.level-select-hint { margin-top:7px; color:var(--muted); font-size:10px; line-height:1.5; }
