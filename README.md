@@ -29,3 +29,14 @@ The game loads Three.js from jsDelivr. This is free, but players need internet a
 🌐 **[Play Neon Highway 3D Online](https://threed-racing-game-8wvg.onrender.com/)**
 
 > Try the game directly in your browser — no installation required.
+
+
+## Upgrade branch: Neon Highway Complete
+
+- Responsive race setup with Easy, Normal, Hard, and Expert difficulty.
+- Numbered levels with distance goals, progress HUD, Next Level, and Replay Level.
+- Traffic and speed scale with difficulty and level progression.
+- Gameplay capture and replay panel; WebM recording is saved locally in the browser.
+- Improved small-screen layout, keyboard focus styles, and reduced-motion support.
+
+Levels are generated from the existing highway/traffic system rather than handcrafted maps. A pre-recorded 4K trailer is not bundled because no captured source video exists in the repository; recorded quality depends on browser/device resolution and MediaRecorder support.
