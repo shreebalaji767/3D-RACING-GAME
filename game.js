@@ -11,18 +11,11 @@ import {
 
 const CONFIG = {
 
-    playerModel:
-        "./assets/models/player-car.glb",
+    // No external GLB files are shipped with this repository.
+    // Use the built-in procedural car models to avoid missing-asset 404s.
+    playerModel: null,
 
-    trafficModels: [
-
-        "./assets/models/traffic-car-01.glb",
-
-        "./assets/models/traffic-car-02.glb",
-
-        "./assets/models/traffic-car-03.glb"
-
-    ],
+    trafficModels: [],
 
 
     roadWidth:
@@ -1828,6 +1821,12 @@ function createPlayer() {
 ========================================================= */
 
 async function loadPlayerModel() {
+
+    if (!CONFIG.playerModel) {
+        playerModelLoaded = false;
+        assetStatus.textContent = "PROCEDURAL HIGH GRAPHICS READY";
+        return;
+    }
 
     try {
 
