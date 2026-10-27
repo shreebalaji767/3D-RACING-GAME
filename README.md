@@ -40,3 +40,6 @@ The game loads Three.js from jsDelivr. This is free, but players need internet a
 - Improved small-screen layout, keyboard focus styles, and reduced-motion support.
 
 Levels are generated from the existing highway/traffic system rather than handcrafted maps. A pre-recorded 4K trailer is not bundled because no captured source video exists in the repository; recorded quality depends on browser/device resolution and MediaRecorder support.
+
+
+Additional progression systems include selectable player-car paint, persistent local credits, and a run mission that awards 500 credits after collecting five coins.
