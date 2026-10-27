@@ -2127,3 +2127,37 @@ body {
 .hud-mission { color:#dbe9ff;text-shadow:0 2px 8px #000; }
 
 #downloadReplay { display:flex;align-items:center;justify-content:center;text-decoration:none; }
+
+
+/* BRAND LOGO + FAVICON LANDING PAGE */
+.menu-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
+}
+.brand-logo-image {
+    display: block;
+    width: min(100%, 430px);
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 18px rgba(0, 190, 255, .12));
+}
+.loading-brand-logo {
+    width: min(100%, 380px);
+    margin: 0 auto;
+}
+.game-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto 12px;
+}
+@media (min-width: 900px) {
+    .brand-logo-image { width: min(100%, 390px); }
+}
+@media (max-width: 480px) {
+    .brand-logo-image { width: 100%; }
+}
