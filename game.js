@@ -154,6 +154,7 @@ const loadingScreen =
     );
 
 const homeLogoButton = document.getElementById("homeLogoButton");
+const landingPage = document.getElementById("landingPage");
 
 
 const loadingProgress =
@@ -585,13 +586,17 @@ async function init() {
             );
 
 
-            // A fresh tab starts on the landing page. A refresh in this tab
-            // preserves the current view: return to gameplay if a race was active.
-            if (sessionStorage.getItem("neonHighwayView") === "game") {
+            // Fresh visits start on the dedicated landing page. Refresh keeps
+            // the current section in this tab (landing, setup menu, or active race).
+            const savedView = sessionStorage.getItem("neonHighwayView");
+            if (savedView === "game") {
                 startGame();
-            } else {
+            } else if (savedView === "menu") {
+                landingPage.classList.add("hidden");
                 menu.classList.remove("hidden");
                 updateMenu();
+            } else {
+                showLandingPage();
             }
 
         },
@@ -3018,6 +3023,8 @@ function carsCollide(
 
 function startGame() {
     sessionStorage.setItem("neonHighwayView", "game");
+    landingPage.classList.add("hidden");
+    menu.classList.add("hidden");
     homeLogoButton.classList.remove("hidden");
     levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
@@ -3997,53 +4004,27 @@ function togglePause() {
 ========================================================= */
 
 function exitGame() {
+    showLandingPage();
+}
 
-    sessionStorage.removeItem("neonHighwayView");
-    homeLogoButton.classList.add("hidden");
-
-    gameRunning =
-        false;
-
-
-    paused =
-        false;
-
-
+function showLandingPage() {
+    sessionStorage.setItem("neonHighwayView", "landing");
+    gameRunning = false;
+    paused = false;
     gameOver = false;
     levelComplete = false;
-    levelCompleteScreen.classList.add("hidden");
     clearInputs();
-
-
     clearTouchState();
-
-
-    pauseScreen.classList.add(
-        "hidden"
-    );
-
-
-    gameOverScreen.classList.add(
-        "hidden"
-    );
-
-
-    hud.classList.add(
-        "hidden"
-    );
-
-
-    touchControls.classList.add(
-        "hidden"
-    );
-
-
-    menu.classList.remove(
-        "hidden"
-    );
-
-
-    updateMenu();
+    homeLogoButton.classList.add("hidden");
+    pauseScreen.classList.add("hidden");
+    gameOverScreen.classList.add("hidden");
+    levelCompleteScreen.classList.add("hidden");
+    howtoScreen.classList.add("hidden");
+    settingsScreen.classList.add("hidden");
+    hud.classList.add("hidden");
+    touchControls.classList.add("hidden");
+    menu.classList.add("hidden");
+    landingPage.classList.remove("hidden");
     document.dispatchEvent(new CustomEvent("neon:menu-opened"));
 }
 
@@ -4870,7 +4851,23 @@ function onResize() {
 
 function setupEvents() {
 
-    homeLogoButton.addEventListener("click", exitGame);
+    homeLogoButton.addEventListener("click", showLandingPage);
+    document.getElementById("enterGame").addEventListener("click", () => {
+        sessionStorage.setItem("neonHighwayView", "menu");
+        landingPage.classList.add("hidden");
+        menu.classList.remove("hidden");
+        updateMenu();
+    });
+    document.getElementById("landingBrand").addEventListener("click", event => {
+        event.preventDefault();
+        showLandingPage();
+    });
+    document.getElementById("landingHowto").addEventListener("click", () => {
+        sessionStorage.setItem("neonHighwayView", "menu");
+        landingPage.classList.add("hidden");
+        menu.classList.remove("hidden");
+        howtoScreen.classList.remove("hidden");
+    });
 
     window.addEventListener(
         "resize",
