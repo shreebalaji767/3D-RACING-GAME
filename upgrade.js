@@ -10,6 +10,7 @@ paintSelect.addEventListener("change",()=>{
 const recordButton=document.getElementById("recordGameplay");
 const stopRecordButton=document.getElementById("stopRecording");
 const previewVideo=document.getElementById("gameplayPreview");
+const downloadReplay=document.getElementById("downloadReplay");
 const recordStatus=document.getElementById("recordStatus");
 let recorder=null, recordingChunks=[], recordingStartedAt=0, replayUrl=null;
 const savedDifficulty=localStorage.getItem("neonHighwayDifficulty")||"normal";
@@ -30,7 +31,7 @@ function startRecording(){
    stream.getTracks().forEach(t=>t.stop());
    if(!recordingChunks.length){recordStatus.textContent="No frames captured. Try again.";return;}
    const blob=new Blob(recordingChunks,{type:mimeType});if(replayUrl)URL.revokeObjectURL(replayUrl);
-   replayUrl=URL.createObjectURL(blob);previewVideo.src=replayUrl;previewVideo.classList.remove("hidden");previewVideo.load();
+   replayUrl=URL.createObjectURL(blob);previewVideo.src=replayUrl;previewVideo.classList.remove("hidden");downloadReplay.href=replayUrl;downloadReplay.classList.remove("hidden");previewVideo.load();
    recordButton.textContent="● RECORD ANOTHER RUN";
    recordStatus.textContent="Replay ready · "+Math.max(1,Math.round((Date.now()-recordingStartedAt)/1000))+" seconds · local WebM clip";
    stopRecordButton.classList.add("hidden");stopRecordButton.classList.remove("recording");
