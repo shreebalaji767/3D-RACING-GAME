@@ -4047,6 +4047,18 @@ function exitGame() {
 ========================================================= */
 
 function updateMenu() {
+    const levelSelect = document.getElementById("levelSelect");
+    if (levelSelect) {
+        const selectedLevel = Math.min(currentLevel, Math.max(1, Number(levelSelect.value) || currentLevel));
+        levelSelect.replaceChildren();
+        for (let level = 1; level <= currentLevel; level++) {
+            const option = document.createElement("option");
+            option.value = String(level);
+            option.textContent = level === currentLevel ? `LEVEL ${level} · LATEST UNLOCKED` : `LEVEL ${level}`;
+            levelSelect.appendChild(option);
+        }
+        levelSelect.value = String(selectedLevel);
+    }
     menuBestElement.textContent = bestScore;
     levelLabelElement.textContent = `LEVEL ${currentLevel}`;
     levelDistanceLabelElement.textContent = `0 / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
@@ -4601,12 +4613,12 @@ function clearInputs() {
 
 function setupButtons() {
 
-    document.getElementById(
-        "start"
-    ).addEventListener(
-        "click",
-        startGame
-    );
+    document.getElementById("start").addEventListener("click", () => {
+        const levelSelect = document.getElementById("levelSelect");
+        const requestedLevel = Number(levelSelect?.value || currentLevel);
+        currentLevel = Math.max(1, Math.min(currentLevel, requestedLevel));
+        startGame();
+    });
 
 
     document.getElementById(
