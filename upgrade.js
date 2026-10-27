@@ -1,5 +1,12 @@
 /* Neon Highway Complete: local gameplay recording and replay. */
 const difficultySelect=document.getElementById("difficultySelect");
+const paintSelect=document.getElementById("paintSelect");
+const savedPaint=localStorage.getItem("neonHighwayPaint")||"#087cff";
+paintSelect.value=savedPaint;
+paintSelect.addEventListener("change",()=>{
+ localStorage.setItem("neonHighwayPaint",paintSelect.value);
+ document.dispatchEvent(new CustomEvent("neon:paint-change",{detail:{color:paintSelect.value}}));
+});
 const recordButton=document.getElementById("recordGameplay");
 const stopRecordButton=document.getElementById("stopRecording");
 const previewVideo=document.getElementById("gameplayPreview");
