@@ -154,7 +154,6 @@ const loadingScreen =
     );
 
 const homeLogoButton = document.getElementById("homeLogoButton");
-const RESUME_VIEW_KEY = "neonHighwayView";
 
 
 const loadingProgress =
@@ -586,13 +585,10 @@ async function init() {
             );
 
 
-            if (sessionStorage.getItem(RESUME_VIEW_KEY) === "game") {
-                menu.classList.add("hidden");
-                startGame();
-            } else {
-                menu.classList.remove("hidden");
-                updateMenu();
-            }
+            // Always open on the landing page when the site is loaded or refreshed.
+            // Starting a race should only happen after the user presses START RACE.
+            menu.classList.remove("hidden");
+            updateMenu();
 
         },
         500
@@ -3017,7 +3013,6 @@ function carsCollide(
 ========================================================= */
 
 function startGame() {
-    sessionStorage.setItem(RESUME_VIEW_KEY, "game");
     homeLogoButton.classList.remove("hidden");
     levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
@@ -3998,7 +3993,6 @@ function togglePause() {
 
 function exitGame() {
 
-    sessionStorage.removeItem(RESUME_VIEW_KEY);
     homeLogoButton.classList.add("hidden");
 
     gameRunning =
