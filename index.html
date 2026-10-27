@@ -118,7 +118,22 @@
                 NIGHT DRIVE // NO LIMITS
             </div>
 
-
+            <section class="launch-console" aria-label="Race setup">
+                <div class="console-heading"><span class="live-dot"></span><span>RACE CONFIGURATION</span></div>
+                <label class="field-label" for="difficultySelect">DIFFICULTY</label>
+                <select id="difficultySelect" class="difficulty-select">
+                    <option value="easy">EASY · Learn the road</option>
+                    <option value="normal" selected>NORMAL · Balanced</option>
+                    <option value="hard">HARD · Faster traffic</option>
+                    <option value="expert">EXPERT · No mercy</option>
+                </select>
+                <div class="mode-pills"><span class="mode-pill active">∞ ENDLESS LEVELS</span><span class="mode-pill">◆ MISSIONS</span></div>
+            </section>
+            <section class="preview-console" aria-label="Gameplay preview">
+                <div class="preview-copy"><span class="eyebrow">YOUR RUN. YOUR HIGHLIGHTS.</span><strong>GAMEPLAY REPLAY</strong><span id="recordStatus">Record a real run and replay it here.</span></div>
+                <video id="gameplayPreview" class="gameplay-preview hidden" controls playsinline></video>
+                <button id="recordGameplay" class="game-button preview-button" type="button">● RECORD A RUN</button>
+            </section>
             <div class="menu-buttons">
 
                 <button
@@ -247,9 +262,9 @@
         </div>
 
 
-        <div class="hud-title">
-            NEON HIGHWAY
-        </div>
+        <div class="hud-title">NEON HIGHWAY</div>
+        <div class="level-progress"><div class="level-progress-top"><span id="levelLabel">LEVEL 1</span><span id="levelDistanceLabel">0 / 1,500</span></div><div class="level-progress-track"><div id="levelProgressFill"></div></div></div>
+        <button id="stopRecording" class="recording-control hidden" type="button">■ SAVE CLIP</button>
 
         <div class="hud-pause-hint">
             ESC = PAUSE
@@ -513,7 +528,7 @@
                     id="again"
                     class="game-button primary"
                 >
-                    ↻ RACE AGAIN
+                    ↻ REPLAY LEVEL
                 </button>
 
                 <button
@@ -529,6 +544,20 @@
 
     </div>
 
+
+    <div id="levelComplete" class="overlay hidden">
+        <div class="overlay-card level-complete-card">
+            <div class="complete-burst">✦</div>
+            <div class="overlay-title">LEVEL CLEARED</div>
+            <div class="overlay-subtitle" id="completeSubtitle">CLEAN DRIVING. NEXT CHALLENGE UNLOCKED.</div>
+            <div class="final-stats"><div><span>LEVEL SCORE</span><strong id="completeScore">0</strong></div><div><span>COINS EARNED</span><strong id="completeCoins">0</strong></div></div>
+            <div class="overlay-buttons">
+                <button id="nextLevel" class="game-button primary">▶ NEXT LEVEL</button>
+                <button id="replayCompletedLevel" class="game-button">↻ REPLAY LEVEL</button>
+                <button id="completeMainMenu" class="game-button">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
 
     <!-- =====================================================
          HOW TO PLAY
@@ -778,10 +807,8 @@
          GAME SCRIPT
     ====================================================== -->
 
-    <script
-        type="module"
-        src="game.js"
-    ></script>
+    <script type="module" src="game.js"></script>
+    <script type="module" src="upgrade.js"></script>
 
 </body>
 </html>
