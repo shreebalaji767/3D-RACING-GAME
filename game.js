@@ -251,10 +251,14 @@ const finalScoreElement =
     );
 
 
-const finalBestElement =
-    document.getElementById(
-        "finalBest"
-    );
+const finalBestElement = document.getElementById("finalBest");
+const levelCompleteScreen = document.getElementById("levelComplete");
+const levelLabelElement = document.getElementById("levelLabel");
+const levelDistanceLabelElement = document.getElementById("levelDistanceLabel");
+const levelProgressFillElement = document.getElementById("levelProgressFill");
+const completeScoreElement = document.getElementById("completeScore");
+const completeCoinsElement = document.getElementById("completeCoins");
+const pauseLevelLabelElement = document.getElementById("pauseLevelLabel");
 
 
 const assetStatus =
@@ -350,9 +354,29 @@ let paused =
     false;
 
 
-let gameOver =
-    false;
-
+let gameOver = false;
+let levelComplete = false;
+let currentLevel = Math.max(1, Number(localStorage.getItem("neonHighwayLevel") || 1));
+let levelDistance = 0;
+let levelStartScore = 0;
+let coinsCollected = 0;
+let credits = Math.max(0, Number(localStorage.getItem("neonHighwayCredits") || 0));
+let missionRewarded = false;
+let playerPaint = localStorage.getItem("neonHighwayPaint") || "#087cff";
+const LEVEL_DISTANCE_TARGET = 1500;
+function selectedDifficulty() {
+    const allowed = ["easy", "normal", "hard", "expert"];
+    const saved = localStorage.getItem("neonHighwayDifficulty") || "normal";
+    return allowed.includes(saved) ? saved : "normal";
+}
+function difficultySettings() {
+    return {
+        easy: { speed: 0.82, traffic: 0.72, score: 1.0 },
+        normal: { speed: 1.00, traffic: 1.00, score: 1.0 },
+        hard: { speed: 1.12, traffic: 1.22, score: 1.25 },
+        expert: { speed: 1.25, traffic: 1.48, score: 1.6 }
+    }[selectedDifficulty()];
+}
 
 let speed =
     CONFIG.startingSpeed;
@@ -1825,8 +1849,8 @@ async function loadPlayerModel() {
         );
 
 
-        player.userData.fallback.visible =
-            false;
+        player.userData.fallback.visible = false;
+        applyPlayerPaint();
 
 
         playerModelLoaded =
@@ -2043,6 +2067,28 @@ function prepareCarModel(
    MATERIAL
 ========================================================= */
 
+function applyPlayerPaint() {
+    if (!player) return;
+    const paint = new THREE.Color(playerPaint);
+    player.traverse(child => {
+        if (!child.isMesh || !child.material) return;
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+        materials.forEach(material => {
+            const name = String(material.name || "").toLowerCase();
+            if (name.includes("glass") || name.includes("tire") || name.includes("rubber") || name.includes("light") || name.includes("chrome")) return;
+            if (material.name === "playerPaint" || (material.color && !name.includes("wheel") && !name.includes("rim") && material.color.r + material.color.g + material.color.b > 0.85)) {
+                material.color.copy(paint);
+                material.needsUpdate = true;
+            }
+        });
+    });
+}
+document.addEventListener("neon:paint-change", event => {
+    playerPaint = event.detail.color;
+    localStorage.setItem("neonHighwayPaint", playerPaint);
+    applyPlayerPaint();
+});
+
 function improveMaterial(
     material
 ) {
@@ -2099,7 +2145,7 @@ function createDetailedCar(
     const bodyMaterial =
         new THREE.MeshStandardMaterial({
 
-            color,
+            color: playerCar ? new THREE.Color(playerPaint) : color,
 
             metalness:
                 0.65,
@@ -2160,6 +2206,8 @@ function createDetailedCar(
 
         });
 
+
+    bodyMaterial.name = playerCar ? "playerPaint" : "trafficPaint";
 
     const body =
         new THREE.Mesh(
@@ -2616,10 +2664,8 @@ function createTraffic() {
     trafficGroup.clear();
 
 
-    const count =
-        isMobile
-            ? 7
-            : 10;
+    const baseCount = isMobile ? 7 : 10;
+    const count = Math.max(4, Math.round(baseCount * difficultySettings().traffic) + Math.min(4, Math.floor((currentLevel - 1) / 5)));
 
 
     for (
@@ -2747,9 +2793,8 @@ function spawnTrafficCar(
         lane;
 
 
-    car.userData.speed =
-        20 +
-        Math.random() * 30;
+    const levelTrafficBonus = Math.min(28, (currentLevel - 1) * 1.2);
+    car.userData.speed = (20 + Math.random() * 30 + levelTrafficBonus) * difficultySettings().speed;
 
 
     trafficGroup.add(
@@ -2969,7 +3014,7 @@ function carsCollide(
 ========================================================= */
 
 function startGame() {
-
+    levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
         "hidden"
     );
@@ -3030,13 +3075,14 @@ function startGame() {
 ========================================================= */
 
 function resetGame() {
-
-    speed =
-        CONFIG.startingSpeed;
-
-
-    score =
-        0;
+    speed = CONFIG.startingSpeed * difficultySettings().speed;
+    levelDistance = 0;
+    levelStartScore = 0;
+    coinsCollected = 0;
+    missionRewarded = false;
+    levelComplete = false;
+    score = 0;
+    updateMissionHUD();
 
 
     steeringInput =
@@ -3196,13 +3242,11 @@ function updateGame(
     );
 
 
-    score +=
-        speed *
-        delta *
-        0.8;
-
-
+    score += speed * delta * 0.8 * difficultySettings().score;
+    levelDistance += speed * delta;
     updateHUD();
+    updateLevelHUD();
+    if (levelDistance >= LEVEL_DISTANCE_TARGET) completeLevel();
 }
 
 
@@ -3238,16 +3282,9 @@ function updateSpeed(
     }
 
 
-    speed =
-        THREE.MathUtils.clamp(
-
-            speed,
-
-            20,
-
-            CONFIG.maxSpeed
-
-        );
+    const difficulty = difficultySettings();
+    const levelBonus = Math.min(45, (currentLevel - 1) * 1.5);
+    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed + levelBonus);
 }
 
 
@@ -3620,8 +3657,15 @@ function updateCoins(
             dz < 2
         ) {
 
-            score +=
-                250;
+            score += 250;
+            coinsCollected += 1;
+            if (coinsCollected >= 5 && !missionRewarded) {
+                missionRewarded = true;
+                credits += 500;
+                localStorage.setItem("neonHighwayCredits", String(credits));
+                recordMissionToast();
+            }
+            updateMissionHUD();
 
 
             coin.position.z =
@@ -3788,19 +3832,14 @@ function updateCamera(
 ========================================================= */
 
 function crash() {
-
-    if (
-        gameOver
-    ) {
+    if (gameOver || levelComplete) {
 
         return;
     }
 
 
-    gameOver =
-        true;
-
-
+    gameOver = true;
+    levelCompleteScreen.classList.add("hidden");
     gameRunning =
         false;
 
@@ -3842,10 +3881,8 @@ function crash() {
         finalScore;
 
 
-    finalBestElement.textContent =
-        bestScore;
-
-
+    finalBestElement.textContent = bestScore;
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, reason: "crash" } }));
     bestElement.textContent =
         bestScore;
 
@@ -3892,11 +3929,7 @@ function crash() {
 ========================================================= */
 
 function togglePause() {
-
-    if (
-        !gameRunning ||
-        gameOver
-    ) {
+    if (!gameRunning || gameOver || levelComplete) {
 
         return;
     }
@@ -3922,13 +3955,9 @@ function togglePause() {
     }
 
 
-    paused =
-        !paused;
-
-
-    if (
-        paused
-    ) {
+    paused = !paused;
+    pauseLevelLabelElement.textContent = `LEVEL ${currentLevel} · ${selectedDifficulty().toUpperCase()} MODE`;
+    if (paused) {
 
         clearInputs();
 
@@ -3972,10 +4001,9 @@ function exitGame() {
         false;
 
 
-    gameOver =
-        false;
-
-
+    gameOver = false;
+    levelComplete = false;
+    levelCompleteScreen.classList.add("hidden");
     clearInputs();
 
 
@@ -4008,6 +4036,7 @@ function exitGame() {
 
 
     updateMenu();
+    document.dispatchEvent(new CustomEvent("neon:menu-opened"));
 }
 
 
@@ -4016,13 +4045,12 @@ function exitGame() {
 ========================================================= */
 
 function updateMenu() {
-
-    menuBestElement.textContent =
-        bestScore;
-
-
-    bestElement.textContent =
-        bestScore;
+    menuBestElement.textContent = bestScore;
+    levelLabelElement.textContent = `LEVEL ${currentLevel}`;
+    levelDistanceLabelElement.textContent = `0 / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
+    levelProgressFillElement.style.width = "0%";
+    bestElement.textContent = bestScore;
+    updateMissionHUD();
 }
 
 
@@ -4030,8 +4058,53 @@ function updateMenu() {
    HUD
 ========================================================= */
 
+function updateMissionHUD() {
+    const mission = document.getElementById("missionProgress");
+    const hudMission = document.getElementById("hudMissionProgress");
+    const balance = document.getElementById("creditBalance");
+    const hudBalance = document.getElementById("hudCreditBalance");
+    if (mission) mission.textContent = `${Math.min(coinsCollected, 5)} / 5 COINS`;
+    if (hudMission) hudMission.textContent = `COINS ${Math.min(coinsCollected, 5)} / 5`;
+    if (balance) balance.textContent = `${credits} CR`;
+    if (hudBalance) hudBalance.textContent = `${credits} CR`;
+}
+function recordMissionToast() {
+    const status = document.getElementById("recordStatus");
+    if (status) status.textContent = "MISSION COMPLETE · +500 CREDITS EARNED";
+}
+function updateLevelHUD() {
+    updateMissionHUD();
+    const progress = Math.min(100, levelDistance / LEVEL_DISTANCE_TARGET * 100);
+    levelLabelElement.textContent = `LEVEL ${currentLevel}`;
+    levelDistanceLabelElement.textContent = `${Math.floor(levelDistance).toLocaleString()} / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
+    levelProgressFillElement.style.width = `${progress}%`;
+}
+function completeLevel() {
+    if (levelComplete || gameOver) return;
+    levelComplete = true;
+    gameRunning = false;
+    paused = false;
+    clearInputs();
+    clearTouchState();
+    hud.classList.add("hidden");
+    touchControls.classList.add("hidden");
+    pauseScreen.classList.add("hidden");
+    completeScoreElement.textContent = Math.floor(score).toLocaleString();
+    completeCoinsElement.textContent = coinsCollected.toLocaleString();
+    document.getElementById("completeSubtitle").textContent = `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
+    levelCompleteScreen.classList.remove("hidden");
+    localStorage.setItem("neonHighwayLevel", String(currentLevel));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, reason: "complete" } }));
+}
+function advanceLevel() {
+    currentLevel += 1;
+    localStorage.setItem("neonHighwayLevel", String(currentLevel));
+    levelComplete = false;
+    gameOver = false;
+    levelCompleteScreen.classList.add("hidden");
+    startGame();
+}
 function updateHUD() {
-
     speedElement.textContent =
         Math.round(
             speed
@@ -4044,8 +4117,8 @@ function updateHUD() {
         );
 
 
-    bestElement.textContent =
-        bestScore;
+    bestElement.textContent = bestScore;
+    updateLevelHUD();
 }
 
 
@@ -4595,12 +4668,10 @@ function setupButtons() {
     );
 
 
-    document.getElementById(
-        "mainMenu"
-    ).addEventListener(
-        "click",
-        exitGame
-    );
+    document.getElementById("mainMenu").addEventListener("click", exitGame);
+    document.getElementById("nextLevel").addEventListener("click", advanceLevel);
+    document.getElementById("replayCompletedLevel").addEventListener("click", startGame);
+    document.getElementById("completeMainMenu").addEventListener("click", exitGame);
 
 
     document.getElementById(
