@@ -160,6 +160,9 @@ const loadingScreen =
         "loadingScreen"
     );
 
+const homeLogoButton = document.getElementById("homeLogoButton");
+const RESUME_VIEW_KEY = "neonHighwayView";
+
 
 const loadingProgress =
     document.getElementById(
@@ -590,12 +593,13 @@ async function init() {
             );
 
 
-            menu.classList.remove(
-                "hidden"
-            );
-
-
-            updateMenu();
+            if (sessionStorage.getItem(RESUME_VIEW_KEY) === "game") {
+                menu.classList.add("hidden");
+                startGame();
+            } else {
+                menu.classList.remove("hidden");
+                updateMenu();
+            }
 
         },
         500
@@ -3014,6 +3018,8 @@ function carsCollide(
 ========================================================= */
 
 function startGame() {
+    sessionStorage.setItem(RESUME_VIEW_KEY, "game");
+    homeLogoButton.classList.remove("hidden");
     levelCompleteScreen.classList.add("hidden");
     menu.classList.add(
         "hidden"
@@ -3993,6 +3999,9 @@ function togglePause() {
 
 function exitGame() {
 
+    sessionStorage.removeItem(RESUME_VIEW_KEY);
+    homeLogoButton.classList.add("hidden");
+
     gameRunning =
         false;
 
@@ -4849,6 +4858,8 @@ function onResize() {
 ========================================================= */
 
 function setupEvents() {
+
+    homeLogoButton.addEventListener("click", exitGame);
 
     window.addEventListener(
         "resize",
