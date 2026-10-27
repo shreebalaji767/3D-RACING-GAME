@@ -4050,6 +4050,7 @@ function updateMenu() {
     levelDistanceLabelElement.textContent = `0 / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
     levelProgressFillElement.style.width = "0%";
     bestElement.textContent = bestScore;
+    updateMissionHUD();
 }
 
 
