@@ -4861,6 +4861,7 @@ function setupEvents() {
     document.getElementById("enterGame").addEventListener("click", () => {
         sessionStorage.setItem("neonHighwayView", "menu");
         landingPage.classList.add("hidden");
+        homeLogoButton.classList.remove("hidden");
         menu.classList.remove("hidden");
         updateMenu();
     });
@@ -4872,6 +4873,7 @@ function setupEvents() {
     document.getElementById("landingHowto").addEventListener("click", () => {
         sessionStorage.setItem("neonHighwayView", "menu");
         landingPage.classList.add("hidden");
+        homeLogoButton.classList.remove("hidden");
         menu.classList.remove("hidden");
         howtoScreen.classList.remove("hidden");
     });
