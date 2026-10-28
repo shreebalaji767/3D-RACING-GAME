@@ -192,6 +192,20 @@
     persistProfile();
   });
   window.addEventListener("neon:profile-updated", renderProfileSummary);
+  const settingsList = document.querySelector("#settingsScreen .settings-list");
+  if (settingsList) {
+    const graphicsRow = document.createElement("div");
+    graphicsRow.className = "setting-row";
+    graphicsRow.innerHTML = '<div><strong>GRAPHICS QUALITY</strong><span>Adjust rendering for your device.</span></div><select id="graphicsQuality" class="difficulty-select" style="width:130px;min-height:40px;margin:0"><option value="low">LOW</option><option value="medium">MEDIUM</option><option value="high">HIGH</option></select>';
+    settingsList.appendChild(graphicsRow);
+    const quality = localStorage.getItem("neonHighwayGraphics") || "high";
+    graphicsRow.querySelector("select").value = quality;
+    graphicsRow.querySelector("select").addEventListener("change", (event) => {
+      localStorage.setItem("neonHighwayGraphics", event.target.value);
+      window.dispatchEvent(new CustomEvent("neon:graphics-change", { detail: { quality: event.target.value } }));
+    });
+    window.dispatchEvent(new CustomEvent("neon:graphics-change", { detail: { quality } }));
+  }
   const existingPaint = $("paintSelect");
   if (existingPaint) existingPaint.addEventListener("change", () => {
     const color = existingPaint.value;
