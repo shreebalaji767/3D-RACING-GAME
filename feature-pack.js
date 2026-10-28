@@ -237,3 +237,5 @@
   if (existingPaint && localStorage.getItem("neonHighwayPaint")) existingPaint.value = localStorage.getItem("neonHighwayPaint");
   applyUpgrades(); applyEnvironment(); persistProfile();
 })();
+
+  import("./enhancement-pack.js").catch((error) => console.warn("Enhancement pack unavailable", error));
