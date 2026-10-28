@@ -369,6 +369,20 @@ document.addEventListener("neon:upgrades-change", event => {
 document.addEventListener("neon:mode-change", event => {
     raceMode = event.detail?.mode || "career";
 });
+window.addEventListener("neon:profile-updated", event => {
+    if (event.detail && Number.isFinite(Number(event.detail.credits))) {
+        credits = Math.max(0, Number(event.detail.credits));
+        updateMissionHUD();
+    }
+});
+window.addEventListener("neon:graphics-change", event => {
+    const quality = event.detail?.quality || "high";
+    if (renderer) {
+        const ratio = quality === "low" ? 0.85 : quality === "medium" ? 1 : (isMobile ? CONFIG.mobilePixelRatio : Math.min(window.devicePixelRatio, CONFIG.desktopPixelRatio));
+        renderer.setPixelRatio(ratio);
+        renderer.shadowMap.enabled = quality === "high" && !isMobile;
+    }
+});
 document.addEventListener("neon:environment-change", event => {
     const themes = {
         neon: [0x02050c, 0x050a14],
