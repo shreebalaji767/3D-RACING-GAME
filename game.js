@@ -404,6 +404,18 @@ document.addEventListener("neon:environment-change", event => {
         scene.background = new THREE.Color(colors[0]);
         if (scene.fog) scene.fog.color.setHex(colors[1]);
     }
+    // Change the roadside world immediately when a track theme is selected.
+    if (environmentGroup && scene) {
+        environmentGroup.traverse(object => {
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                const materials = Array.isArray(object.material) ? object.material : [object.material];
+                materials.forEach(material => material.dispose());
+            }
+        });
+        environmentGroup.clear();
+        createEnvironment();
+    }
 });
 const LEVEL_DISTANCE_TARGET = 1500;
 function selectedDifficulty() {
