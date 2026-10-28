@@ -45,7 +45,7 @@
   modeSelect.id = "raceModeSelect"; modeSelect.className = "difficulty-select";
   const modeLabel = document.createElement("label");
   modeLabel.className = "field-label"; modeLabel.htmlFor = modeSelect.id; modeLabel.textContent = "RACE MODE";
-  [["career","CAREER · Unlock levels"],["rival","RIVAL SPRINT · Beat 3 racers"],["endless","ENDLESS · No finish line"],["time-trial","TIME TRIAL · 90 seconds"],["traffic","TRAFFIC CHALLENGE · Collect coins"],["drift","DRIFT RUN · Score while steering"],["police","POLICE PURSUIT · Dense traffic"]].forEach(([v,l]) => addOption(modeSelect,v,l));
+  [["career","CAREER · Unlock levels"],["championship","NEON CUP · 5-round championship"],["rival","RIVAL SPRINT · Beat 3 racers"],["endless","ENDLESS · No finish line"],["time-trial","TIME TRIAL · 90 seconds"],["traffic","TRAFFIC CHALLENGE · Collect coins"],["drift","DRIFT RUN · Score while steering"],["police","POLICE PURSUIT · Dense traffic"]].forEach(([v,l]) => addOption(modeSelect,v,l));
   modeSelect.value = localStorage.getItem(STORAGE.mode) || "career";
   const environmentSelect = document.createElement("select");
   environmentSelect.id = "environmentSelect"; environmentSelect.className = "difficulty-select";
@@ -61,7 +61,7 @@
   weatherSelect.value = localStorage.getItem(STORAGE.weather) || "clear";
   const modeHint = document.createElement("p");
   modeHint.className = "feature-hint";
-  modeHint.textContent = "Rival Sprint uses deterministic computer drivers. No AI models or paid services. Weather changes visibility and grip.";
+  modeHint.textContent = "NEON CUP: five heats, three laps per heat, six-car standings and earned rewards. Rule-based browser drivers; no AI models or paid services.";
   if (consoleBox) {
     const paint = $("paintSelect");
     if (paint) {

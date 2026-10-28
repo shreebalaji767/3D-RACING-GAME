@@ -87,3 +87,12 @@ In repository **Settings → Pages → Build and deployment**, select **GitHub A
 - Export/import local progress backups as JSON. Import requires confirmation and validates the backup before writing matching game keys.
 - A best-effort service worker caches the local game shell and attempts to cache the Three.js modules. Offline 3D play depends on the browser successfully caching the CDN modules; it is not guaranteed on every host/device.
 - The game remains client-side. No telemetry, ad network, account service, or AI API is introduced.
+
+
+## Neon Cup championship expansion (October 2026)
+
+- Five-heat Neon Cup championship with a six-car field, three distance-based laps per heat, start countdown, lap/checkpoint/position HUD, finish results, season standings and points.
+- Five rule-based rival drivers use deterministic lane-changing logic and distinct procedural car colours. Championship progress is tracked separately from traffic recycling.
+- Championship standings persist locally between heats. Finish-place points and credit rewards are earned by racing; crashes count as DNFs and allow the player to retry the current heat.
+- Conditions rotate across existing neon, sunset, arctic and emerald atmospheres plus clear/rain/snow/fog. This is still the existing continuous highway scene with distance-based laps/checkpoints, not a newly modelled closed circuit.
+- Static browser app using Three.js and native JavaScript APIs only. No paid AI, paid APIs, subscriptions, ads, premium currency or pay-to-win features were added. Offline cache and CI syntax validation include the new module.

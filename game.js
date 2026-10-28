@@ -2725,7 +2725,7 @@ function createTraffic() {
     trafficGroup.clear();
 
 
-    const baseCount = raceMode === "rival" ? (isMobile ? 4 : 6) : (isMobile ? 7 : 10);
+    const baseCount = raceMode === "championship" ? (isMobile ? 3 : 5) : raceMode === "rival" ? (isMobile ? 4 : 6) : (isMobile ? 7 : 10);
     const count = Math.max(3, Math.round(baseCount * difficultySettings().traffic) + Math.min(4, Math.floor((currentLevel - 1) / 5)));
 
 
@@ -2745,8 +2745,14 @@ function createTraffic() {
 
         );
     }
-    if (raceMode === "rival") {
-        const rivals = [
+    if (raceMode === "rival" || raceMode === "championship") {
+        const rivals = raceMode === "championship" ? [
+            { z: -28, lane: 0, speed: 58, color: 0xff3152, name: "SCARLET" },
+            { z: -40, lane: 1, speed: 64, color: 0x2cffb0, name: "VOLT" },
+            { z: -52, lane: 2, speed: 70, color: 0xa879ff, name: "PHANTOM" },
+            { z: -64, lane: 3, speed: 76, color: 0xffd52f, name: "GOLDLINE" },
+            { z: -76, lane: 1, speed: 82, color: 0xf5f9ff, name: "ZENITH" }
+        ].map(r => ({...r, speed:r.speed*difficultySettings().speed})) : [
             { z: -90, lane: 1, speed: 31, color: 0xff3152, name: "SCARLET" },
             { z: -155, lane: 2, speed: 35, color: 0x2cffb0, name: "VOLT" },
             { z: -220, lane: 0, speed: 38, color: 0xa879ff, name: "PHANTOM" }
@@ -2864,6 +2870,7 @@ function spawnTrafficCar(
     car.userData.rivalName = options.name || "";
     car.userData.aiSeed = Number(options.aiSeed || Math.floor((racingEngine?.random() ?? Math.random()) * 100000) + car.id);
     car.userData.aiTimer = 0.7 + (racingEngine?.random() ?? Math.random()) * 1.5;
+    car.userData.raceProgress = 0;
 
     const levelTrafficBonus = Math.min(28, (currentLevel - 1) * 1.2);
     const pursuitTrafficBonus = raceMode === "police" ? 14 : 0;
@@ -3125,7 +3132,8 @@ function startGame() {
 
 
     resetGame();
-
+    raceCountdownRemaining = raceMode === "championship" ? 3 : 0;
+    document.dispatchEvent(new CustomEvent("neon:race-start", { detail: { mode: raceMode, level: currentLevel } }));
 
     gameRunning =
         true;
@@ -3220,6 +3228,7 @@ function resetGame() {
 
 let lastTime =
     performance.now();
+let raceCountdownRemaining = 0;
 
 
 function gameLoop(
@@ -3259,6 +3268,14 @@ function gameLoop(
     lastTime =
         timestamp;
 
+
+    if (raceCountdownRemaining > 0) {
+        raceCountdownRemaining = Math.max(0, raceCountdownRemaining - delta);
+        document.dispatchEvent(new CustomEvent("neon:countdown-tick", { detail: { remaining: raceCountdownRemaining } }));
+        renderer.render(scene, camera);
+        requestAnimationFrame(gameLoop);
+        return;
+    }
 
     updateGame(
         delta
@@ -3335,6 +3352,10 @@ function updateGame(
         score += delta * speed * 1.8;
     }
     levelDistance += speed * delta;
+    if (raceMode === "championship") {
+        const rivals = trafficGroup.children.filter(car => car.userData.isRival).map(car => ({ name: car.userData.rivalName, progress: car.userData.raceProgress || 0 }));
+        document.dispatchEvent(new CustomEvent("neon:race-tick", { detail: { mode: raceMode, distance: levelDistance, rivals } }));
+    }
     if (raceMode === "time-trial") {
         timeTrialRemaining = Math.max(0, timeTrialRemaining - delta);
         const distanceLabel = document.getElementById("levelDistanceLabel");
@@ -3672,7 +3693,8 @@ function updateTraffic(
         const car of
         trafficGroup.children
     ) {
-        racingEngine?.updateCarAI(car, trafficGroup.children, player, delta, CONFIG.roadLimit, raceMode === "rival");
+        racingEngine?.updateCarAI(car, trafficGroup.children, player, delta, CONFIG.roadLimit, raceMode === "rival" || raceMode === "championship");
+        if (raceMode === "championship" && car.userData.isRival) car.userData.raceProgress += car.userData.speed * delta;
         car.position.z +=
 
             (
@@ -3735,6 +3757,7 @@ function updateTraffic(
             car.position.z >
             CONFIG.trafficRemoveZ
         ) {
+            if (raceMode === "championship" && car.userData.isRival) continue;
 
             trafficGroup.remove(
                 car
@@ -4028,7 +4051,7 @@ function crash() {
 
 
     finalBestElement.textContent = bestScore;
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, coins: coinsCollected, reason: "crash", mode: raceMode } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, coins: coinsCollected, reason: "crash", mode: raceMode, position: racePosition, distance: levelDistance } }));
     bestElement.textContent =
         bestScore;
 
@@ -4235,7 +4258,7 @@ function completeLevel() {
             : `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
     levelCompleteScreen.classList.remove("hidden");
     localStorage.setItem("neonHighwayLevel", String(currentLevel));
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode, position: racePosition, distance: levelDistance } }));
 }
 function advanceLevel() {
     currentLevel += 1;
@@ -4249,8 +4272,8 @@ function updateHUD() {
     const racePositionElement = document.getElementById("racePositionLabel");
     if (racePositionElement) {
         const rivals = trafficGroup?.children.filter(car => car.userData.isRival) || [];
-        racePosition = 1 + rivals.filter(car => car.position.z < (player?.position.z || 0)).length;
-        racePositionElement.classList.toggle("hidden", raceMode !== "rival");
+        racePosition = raceMode === "championship" ? 1 + rivals.filter(car => Number(car.userData.raceProgress || 0) > levelDistance).length : 1 + rivals.filter(car => car.position.z < (player?.position.z || 0)).length;
+        racePositionElement.classList.toggle("hidden", raceMode !== "rival" && raceMode !== "championship");
         racePositionElement.textContent = "POSITION " + racePosition + " / " + (rivals.length + 1);
     }
     speedElement.textContent =
