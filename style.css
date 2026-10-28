@@ -2256,3 +2256,6 @@ body {
  .landing-footer { font-size:8px; letter-spacing:.8px; }
 }
 @media (max-width:390px) { .landing-proof { gap:8px; font-size:8px; } .landing-secondary { flex-basis:100%; } }
+
+/* Keep the home logo accessible above in-game feature panels. */
+.home-logo-button { z-index: 190; }
