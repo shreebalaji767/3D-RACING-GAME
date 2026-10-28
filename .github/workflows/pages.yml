@@ -21,7 +21,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Validate JavaScript syntax
-        run: node --check game.js && node --check racing-engine.js && node --check upgrade.js && node --check feature-pack.js && node --check championship-pack.js && node --check fair-play.js && node --check enhancement-pack.js && node --check service-worker.js && node --check race-engineer.js && node tests/race-engineer.test.cjs
+        run: node --check game.js && node --check racing-engine.js && node --check upgrade.js && node --check feature-pack.js && node --check championship-pack.js && node --check fair-play.js && node --check enhancement-pack.js && node --check service-worker.js && node --check race-engineer.js && node tests/race-engineer.test.cjs && node --check tests/track-variety.test.cjs && node tests/track-variety.test.cjs
       - name: Enable and configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
