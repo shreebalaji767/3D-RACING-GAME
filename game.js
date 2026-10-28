@@ -393,12 +393,12 @@ document.addEventListener("neon:weather-change", event => {
 });
 document.addEventListener("neon:environment-change", event => {
     const themes = {
-    localStorage.setItem("neonHighwayEnvironment", event.detail?.environment || "neon");
         neon: [0x02050c, 0x050a14],
         sunset: [0x281127, 0x35152c],
         arctic: [0x07182a, 0x0c2740],
         emerald: [0x031b18, 0x06342b]
     };
+    localStorage.setItem("neonHighwayEnvironment", event.detail?.environment || "neon");
     const colors = themes[event.detail?.environment] || themes.neon;
     if (scene) {
         scene.background = new THREE.Color(colors[0]);
