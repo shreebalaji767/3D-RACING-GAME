@@ -9,6 +9,10 @@
   let audioContext = null;
   let lastToneAt = 0;
 
+  const motionStyle = document.createElement("style");
+  motionStyle.textContent = '[data-reduced-motion="true"] *, [data-reduced-motion="true"] *::before, [data-reduced-motion="true"] *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.001ms !important; }';
+  document.head.appendChild(motionStyle);
+
   const saveSettings = () => {
     try { localStorage.setItem(KEY, JSON.stringify(settings)); } catch {}
     document.documentElement.dataset.reducedMotion = settings.reducedMotion ? "true" : "false";
