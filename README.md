@@ -56,3 +56,16 @@ Additional progression systems include selectable player-car paint, persistent l
 - Graphics quality control for lower-powered devices, plus responsive feature panels for small screens.
 
 Progress snapshots are stored in the current browser only; they do not sync across devices. Vehicle profiles currently tune the existing procedural 3D car model rather than loading six separate external car models. Environment options change the scene atmosphere/background; they are not separate handcrafted 3D maps.
+
+
+## Fair-play and GitHub Pages deployment
+
+- No ads, subscriptions, real-money purchases, premium currency, or paid performance advantages are included.
+- Cars and performance upgrades are unlocked using credits earned in gameplay only.
+- Three independent manual progression save slots are available; a slot changes only when the player explicitly saves it.
+- Free daily challenges award in-game credits for scoring, collecting coins, and completing runs.
+- GitHub Actions workflow `.github/workflows/pages.yml` publishes the static site from the repository root whenever `main` is updated.
+
+### Enable GitHub Pages once
+
+In repository **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source if it is not already selected. The workflow then deploys automatically on pushes to `main`. The site uses the free GitHub Pages service for public repositories, subject to GitHub's current usage limits and terms. Three.js is loaded from jsDelivr, so first load still requires internet access.
