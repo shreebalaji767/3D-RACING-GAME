@@ -3358,7 +3358,10 @@ function updateSpeed(
 
     const difficulty = difficultySettings();
     const levelBonus = Math.min(45, (currentLevel - 1) * 1.5);
-    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed + levelBonus);
+    const selectedCarId = window.neonHighwayProfile?.selected || "starter";
+    const carSpeed = ({ scarlet: 1.08, volt: 1.16, phantom: 1.22, goldline: 1.18, zenith: 1.32 })[selectedCarId] || 1;
+    const speedUpgrade = 1 + Number(performanceUpgrades.engine || 0) * 0.035;
+    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed * carSpeed * speedUpgrade + levelBonus);
 }
 
 
@@ -3428,7 +3431,9 @@ function updatePlayer(
         );
 
 
-    const handlingMultiplier = 1 + Number(performanceUpgrades.handling || 0) * 0.1;
+    const selectedCarId = window.neonHighwayProfile?.selected || "starter";
+    const carHandling = ({ scarlet: 1.02, volt: 1.08, phantom: 1.12, goldline: 1.2, zenith: 1.16 })[selectedCarId] || 1;
+    const handlingMultiplier = (1 + Number(performanceUpgrades.handling || 0) * 0.1) * carHandling;
     const response =
         (steeringTarget === 0
             ? CONFIG.steeringReturn
