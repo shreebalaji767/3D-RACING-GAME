@@ -393,6 +393,7 @@ document.addEventListener("neon:weather-change", event => {
 });
 document.addEventListener("neon:environment-change", event => {
     const themes = {
+    localStorage.setItem("neonHighwayEnvironment", event.detail?.environment || "neon");
         neon: [0x02050c, 0x050a14],
         sunset: [0x281127, 0x35152c],
         arctic: [0x07182a, 0x0c2740],
