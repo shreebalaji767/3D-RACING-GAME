@@ -81,7 +81,7 @@
   environmentSelect.id = "environmentSelect"; environmentSelect.className = "difficulty-select";
   const environmentLabel = document.createElement("label");
   environmentLabel.className = "field-label"; environmentLabel.htmlFor = environmentSelect.id; environmentLabel.textContent = "ROAD ATMOSPHERE";
-  [["neon","NEON CITY"],["sunset","SUNSET DRIVE"],["arctic","ARCTIC NIGHT"],["emerald","EMERALD GRID"]].forEach(([v,l]) => addOption(environmentSelect,v,l));
+  [["neon","NEON CITY · URBAN CIRCUIT"],["sunset","SUNSET COAST · GOLDEN HOUR"],["arctic","ARCTIC PASS · SNOW RIDGE"],["emerald","EMERALD FOREST · DEEP WOODS"],["desert","DUNE RUN · DESERT"],["coastal","PACIFIC COAST · SEASIDE"],["industrial","DOCKYARD GP · INDUSTRIAL"],["canyon","RED CANYON · CLIFF ROAD"]].forEach(([v,l]) => addOption(environmentSelect,v,l));
   environmentSelect.value = localStorage.getItem(STORAGE.environment) || "neon";
   const weatherSelect = document.createElement("select");
   weatherSelect.id = "weatherSelect"; weatherSelect.className = "difficulty-select";

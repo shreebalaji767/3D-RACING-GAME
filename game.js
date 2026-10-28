@@ -396,7 +396,11 @@ document.addEventListener("neon:environment-change", event => {
         neon: [0x02050c, 0x050a14],
         sunset: [0x281127, 0x35152c],
         arctic: [0x07182a, 0x0c2740],
-        emerald: [0x031b18, 0x06342b]
+        emerald: [0x031b18, 0x06342b],
+        desert: [0x2a160b, 0x674027],
+        coastal: [0x06202a, 0x0d4650],
+        industrial: [0x101820, 0x283744],
+        canyon: [0x25100c, 0x55231a]
     };
     localStorage.setItem("neonHighwayEnvironment", event.detail?.environment || "neon");
     const colors = themes[event.detail?.environment] || themes.neon;
@@ -415,6 +419,19 @@ document.addEventListener("neon:environment-change", event => {
         });
         environmentGroup.clear();
         createEnvironment();
+    }
+    // Rebuild the repeating road so surface paint, lane markings and barriers
+    // match the selected venue immediately, without restarting the game.
+    if (roadGroup && scene) {
+        roadGroup.traverse(object => {
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                const materials = Array.isArray(object.material) ? object.material : [object.material];
+                materials.forEach(material => material.dispose());
+            }
+        });
+        roadGroup.clear();
+        createRoad();
     }
 });
 const LEVEL_DISTANCE_TARGET = 1500;
@@ -1139,18 +1156,14 @@ function createRoad() {
     );
 
 
+    const track = localStorage.getItem("neonHighwayEnvironment") || "neon";
+    const roadTints = { neon: 0x9ba4b4, sunset: 0xb88a70, arctic: 0xb8d9e8, emerald: 0x8bbba0, desert: 0xc4a17b, coastal: 0x82bac4, industrial: 0x89939f, canyon: 0xb47c68 };
     const roadMaterial =
         new THREE.MeshStandardMaterial({
-
-            map:
-                asphaltTexture,
-
-            roughness:
-                0.72,
-
-            metalness:
-                0.08
-
+            map: asphaltTexture,
+            color: roadTints[track] || roadTints.neon,
+            roughness: track === "coastal" ? 0.48 : 0.72,
+            metalness: track === "industrial" ? 0.22 : 0.08
         });
 
 
@@ -1354,6 +1367,8 @@ function createLaneLines(
     z
 ) {
 
+    const track = localStorage.getItem("neonHighwayEnvironment") || "neon";
+    const lineColor = ({ arctic: 0xdaf7ff, desert: 0xffe0a1, coastal: 0xb4ffff, industrial: 0xffb24a, canyon: 0xffd2b5, sunset: 0xffe0ba, emerald: 0xb5ffd8 })[track] || 0xcfd6dc;
     for (
         let lane = 0;
 
@@ -1379,7 +1394,7 @@ function createLaneLines(
                 new THREE.MeshStandardMaterial({
 
                     color:
-                        0xcfd6dc,
+                        lineColor,
 
                     roughness:
                         0.55
@@ -1415,14 +1430,22 @@ function createRoadEdges(
     z
 ) {
 
+    const track = localStorage.getItem("neonHighwayEnvironment") || "neon";
+    const edgePalette = {
+        neon: [0xd2a91d, 0x221500], sunset: [0xff8b58, 0x351008],
+        arctic: [0x8ceaff, 0x103344], emerald: [0x59f2a5, 0x0b2a18],
+        desert: [0xffd18a, 0x3a2108], coastal: [0x43e9ff, 0x07303b],
+        industrial: [0xffa34d, 0x3a2108], canyon: [0xff7048, 0x3a1008]
+    };
+    const [edgeColor, edgeGlow] = edgePalette[track] || edgePalette.neon;
     const material =
         new THREE.MeshStandardMaterial({
 
             color:
-                0xd2a91d,
+                edgeColor,
 
             emissive:
-                0x221500,
+                edgeGlow,
 
             roughness:
                 0.55
@@ -1478,7 +1501,11 @@ function createDistinctTrackScenery(theme) {
     const palette = {
         sunset: { ground: 0x594039, accent: 0xffa16b },
         arctic: { ground: 0x9bbdce, accent: 0x8ceaff },
-        emerald: { ground: 0x163b27, accent: 0x59f2a5 }
+        emerald: { ground: 0x163b27, accent: 0x59f2a5 },
+        desert: { ground: 0xb18a5b, accent: 0xffd18a },
+        coastal: { ground: 0x17606a, accent: 0x43e9ff },
+        industrial: { ground: 0x242c36, accent: 0xffa34d },
+        canyon: { ground: 0x8d4934, accent: 0xff7048 }
     }[theme];
     if (!palette) return false;
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1200), new THREE.MeshStandardMaterial({ color: palette.ground, roughness: 1 }));
@@ -1487,7 +1514,37 @@ function createDistinctTrackScenery(theme) {
     environmentGroup.add(ground);
     for (let z = 25; z > -760; z -= 34) {
         for (const side of [-1, 1]) {
-            if (theme === "sunset") {
+            if (theme === "desert") {
+                const dune = new THREE.Mesh(new THREE.ConeGeometry(13 + Math.random() * 8, 8 + Math.random() * 10, 5), new THREE.MeshStandardMaterial({ color: side < 0 ? 0xd4ae76 : 0x93613d, roughness: 1 }));
+                dune.position.set(side * (25 + Math.random() * 14), 1, z - 10);
+                environmentGroup.add(dune);
+                const cactus = new THREE.Group();
+                const stem = new THREE.Mesh(new THREE.CylinderGeometry(.45, .6, 4.8, 7), new THREE.MeshStandardMaterial({ color: 0x4c7844 }));
+                stem.position.y = 2.4; cactus.add(stem);
+                for (const arm of [-1,1]) { const branch = new THREE.Mesh(new THREE.CylinderGeometry(.22,.25,1.7,6), stem.material); branch.position.set(arm*.65,2.4,0); branch.rotation.z = arm * -0.55; cactus.add(branch); }
+                cactus.position.set(side * (12 + Math.random() * 5), 0, z - 4);
+                environmentGroup.add(cactus);
+            } else if (theme === "coastal") {
+                const water = new THREE.Mesh(new THREE.BoxGeometry(15, .2, 30), new THREE.MeshStandardMaterial({ color: 0x087b91, roughness: .3, metalness: .15 }));
+                water.position.set(side * 25, -.05, z - 8); environmentGroup.add(water);
+                const palm = new THREE.Group();
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.18,.3,5.5,7), new THREE.MeshStandardMaterial({ color: 0x8d6846 }));
+                trunk.position.y = 2.75; palm.add(trunk);
+                for (let leaf = 0; leaf < 5; leaf++) { const frond = new THREE.Mesh(new THREE.ConeGeometry(.28,4.4,5), new THREE.MeshStandardMaterial({ color: 0x2a9869 })); frond.position.set(Math.cos(leaf*1.256)*1.3,5.3,Math.sin(leaf*1.256)*1.3); frond.rotation.z = Math.cos(leaf*1.256)*.8; frond.rotation.x = Math.sin(leaf*1.256)*.5; palm.add(frond); }
+                palm.position.set(side * (13 + Math.random()*5), 0, z - 8); environmentGroup.add(palm);
+            } else if (theme === "industrial") {
+                const warehouse = new THREE.Mesh(new THREE.BoxGeometry(8 + Math.random()*5, 7 + Math.random()*8, 10 + Math.random()*7), new THREE.MeshStandardMaterial({ color: 0x354250, roughness: .9 }));
+                warehouse.position.set(side * (19 + Math.random()*7), 4.5, z - 8); environmentGroup.add(warehouse);
+                const stack = new THREE.Mesh(new THREE.BoxGeometry(2.2, 5 + Math.random()*5, 2.2), new THREE.MeshStandardMaterial({ color: 0xff8d3b, emissive: 0x351500 }));
+                stack.position.set(side * (12 + Math.random()*3), 3, z); environmentGroup.add(stack);
+                const beam = new THREE.Mesh(new THREE.BoxGeometry(7, .3, .3), new THREE.MeshStandardMaterial({ color: 0x697b8d, metalness: .7 }));
+                beam.position.set(side * 15, 8, z - 3); environmentGroup.add(beam);
+            } else if (theme === "canyon") {
+                const cliff = new THREE.Mesh(new THREE.ConeGeometry(12 + Math.random()*8, 18 + Math.random()*15, 5), new THREE.MeshStandardMaterial({ color: side < 0 ? 0x9c5036 : 0x673324, roughness: 1 }));
+                cliff.position.set(side * (25 + Math.random()*10), 5, z - 8); environmentGroup.add(cliff);
+                const boulder = new THREE.Mesh(new THREE.DodecahedronGeometry(2 + Math.random()*3), new THREE.MeshStandardMaterial({ color: 0x8c4a32, roughness: 1 }));
+                boulder.position.set(side * (11 + Math.random()*3), 1, z - 16); environmentGroup.add(boulder);
+            } else if (theme === "sunset") {
                 const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.2, .34, 5, 7), new THREE.MeshStandardMaterial({ color: 0x76503a }));
                 trunk.position.set(side * (17 + Math.random() * 8), 2.5, z);
                 const leaves = new THREE.Mesh(new THREE.SphereGeometry(2.4, 7, 5), new THREE.MeshStandardMaterial({ color: 0x43824a }));
