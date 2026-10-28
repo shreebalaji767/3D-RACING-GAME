@@ -2829,7 +2829,8 @@ function spawnTrafficCar(
 
 
     const levelTrafficBonus = Math.min(28, (currentLevel - 1) * 1.2);
-    car.userData.speed = (20 + Math.random() * 30 + levelTrafficBonus) * difficultySettings().speed;
+    const pursuitTrafficBonus = raceMode === "police" ? 14 : 0;
+    car.userData.speed = (20 + Math.random() * 30 + levelTrafficBonus + pursuitTrafficBonus) * difficultySettings().speed;
 
 
     trafficGroup.add(
@@ -3120,6 +3121,7 @@ function resetGame() {
     timeTrialRemaining = 90;
     armorRecoveryUsed = false;
     raceMode = localStorage.getItem("neonHighwayMode") || raceMode || "career";
+    document.body.dataset.mode = raceMode;
     levelDistance = 0;
     levelStartScore = 0;
     coinsCollected = 0;
@@ -3287,6 +3289,9 @@ function updateGame(
 
 
     score += speed * delta * 0.8 * difficultySettings().score;
+    if (raceMode === "drift" && Math.abs(steeringInput) > 0.62 && speed > 55) {
+        score += delta * speed * 1.8;
+    }
     levelDistance += speed * delta;
     if (raceMode === "time-trial") {
         timeTrialRemaining = Math.max(0, timeTrialRemaining - delta);
@@ -3632,6 +3637,12 @@ function updateTraffic(
                 crash();
                 return;
             }
+        }
+        if (!car.userData.nearMissAwarded && Math.abs(car.position.z - player.position.z) < 4.5 && Math.abs(car.position.x - player.position.x) < 2.8) {
+            car.userData.nearMissAwarded = true;
+            score += 150;
+            const status = document.getElementById("recordStatus");
+            if (status) status.textContent = "NEAR MISS · +150 BONUS POINTS";
         }
     }
 
