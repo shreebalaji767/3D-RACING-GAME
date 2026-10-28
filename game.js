@@ -359,6 +359,16 @@ let coinsCollected = 0;
 let credits = Math.max(0, Number(localStorage.getItem("neonHighwayCredits") || 0));
 let missionRewarded = false;
 let playerPaint = localStorage.getItem("neonHighwayPaint") || "#087cff";
+let performanceUpgrades = { engine: 0, handling: 0, nitro: 0, armor: 0 };
+let raceMode = localStorage.getItem("neonHighwayMode") || "career";
+let timeTrialRemaining = 90;
+let armorRecoveryUsed = false;
+document.addEventListener("neon:upgrades-change", event => {
+    performanceUpgrades = { ...performanceUpgrades, ...(event.detail || {}) };
+});
+document.addEventListener("neon:mode-change", event => {
+    raceMode = event.detail?.mode || "career";
+});
 const LEVEL_DISTANCE_TARGET = 1500;
 function selectedDifficulty() {
     const allowed = ["easy", "normal", "hard", "expert"];
@@ -596,6 +606,7 @@ async function init() {
                 startGame();
             } else if (savedView === "menu") {
                 landingPage.classList.add("hidden");
+                homeLogoButton.classList.remove("hidden");
                 menu.classList.remove("hidden");
                 updateMenu();
             } else {
@@ -3090,7 +3101,12 @@ function startGame() {
 ========================================================= */
 
 function resetGame() {
-    speed = CONFIG.startingSpeed * difficultySettings().speed;
+    const carProfile = window.neonHighwayProfile;
+    const carSpeed = Number(carProfile?.selected ? (carProfile.selected === "zenith" ? 1.32 : carProfile.selected === "phantom" ? 1.22 : carProfile.selected === "volt" ? 1.16 : carProfile.selected === "goldline" ? 1.18 : carProfile.selected === "scarlet" ? 1.08 : 1) : 1);
+    speed = CONFIG.startingSpeed * difficultySettings().speed * (1 + Number(performanceUpgrades.engine || 0) * 0.035) * Math.min(carSpeed, 1.32);
+    timeTrialRemaining = 90;
+    armorRecoveryUsed = false;
+    raceMode = localStorage.getItem("neonHighwayMode") || raceMode || "career";
     levelDistance = 0;
     levelStartScore = 0;
     coinsCollected = 0;
@@ -3259,9 +3275,18 @@ function updateGame(
 
     score += speed * delta * 0.8 * difficultySettings().score;
     levelDistance += speed * delta;
+    if (raceMode === "time-trial") {
+        timeTrialRemaining = Math.max(0, timeTrialRemaining - delta);
+        const distanceLabel = document.getElementById("levelDistanceLabel");
+        if (distanceLabel) distanceLabel.textContent = Math.ceil(timeTrialRemaining) + " SEC LEFT";
+        if (timeTrialRemaining <= 0) {
+            completeLevel();
+            return;
+        }
+    }
     updateHUD();
     updateLevelHUD();
-    if (levelDistance >= LEVEL_DISTANCE_TARGET) completeLevel();
+    if (raceMode !== "endless" && raceMode !== "time-trial" && levelDistance >= LEVEL_DISTANCE_TARGET) completeLevel();
 }
 
 
@@ -3279,6 +3304,8 @@ function updateSpeed(
 
         speed +=
             CONFIG.acceleration *
+            (1 + Number(performanceUpgrades.engine || 0) * 0.12) *
+            (1 + Number(performanceUpgrades.nitro || 0) * 0.035) *
             delta;
 
     } else if (
@@ -3369,10 +3396,11 @@ function updatePlayer(
         );
 
 
+    const handlingMultiplier = 1 + Number(performanceUpgrades.handling || 0) * 0.1;
     const response =
-        steeringTarget === 0
+        (steeringTarget === 0
             ? CONFIG.steeringReturn
-            : CONFIG.steeringResponse;
+            : CONFIG.steeringResponse) * handlingMultiplier;
 
 
     steeringInput =
@@ -3579,10 +3607,18 @@ function updateTraffic(
                 car
             )
         ) {
-
-            crash();
-
-            return;
+            if (Number(performanceUpgrades.armor || 0) >= 3 && !armorRecoveryUsed) {
+                armorRecoveryUsed = true;
+                trafficGroup.children.forEach(other => {
+                    if (Math.abs(other.position.z - player.position.z) < 14) other.position.z = -180 - Math.random() * 120;
+                });
+                speed = Math.max(30, speed * 0.65);
+                const status = document.getElementById("recordStatus");
+                if (status) status.textContent = "SAFETY CELL ACTIVATED · ONE CRASH RECOVERY USED";
+            } else {
+                crash();
+                return;
+            }
         }
     }
 
@@ -3674,6 +3710,7 @@ function updateCoins(
 
             score += 250;
             coinsCollected += 1;
+            document.dispatchEvent(new CustomEvent("neon:coin-collected", { detail: { total: coinsCollected } }));
             if (coinsCollected >= 5 && !missionRewarded) {
                 missionRewarded = true;
                 credits += 500;
@@ -3897,7 +3934,7 @@ function crash() {
 
 
     finalBestElement.textContent = bestScore;
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, reason: "crash" } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, coins: coinsCollected, reason: "crash", mode: raceMode } }));
     bestElement.textContent =
         bestScore;
 
@@ -4095,10 +4132,12 @@ function completeLevel() {
     pauseScreen.classList.add("hidden");
     completeScoreElement.textContent = Math.floor(score).toLocaleString();
     completeCoinsElement.textContent = coinsCollected.toLocaleString();
-    document.getElementById("completeSubtitle").textContent = `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
+    document.getElementById("completeSubtitle").textContent = raceMode === "time-trial"
+        ? "TIME TRIAL COMPLETE · SCORE " + Math.floor(score).toLocaleString()
+        : `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
     levelCompleteScreen.classList.remove("hidden");
     localStorage.setItem("neonHighwayLevel", String(currentLevel));
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, reason: "complete" } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode } }));
 }
 function advanceLevel() {
     currentLevel += 1;
