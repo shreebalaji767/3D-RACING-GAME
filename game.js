@@ -439,6 +439,8 @@ let bestScore =
    KEYBOARD STATE
 ========================================================= */
 
+const gamepadInput = { steering: 0, accelerate: false, brake: false };
+
 const keys = {
 
     left:
@@ -3283,6 +3285,7 @@ function updateGame(
     delta
 ) {
 
+    updateGamepadControls();
     updateSpeed(
         delta
     );
@@ -3348,6 +3351,25 @@ function updateGame(
 
 
 /* =========================================================
+   GAMEPAD SUPPORT — browser-native, no library or service
+========================================================= */
+
+function updateGamepadControls() {
+    gamepadInput.steering = 0;
+    gamepadInput.accelerate = false;
+    gamepadInput.brake = false;
+    if (!navigator.getGamepads) return;
+    const pads = navigator.getGamepads();
+    const pad = Array.from(pads || []).find(item => item && item.connected);
+    if (!pad) return;
+    const axis = Number(pad.axes?.[0] || 0);
+    if (Math.abs(axis) > 0.16) gamepadInput.steering = THREE.MathUtils.clamp(axis, -1, 1);
+    gamepadInput.accelerate = Boolean(pad.buttons?.[0]?.pressed || pad.buttons?.[7]?.value > 0.2);
+    gamepadInput.brake = Boolean(pad.buttons?.[1]?.pressed || pad.buttons?.[6]?.value > 0.2);
+}
+
+
+/* =========================================================
    SPEED
 ========================================================= */
 
@@ -3356,7 +3378,7 @@ function updateSpeed(
 ) {
 
     if (
-        keys.accelerate
+        keys.accelerate || gamepadInput.accelerate
     ) {
 
         speed +=
@@ -3366,7 +3388,7 @@ function updateSpeed(
             delta;
 
     } else if (
-        keys.brake
+        keys.brake || gamepadInput.brake
     ) {
 
         speed -=
@@ -3423,6 +3445,7 @@ function updatePlayer(
             1;
     }
 
+    keyboardInput = THREE.MathUtils.clamp(keyboardInput + gamepadInput.steering, -1, 1);
 
     /*
         Touch steering.

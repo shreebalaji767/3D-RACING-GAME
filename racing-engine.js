@@ -50,6 +50,14 @@ export function createRacingEngine(THREE, scene, { isMobile = false } = {}) {
       weatherPositions[i * 3 + 1] = random() * 24;
       weatherPositions[i * 3 + 2] = -random() * 150 + 18;
     }
+    if (safe === "rain") {
+      for (let i = 0; i < weatherCount; i++) {
+        const a = i * 6;
+        weatherPositions[a + 3] = weatherPositions[a] - 0.28;
+        weatherPositions[a + 4] = weatherPositions[a + 1] - 1.1;
+        weatherPositions[a + 5] = weatherPositions[a + 2];
+      }
+    }
     weatherGeometry = new THREE.BufferGeometry();
     weatherGeometry.setAttribute("position", new THREE.BufferAttribute(weatherPositions, 3));
     weatherMaterial = safe === "rain"
@@ -99,13 +107,14 @@ export function createRacingEngine(THREE, scene, { isMobile = false } = {}) {
       data.aiTimer = 0.5 + seededValue(data.aiSeed || car.id || 1) * 1.6;
       data.aiSeed = (data.aiSeed || car.id || 1) | 0;
     }
+    data.aiClock = (data.aiClock || 0) + delta;
     data.aiTimer -= delta;
     if (data.aiTimer <= 0) {
-      data.aiTimer = 0.8 + seededValue(data.aiSeed + Math.floor(performance.now() / 1000)) * (aggressive ? 1.0 : 2.2);
+      data.aiTimer = 0.8 + seededValue(data.aiSeed + Math.floor(data.aiClock * 3)) * (aggressive ? 1.0 : 2.2);
       const blocked = trafficCars.some(other => other !== car &&
         Math.abs(other.position.z - car.position.z) < (aggressive ? 20 : 14) &&
         Math.abs(other.position.x - lanes[data.targetLane]) < 2.3);
-      if (blocked || (aggressive && seededValue(data.aiSeed + Math.floor(car.position.z)) > 0.84)) {
+      if (blocked || (aggressive && seededValue(data.aiSeed + Math.floor(data.aiClock * 7)) > 0.84)) {
         const candidates = lanes.map((x, lane) => ({ lane, x, clear: !trafficCars.some(other => other !== car &&
           Math.abs(other.position.z - car.position.z) < 24 && Math.abs(other.position.x - x) < 2.25) &&
           (!player || Math.abs(player.position.z - car.position.z) > 8 || Math.abs(player.position.x - x) > 2.1) }))
