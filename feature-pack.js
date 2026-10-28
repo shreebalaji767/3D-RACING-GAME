@@ -21,9 +21,12 @@
     { id: "engine", name: "ENGINE TUNING", desc: "Increase acceleration and top speed.", base: 600, max: 5 },
     { id: "handling", name: "RACE SUSPENSION", desc: "Sharper, more responsive steering.", base: 450, max: 5 },
     { id: "nitro", name: "NITRO CAPACITY", desc: "Longer boost bursts and quicker recovery.", base: 700, max: 5 },
-    { id: "armor", name: "SAFETY CELL", desc: "Unlock one crash recovery per run at level 3.", base: 900, max: 3 }
+    { id: "armor", name: "SAFETY CELL", desc: "Unlock one crash recovery per run at level 3.", base: 900, max: 3 },
+    { id: "tires", name: "RACE TIRE COMPOUND", desc: "Improves steering grip in dry, wet and snowy conditions.", base: 550, max: 5 },
+    { id: "brakes", name: "PERFORMANCE BRAKES", desc: "Shortens braking response and helps shed speed before traffic.", base: 650, max: 5 },
+    { id: "gearbox", name: "CLOSE-RATIO GEARBOX", desc: "Raises effective top speed in small, controllable steps.", base: 800, max: 5 }
   ];
-  const defaultProfile = () => ({ credits: Math.max(0, Number(localStorage.getItem("neonHighwayCredits") || 0)), owned: ["starter"], selected: "starter", upgrades: { engine: 0, handling: 0, nitro: 0, armor: 0 }, races: 0, bestRun: Number(localStorage.getItem("neonHighwayBest") || 0), missions: {} });
+  const defaultProfile = () => ({ credits: Math.max(0, Number(localStorage.getItem("neonHighwayCredits") || 0)), owned: ["starter"], selected: "starter", upgrades: { engine: 0, handling: 0, nitro: 0, armor: 0, tires: 0, brakes: 0, gearbox: 0 }, races: 0, bestRun: Number(localStorage.getItem("neonHighwayBest") || 0), missions: {} });
   let profile;
   try { profile = { ...defaultProfile(), ...JSON.parse(localStorage.getItem(STORAGE.profile) || "{}") }; } catch { profile = defaultProfile(); }
   profile.owned = Array.isArray(profile.owned) && profile.owned.length ? profile.owned : ["starter"];
@@ -170,7 +173,7 @@
       const level = Number(profile.upgrades[upgrade.id] || 0); const price = upgrade.base * (level + 1);
       return '<article class="feature-card"><h3>' + upgrade.name + '</h3><p>' + upgrade.desc + '</p><div class="feature-progress"><span style="width:' + (level / upgrade.max * 100) + '%"></span></div><p class="feature-muted">LEVEL ' + level + ' / ' + upgrade.max + '</p><strong class="feature-price">' + (level >= upgrade.max ? 'MAX LEVEL' : price.toLocaleString() + ' CR') + '</strong><button class="game-button" data-upgrade="' + upgrade.id + '" ' + (level >= upgrade.max ? 'disabled' : '') + '>' + (level >= upgrade.max ? 'FULLY UPGRADED' : 'PURCHASE UPGRADE') + '</button></article>';
     }).join("");
-    showPanel("PERFORMANCE LAB", '<p class="feature-muted">Upgrades persist on this device and affect acceleration, handling, boost, and the optional recovery perk.</p><div class="feature-grid" style="margin-top:14px">' + cards + '</div>');
+    showPanel("PERFORMANCE LAB", '<p class="feature-muted">Upgrades persist on this device and affect acceleration, handling, boost, grip, braking, gearing, and the optional recovery perk.</p><div class="feature-grid" style="margin-top:14px">' + cards + '</div>');
     $("featureBody").querySelectorAll("[data-upgrade]").forEach((button) => button.addEventListener("click", () => {
       const item = upgradeCatalog.find((upgrade) => upgrade.id === button.dataset.upgrade); const level = Number(profile.upgrades[item.id] || 0); const price = item.base * (level + 1);
       if (level >= item.max) return;
@@ -191,7 +194,7 @@
     let hasSave = false; try { hasSave = Boolean(localStorage.getItem(STORAGE.save)); } catch {}
     showPanel("MANUAL SAVE / LOAD", '<p class="feature-muted">Save a snapshot when you choose. Loading restores the saved garage, upgrades, credits, selected mode, environment, difficulty, paint, and unlocked level on this device.</p><div class="feature-save-row"><button class="game-button primary" id="saveProfile">SAVE PROGRESS NOW</button><button class="game-button" id="loadProfile" ' + (hasSave ? "" : "disabled") + '>LOAD SAVED PROGRESS</button></div><p class="feature-hint">No cloud account is required. This save is local to this browser and device.</p>');
     $("saveProfile").addEventListener("click", () => {
-      const snapshot = { profile: JSON.parse(JSON.stringify(profile)), difficulty: $("difficultySelect")?.value || "normal", mode: modeSelect.value, environment: environmentSelect.value, weather: weatherSelect.value, paint: $("paintSelect")?.value || selectedCar().color, level: localStorage.getItem("neonHighwayLevel") || "1", best: localStorage.getItem("neonHighwayBest") || "0" };
+      const snapshot = { version: 2, profile: JSON.parse(JSON.stringify(profile)), difficulty: $("difficultySelect")?.value || "normal", mode: modeSelect.value, environment: environmentSelect.value, weather: weatherSelect.value, paint: $("paintSelect")?.value || selectedCar().color, level: localStorage.getItem("neonHighwayLevel") || "1", best: localStorage.getItem("neonHighwayBest") || "0" };
       localStorage.setItem(STORAGE.save, JSON.stringify(snapshot)); $("loadProfile").disabled = false; toast("Progress snapshot saved on this device.");
     });
     $("loadProfile").addEventListener("click", () => {

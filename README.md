@@ -106,3 +106,12 @@ In repository **Settings → Pages → Build and deployment**, select **GitHub A
 - Easy gives the player more breathing room and lets rival drivers make more mistakes. Legend increases rival pace, reaction speed, traffic density, overtaking attempts, and defensive lane choices.
 - Rival behaviour uses seeded, rule-based JavaScript state; no machine-learning model, network service, or paid API is used.
 - Scoring and speed tuning remain gameplay modifiers, not paid advantages. Every difficulty and car upgrade is available without real-money purchases.
+
+
+## Race engineer and expanded performance lab (October 2026)
+
+- Race engineer overlay reports live speed, distance, steering input, selected difficulty, weather, and three distance-sector splits during a run.
+- Personal best sector splits are stored locally per mode and difficulty. No telemetry is sent to a server.
+- Performance Lab includes tire compound, brake kit, and close-ratio gearbox upgrades in addition to engine, handling, nitro, and safety cell. All are purchased with earned in-game credits.
+- The five difficulty options, including Legend, are preserved when choosing or restoring settings.
+- This update adds telemetry to the existing distance-based road races; it does not claim that these are closed-loop circuit tracks.

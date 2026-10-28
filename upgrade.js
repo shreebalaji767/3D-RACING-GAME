@@ -14,7 +14,7 @@ const downloadReplay=document.getElementById("downloadReplay");
 const recordStatus=document.getElementById("recordStatus");
 let recorder=null, recordingChunks=[], recordingStartedAt=0, replayUrl=null;
 const savedDifficulty=localStorage.getItem("neonHighwayDifficulty")||"normal";
-difficultySelect.value=["easy","normal","hard","expert"].includes(savedDifficulty)?savedDifficulty:"normal";
+difficultySelect.value=["easy","normal","hard","expert","legend"].includes(savedDifficulty)?savedDifficulty:"normal";
 difficultySelect.addEventListener("change",()=>{
  localStorage.setItem("neonHighwayDifficulty",difficultySelect.value);
  recordStatus.textContent="Difficulty saved: "+difficultySelect.options[difficultySelect.selectedIndex].text+".";

@@ -3172,6 +3172,7 @@ function resetGame() {
     raceMode = localStorage.getItem("neonHighwayMode") || raceMode || "career";
     document.body.dataset.mode = raceMode;
     levelDistance = 0;
+    telemetryTickTimer = 0;
     levelStartScore = 0;
     coinsCollected = 0;
     missionRewarded = false;
@@ -3230,6 +3231,7 @@ function resetGame() {
 let lastTime =
     performance.now();
 let raceCountdownRemaining = 0;
+let telemetryTickTimer = 0;
 
 
 function gameLoop(
@@ -3353,6 +3355,11 @@ function updateGame(
         score += delta * speed * 1.8;
     }
     levelDistance += speed * delta;
+    telemetryTickTimer += delta;
+    if (telemetryTickTimer >= 0.12) {
+        telemetryTickTimer = 0;
+        document.dispatchEvent(new CustomEvent("neon:telemetry-tick", { detail: { mode: raceMode, difficulty: selectedDifficulty(), distance: levelDistance, speed, score: Math.floor(score), steering: steeringInput, position: racePosition, weather: racingEngine?.weather || "clear", level: currentLevel } }));
+    }
     if (raceMode === "championship") {
         const rivals = trafficGroup.children.filter(car => car.userData.isRival).map(car => ({ name: car.userData.rivalName, progress: car.userData.raceProgress || 0 }));
         document.dispatchEvent(new CustomEvent("neon:race-tick", { detail: { mode: raceMode, distance: levelDistance, rivals } }));
@@ -3415,6 +3422,7 @@ function updateSpeed(
 
         speed -=
             CONFIG.braking *
+            (1 + Number(performanceUpgrades.brakes || 0) * 0.09) *
             delta;
 
     } else {
@@ -3430,7 +3438,8 @@ function updateSpeed(
     const selectedCarId = window.neonHighwayProfile?.selected || "starter";
     const carSpeed = ({ scarlet: 1.08, volt: 1.16, phantom: 1.22, goldline: 1.18, zenith: 1.32 })[selectedCarId] || 1;
     const speedUpgrade = 1 + Number(performanceUpgrades.engine || 0) * 0.035;
-    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed * carSpeed * speedUpgrade + levelBonus);
+    const gearboxUpgrade = 1 + Number(performanceUpgrades.gearbox || 0) * 0.025;
+    speed = THREE.MathUtils.clamp(speed, 20, CONFIG.maxSpeed * difficulty.speed * carSpeed * speedUpgrade * gearboxUpgrade + levelBonus);
 }
 
 
@@ -3545,7 +3554,8 @@ function updatePlayer(
         );
 
 
-    const grip = racingEngine?.updateSurfaceGrip(1) ?? 1;
+    const tireGrip = 1 + Number(performanceUpgrades.tires || 0) * 0.035;
+    const grip = racingEngine?.updateSurfaceGrip(tireGrip) ?? tireGrip;
     const movement =
 
         steeringInput *

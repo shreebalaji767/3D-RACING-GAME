@@ -1,9 +1,9 @@
 /* Neon Highway 3D offline cache. Cache failures never block normal online play. */
-const CACHE = "neon-highway-shell-v4";
+const CACHE = "neon-highway-shell-v5";
 const LOCAL_FILES = [
   "./", "./index.html", "./style.css", "./game.js", "./upgrade.js",
   "./feature-pack.js", "./championship-pack.js", "./fair-play.js", "./racing-engine.js",
-  "./enhancement-pack.js", "./logo.svg", "./favicon.svg"
+  "./enhancement-pack.js", "./race-engineer.js", "./logo.svg", "./favicon.svg"
 ];
 const CDN_FILES = [
   "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
