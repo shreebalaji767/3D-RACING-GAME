@@ -78,3 +78,12 @@ In repository **Settings → Pages → Build and deployment**, select **GitHub A
 - Weather choices: clear, rain, snow, and fog. Rain and snow adjust handling grip; fog changes scene visibility.
 - The engine uses the free Three.js library for rendering. It requires no API key, AI provider, paid SDK, or backend.
 - No new paid assets or services are required.
+
+
+## Quality-of-life and offline enhancements
+
+- Optional synthesized UI sounds use the browser's Web Audio API; no sound files or paid audio service are required.
+- Reduced-motion preference can be toggled from the menu enhancement controls.
+- Export/import local progress backups as JSON. Import requires confirmation and validates the backup before writing matching game keys.
+- A best-effort service worker caches the local game shell and attempts to cache the Three.js modules. Offline 3D play depends on the browser successfully caching the CDN modules; it is not guaranteed on every host/device.
+- The game remains client-side. No telemetry, ad network, account service, or AI API is introduced.
