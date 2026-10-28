@@ -369,6 +369,19 @@ document.addEventListener("neon:upgrades-change", event => {
 document.addEventListener("neon:mode-change", event => {
     raceMode = event.detail?.mode || "career";
 });
+document.addEventListener("neon:environment-change", event => {
+    const themes = {
+        neon: [0x02050c, 0x050a14],
+        sunset: [0x281127, 0x35152c],
+        arctic: [0x07182a, 0x0c2740],
+        emerald: [0x031b18, 0x06342b]
+    };
+    const colors = themes[event.detail?.environment] || themes.neon;
+    if (scene) {
+        scene.background = new THREE.Color(colors[0]);
+        if (scene.fog) scene.fog.color.setHex(colors[1]);
+    }
+});
 const LEVEL_DISTANCE_TARGET = 1500;
 function selectedDifficulty() {
     const allowed = ["easy", "normal", "hard", "expert"];
@@ -3114,7 +3127,7 @@ function resetGame() {
     levelComplete = false;
     score = 0;
     updateMissionHUD();
-
+    performanceUpgrades = { ...performanceUpgrades, ...(window.neonHighwayProfile?.upgrades || {}) };
 
     steeringInput =
         0;
@@ -4117,7 +4130,9 @@ function updateLevelHUD() {
     updateMissionHUD();
     const progress = Math.min(100, levelDistance / LEVEL_DISTANCE_TARGET * 100);
     levelLabelElement.textContent = `LEVEL ${currentLevel}`;
-    levelDistanceLabelElement.textContent = `${Math.floor(levelDistance).toLocaleString()} / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
+    levelDistanceLabelElement.textContent = raceMode === "time-trial"
+        ? Math.ceil(timeTrialRemaining) + " SEC LEFT"
+        : `${Math.floor(levelDistance).toLocaleString()} / ${LEVEL_DISTANCE_TARGET.toLocaleString()}`;
     levelProgressFillElement.style.width = `${progress}%`;
 }
 function completeLevel() {
