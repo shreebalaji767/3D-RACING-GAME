@@ -4064,7 +4064,7 @@ function crash() {
 
 
     finalBestElement.textContent = bestScore;
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, coins: coinsCollected, reason: "crash", mode: raceMode, position: racePosition, distance: levelDistance } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: finalScore, level: currentLevel, coins: coinsCollected, reason: "crash", mode: raceMode, difficulty: selectedDifficulty(), position: racePosition, distance: levelDistance } }));
     bestElement.textContent =
         bestScore;
 
@@ -4271,7 +4271,7 @@ function completeLevel() {
             : `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
     levelCompleteScreen.classList.remove("hidden");
     localStorage.setItem("neonHighwayLevel", String(currentLevel));
-    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode, position: racePosition, distance: levelDistance, rivals: trafficGroup.children.filter(car => car.userData.isRival).map(car => ({ name: car.userData.rivalName, progress: Number(car.userData.raceProgress || 0) })) } }));
+    document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode, difficulty: selectedDifficulty(), position: racePosition, distance: levelDistance, rivals: trafficGroup.children.filter(car => car.userData.isRival).map(car => ({ name: car.userData.rivalName, progress: Number(car.userData.raceProgress || 0) })) } }));
 }
 function advanceLevel() {
     currentLevel += 1;
