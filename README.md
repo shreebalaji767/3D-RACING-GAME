@@ -43,3 +43,16 @@ Levels are generated from the existing highway/traffic system rather than handcr
 
 
 Additional progression systems include selectable player-car paint, persistent local credits, and a run mission that awards 500 credits after collecting five coins.
+
+
+## Complete progression upgrade (October 2026)
+
+- Vehicle garage with six unlockable car profiles, persistent ownership, selection, and vehicle-specific speed/handling.
+- Engine, handling, nitro, and safety-cell upgrades purchased with in-game credits.
+- Career, endless, time-trial, drift-run, traffic-challenge, and pursuit-traffic modes.
+- Four selectable road-atmosphere themes: neon, sunset, arctic, and emerald.
+- Near-miss bonus scoring, drift scoring, coin/race/score missions, and persistent rewards.
+- Manual local save/load snapshot for profile, garage, upgrades, difficulty, mode, environment, paint, level, and best score.
+- Graphics quality control for lower-powered devices, plus responsive feature panels for small screens.
+
+Progress snapshots are stored in the current browser only; they do not sync across devices. Vehicle profiles currently tune the existing procedural 3D car model rather than loading six separate external car models. Environment options change the scene atmosphere/background; they are not separate handcrafted 3D maps.
