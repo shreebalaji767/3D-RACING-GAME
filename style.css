@@ -2235,7 +2235,7 @@ body {
 .car-glow { position:absolute; left:-20%; right:-20%; bottom:-12px; height:25px; border-radius:50%; background:#00d9ff; filter:blur(17px); }
 .car-light { position:absolute; bottom:25%; width:20%; height:7px; background:#fff; box-shadow:0 0 14px #42f5ff; }.light-left { left:12%; }.light-right { right:12%; }
 .landing-visual-label { position:absolute; z-index:3; left:20px; right:20px; top:18px; display:flex; justify-content:space-between; gap:12px; color:#89a6ce; font-size:9px; font-weight:800; letter-spacing:1.5px; }
-.landing-features { position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; max-width:1440px; margin:0 auto 30px; }
+.landing-features { position:relative; z-index:1; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; max-width:1440px; margin:0 auto 30px; }
 .landing-feature { padding:18px 20px; border:1px solid rgba(91,159,255,.16); border-radius:15px; background:rgba(6,15,32,.72); }
 .feature-index { display:block; margin-bottom:13px; color:#42f5ff; font-size:10px; font-weight:900; letter-spacing:2px; }
 .landing-feature strong { display:block; font-size:12px; letter-spacing:1.4px; }
