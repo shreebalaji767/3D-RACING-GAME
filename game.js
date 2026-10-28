@@ -1461,7 +1461,58 @@ function createRoadEdges(
    ENVIRONMENT
 ========================================================= */
 
+function createDistinctTrackScenery(theme) {
+    const palette = {
+        sunset: { ground: 0x594039, accent: 0xffa16b },
+        arctic: { ground: 0x9bbdce, accent: 0x8ceaff },
+        emerald: { ground: 0x163b27, accent: 0x59f2a5 }
+    }[theme];
+    if (!palette) return false;
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1200), new THREE.MeshStandardMaterial({ color: palette.ground, roughness: 1 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.set(0, -0.12, -400);
+    environmentGroup.add(ground);
+    for (let z = 25; z > -760; z -= 34) {
+        for (const side of [-1, 1]) {
+            if (theme === "sunset") {
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.2, .34, 5, 7), new THREE.MeshStandardMaterial({ color: 0x76503a }));
+                trunk.position.set(side * (17 + Math.random() * 8), 2.5, z);
+                const leaves = new THREE.Mesh(new THREE.SphereGeometry(2.4, 7, 5), new THREE.MeshStandardMaterial({ color: 0x43824a }));
+                leaves.position.set(trunk.position.x, 5.3, z);
+                environmentGroup.add(trunk, leaves);
+                const cliff = new THREE.Mesh(new THREE.ConeGeometry(8 + Math.random() * 5, 9 + Math.random() * 8, 5), new THREE.MeshStandardMaterial({ color: 0x9c6250, roughness: 1 }));
+                cliff.position.set(side * (30 + Math.random() * 8), 2, z - 8);
+                environmentGroup.add(cliff);
+            } else if (theme === "arctic") {
+                const peak = new THREE.Mesh(new THREE.ConeGeometry(9 + Math.random() * 7, 25 + Math.random() * 20, 5), new THREE.MeshStandardMaterial({ color: side < 0 ? 0x426a86 : 0xb8d8e8, roughness: .95 }));
+                peak.position.set(side * (25 + Math.random() * 13), 10, z - Math.random() * 12);
+                environmentGroup.add(peak);
+                const pine = new THREE.Group();
+                for (let tier = 0; tier < 3; tier++) {
+                    const cone = new THREE.Mesh(new THREE.ConeGeometry(1.8 - tier * .35, 3, 6), new THREE.MeshStandardMaterial({ color: tier === 2 ? 0xe6f7ff : 0x36717c }));
+                    cone.position.y = 2 + tier * 1.35;
+                    pine.add(cone);
+                }
+                pine.position.set(side * (13 + Math.random() * 5), 0, z - 10);
+                environmentGroup.add(pine);
+            } else {
+                createTree(side * (13 + Math.random() * 7), z);
+                createTree(side * (22 + Math.random() * 7), z - 13);
+                const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(2 + Math.random() * 2), new THREE.MeshStandardMaterial({ color: 0x294d39, roughness: 1 }));
+                rock.position.set(side * (10 + Math.random() * 3), 1, z - 17);
+                environmentGroup.add(rock);
+            }
+            const marker = new THREE.Mesh(new THREE.BoxGeometry(.18, 2, .18), new THREE.MeshStandardMaterial({ color: palette.accent, emissive: palette.accent, emissiveIntensity: .25 }));
+            marker.position.set(side * 7.7, 1, z);
+            environmentGroup.add(marker);
+        }
+    }
+    return true;
+}
+
 function createEnvironment() {
+    const trackTheme = localStorage.getItem('neonHighwayEnvironment') || 'neon';
+    if (createDistinctTrackScenery(trackTheme)) return;
 
     for (
         let z = 20;
