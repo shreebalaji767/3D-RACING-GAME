@@ -28,7 +28,6 @@
   profile.owned = Array.isArray(profile.owned) && profile.owned.length ? profile.owned : ["starter"];
   profile.upgrades = { ...defaultProfile().upgrades, ...(profile.upgrades || {}) };
   const persistProfile = () => {
-    profile.credits = Math.max(profile.credits, Number(localStorage.getItem("neonHighwayCredits") || 0));
     localStorage.setItem(STORAGE.profile, JSON.stringify(profile));
     localStorage.setItem("neonHighwayCredits", String(profile.credits));
     window.dispatchEvent(new CustomEvent("neon:profile-updated", { detail: profile }));
@@ -181,6 +180,7 @@
   $("openSaveLoad").addEventListener("click", openSaveLoad);
   document.addEventListener("neon:run-ended", (event) => {
     const detail = event.detail || {};
+    profile.credits = Math.max(profile.credits, Number(localStorage.getItem("neonHighwayCredits") || 0));
     profile.races += 1;
     profile.bestRun = Math.max(profile.bestRun || 0, Number(detail.score || 0));
     profile.missions.runs3 = Number(profile.missions.runs3 || 0) + 1;
