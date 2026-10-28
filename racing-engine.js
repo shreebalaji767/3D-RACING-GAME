@@ -98,9 +98,14 @@ export function createRacingEngine(THREE, scene, { isMobile = false } = {}) {
     }
     weatherGeometry.attributes.position.needsUpdate = true;
   }
-  function updateCarAI(car, trafficCars, player, delta, roadLimit = 5.9, aggressive = false) {
+  function updateCarAI(car, trafficCars, player, delta, roadLimit = 5.9, aggressive = false, skill = {}) {
     if (!car?.userData || !Number.isFinite(car.position.x)) return;
     const data = car.userData;
+    const reaction = clamp(Number(skill.reaction) || 1, 0.5, 1.8);
+    const aggression = clamp(Number(skill.aggression) || (aggressive ? 1 : 0.65), 0.2, 1.8);
+    const mistakeChance = clamp(Number(skill.mistakeChance) || 0.04, 0, 0.25);
+    const overtake = clamp(Number(skill.overtake) || 0.7, 0.1, 1);
+    const speedPenalty = clamp(Number(skill.speedPenalty) || 0.78, 0.55, 0.95);
     if (data.aiLane === undefined) {
       data.aiLane = Number.isInteger(data.lane) ? data.lane : lanes.reduce((best, x, i) => Math.abs(x-car.position.x) < Math.abs(lanes[best]-car.position.x) ? i : best, 0);
       data.targetLane = data.aiLane;
@@ -109,24 +114,36 @@ export function createRacingEngine(THREE, scene, { isMobile = false } = {}) {
     }
     data.aiClock = (data.aiClock || 0) + delta;
     data.aiTimer -= delta;
+    data.aiMistakeTimer = Math.max(0, Number(data.aiMistakeTimer || 0) - delta);
+    data.aiSpeedFactor = data.isRival && data.aiMistakeTimer > 0 ? speedPenalty : 1;
     if (data.aiTimer <= 0) {
-      data.aiTimer = 0.8 + seededValue(data.aiSeed + Math.floor(data.aiClock * 3)) * (aggressive ? 1.0 : 2.2);
+      data.aiTimer = (0.8 + seededValue(data.aiSeed + Math.floor(data.aiClock * 3)) * (aggressive ? 1.0 : 2.2)) / reaction;
+      if (data.isRival && seededValue(data.aiSeed + Math.floor(data.aiClock * 11)) < mistakeChance) {
+        data.aiMistakeTimer = 0.55 + seededValue(data.aiSeed + Math.floor(data.aiClock * 13)) * 0.8;
+        data.aiSpeedFactor = speedPenalty;
+      }
       const blocked = trafficCars.some(other => other !== car &&
         Math.abs(other.position.z - car.position.z) < (aggressive ? 20 : 14) &&
         Math.abs(other.position.x - lanes[data.targetLane]) < 2.3);
-      if (blocked || (aggressive && seededValue(data.aiSeed + Math.floor(data.aiClock * 7)) > 0.84)) {
+      const attemptMove = blocked || (aggressive && seededValue(data.aiSeed + Math.floor(data.aiClock * 7)) < aggression * 0.28);
+      if (attemptMove) {
         const candidates = lanes.map((x, lane) => ({ lane, x, clear: !trafficCars.some(other => other !== car &&
-          Math.abs(other.position.z - car.position.z) < 24 && Math.abs(other.position.x - x) < 2.25) &&
+          Math.abs(other.position.z - car.position.z) < (aggressive ? 24 : 20) && Math.abs(other.position.x - x) < 2.25) &&
           (!player || Math.abs(player.position.z - car.position.z) > 8 || Math.abs(player.position.x - x) > 2.1) }))
           .filter(option => option.clear && Math.abs(option.x) <= roadLimit);
         if (candidates.length) {
-          candidates.sort((a,b) => Math.abs(a.lane-data.aiLane)-Math.abs(b.lane-data.aiLane));
-          data.targetLane = candidates[aggressive && candidates.length > 1 ? 1 : 0].lane;
+          const playerNear = Boolean(player && Math.abs(player.position.z - car.position.z) < 24);
+          const playerLane = playerNear ? lanes.reduce((best, x, i) => Math.abs(x-player.position.x) < Math.abs(lanes[best]-player.position.x) ? i : best, 0) : -1;
+          const laneCost = option => Math.abs(option.lane-data.aiLane)
+            - (aggressive && playerNear && Math.abs(option.lane-playerLane) <= 1 ? overtake * 0.8 : 0)
+            + (playerNear && option.lane === playerLane ? aggression * 1.8 : 0);
+          candidates.sort((a,b) => laneCost(a)-laneCost(b));
+          data.targetLane = candidates[0].lane;
         }
       }
     }
     const targetX = lanes[data.targetLane] ?? lanes[data.aiLane];
-    const response = aggressive ? 3.4 : 2.2;
+    const response = (aggressive ? 2.7 + aggression * 0.75 : 2.2) * reaction;
     car.position.x += (targetX - car.position.x) * (1 - Math.exp(-response * delta));
   }
   function updateSurfaceGrip(baseGrip = 1) {

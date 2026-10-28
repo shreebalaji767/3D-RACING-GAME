@@ -406,16 +406,17 @@ document.addEventListener("neon:environment-change", event => {
 });
 const LEVEL_DISTANCE_TARGET = 1500;
 function selectedDifficulty() {
-    const allowed = ["easy", "normal", "hard", "expert"];
+    const allowed = ["easy", "normal", "hard", "expert", "legend"];
     const saved = localStorage.getItem("neonHighwayDifficulty") || "normal";
     return allowed.includes(saved) ? saved : "normal";
 }
 function difficultySettings() {
     return {
-        easy: { speed: 0.82, traffic: 0.72, score: 1.0 },
-        normal: { speed: 1.00, traffic: 1.00, score: 1.0 },
-        hard: { speed: 1.12, traffic: 1.22, score: 1.25 },
-        expert: { speed: 1.25, traffic: 1.48, score: 1.6 }
+        easy:   { speed: 1.04, traffic: 0.72, trafficSpeed: 1.16, rivalSpeed: 0.84, score: 0.90, ai: { reaction: 0.68, aggression: 0.45, mistakeChance: 0.14, overtake: 0.42, speedPenalty: 0.72 } },
+        normal: { speed: 1.00, traffic: 1.00, trafficSpeed: 1.00, rivalSpeed: 1.00, score: 1.00, ai: { reaction: 1.00, aggression: 0.78, mistakeChance: 0.075, overtake: 0.65, speedPenalty: 0.78 } },
+        hard:   { speed: 0.99, traffic: 1.22, trafficSpeed: 0.92, rivalSpeed: 1.07, score: 1.25, ai: { reaction: 1.18, aggression: 1.05, mistakeChance: 0.045, overtake: 0.82, speedPenalty: 0.82 } },
+        expert: { speed: 0.97, traffic: 1.48, trafficSpeed: 0.85, rivalSpeed: 1.13, score: 1.60, ai: { reaction: 1.40, aggression: 1.30, mistakeChance: 0.022, overtake: 0.94, speedPenalty: 0.86 } },
+        legend: { speed: 0.95, traffic: 1.62, trafficSpeed: 0.80, rivalSpeed: 1.19, score: 1.85, ai: { reaction: 1.62, aggression: 1.55, mistakeChance: 0.008, overtake: 0.99, speedPenalty: 0.90 } }
     }[selectedDifficulty()];
 }
 
@@ -2752,7 +2753,7 @@ function createTraffic() {
             { z: -52, lane: 2, speed: 70, color: 0xa879ff, name: "PHANTOM" },
             { z: -64, lane: 3, speed: 76, color: 0xffd52f, name: "GOLDLINE" },
             { z: -76, lane: 1, speed: 82, color: 0xf5f9ff, name: "ZENITH" }
-        ].map(r => ({...r, speed:r.speed*difficultySettings().speed})) : [
+        ].map(r => ({...r, speed:r.speed*difficultySettings().rivalSpeed})) : [
             { z: -90, lane: 1, speed: 31, color: 0xff3152, name: "SCARLET" },
             { z: -155, lane: 2, speed: 35, color: 0x2cffb0, name: "VOLT" },
             { z: -220, lane: 0, speed: 38, color: 0xa879ff, name: "PHANTOM" }
@@ -2876,7 +2877,7 @@ function spawnTrafficCar(
     const pursuitTrafficBonus = raceMode === "police" ? 14 : 0;
     car.userData.speed = Number.isFinite(options.speed)
         ? options.speed
-        : (20 + (racingEngine?.random() ?? Math.random()) * 30 + levelTrafficBonus + pursuitTrafficBonus) * difficultySettings().speed;
+        : (20 + (racingEngine?.random() ?? Math.random()) * 30 + levelTrafficBonus + pursuitTrafficBonus) * difficultySettings().trafficSpeed;
 
 
     trafficGroup.add(
@@ -3689,17 +3690,19 @@ function updateTraffic(
     delta
 ) {
 
+    const aiSkill = difficultySettings().ai;
     for (
         const car of
         trafficGroup.children
     ) {
-        racingEngine?.updateCarAI(car, trafficGroup.children, player, delta, CONFIG.roadLimit, raceMode === "rival" || raceMode === "championship");
-        if (raceMode === "championship" && car.userData.isRival) car.userData.raceProgress += car.userData.speed * delta;
+        racingEngine?.updateCarAI(car, trafficGroup.children, player, delta, CONFIG.roadLimit, raceMode === "rival" || raceMode === "championship", aiSkill);
+        const rivalSpeedFactor = Number(car.userData.aiSpeedFactor || 1);
+        if (raceMode === "championship" && car.userData.isRival) car.userData.raceProgress += car.userData.speed * rivalSpeedFactor * delta;
         car.position.z +=
 
             (
                 speed -
-                car.userData.speed
+                car.userData.speed * Number(car.userData.aiSpeedFactor || 1)
             ) *
 
             delta;

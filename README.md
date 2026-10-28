@@ -33,7 +33,8 @@ The game loads Three.js from jsDelivr. This is free, but players need internet a
 
 ## Upgrade branch: Neon Highway Complete
 
-- Responsive race setup with Easy, Normal, Hard, and Expert difficulty.
+- Responsive race setup with Easy, Normal, Hard, Expert, and Legend difficulty.
+- Difficulty-specific rival reactions, overtaking, defensive lane choices, traffic pace, and deterministic mistake windows.
 - Numbered levels with distance goals, progress HUD, Next Level, and Replay Level.
 - Traffic and speed scale with difficulty and level progression.
 - Gameplay capture and replay panel; WebM recording is saved locally in the browser.
@@ -96,3 +97,12 @@ In repository **Settings → Pages → Build and deployment**, select **GitHub A
 - Championship standings persist locally between heats. Finish-place points and credit rewards are earned by racing; crashes count as DNFs and allow the player to retry the current heat.
 - Conditions rotate across existing neon, sunset, arctic and emerald atmospheres plus clear/rain/snow/fog. This is still the existing continuous highway scene with distance-based laps/checkpoints, not a newly modelled closed circuit.
 - Static browser app using Three.js and native JavaScript APIs only. No paid AI, paid APIs, subscriptions, ads, premium currency or pay-to-win features were added. Offline cache and CI syntax validation include the new module.
+
+
+## Difficulty and rival-driver update (October 2026)
+
+- Five selectable difficulty levels: Easy, Normal, Hard, Expert, and Legend.
+- Difficulty selection persists locally and is restored when loading a manual save.
+- Easy gives the player more breathing room and lets rival drivers make more mistakes. Legend increases rival pace, reaction speed, traffic density, overtaking attempts, and defensive lane choices.
+- Rival behaviour uses seeded, rule-based JavaScript state; no machine-learning model, network service, or paid API is used.
+- Scoring and speed tuning remain gameplay modifiers, not paid advantages. Every difficulty and car upgrade is available without real-money purchases.
