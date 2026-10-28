@@ -27,6 +27,7 @@
   try { profile = { ...defaultProfile(), ...JSON.parse(localStorage.getItem(STORAGE.profile) || "{}") }; } catch { profile = defaultProfile(); }
   profile.owned = Array.isArray(profile.owned) && profile.owned.length ? profile.owned : ["starter"];
   profile.upgrades = { ...defaultProfile().upgrades, ...(profile.upgrades || {}) };
+  profile.credits = Math.max(Number(profile.credits || 0), Number(localStorage.getItem("neonHighwayCredits") || 0));
   const persistProfile = () => {
     localStorage.setItem(STORAGE.profile, JSON.stringify(profile));
     localStorage.setItem("neonHighwayCredits", String(profile.credits));
@@ -160,6 +161,7 @@
       localStorage.setItem(STORAGE.profile, JSON.stringify(profile)); localStorage.setItem("neonHighwayCredits", String(profile.credits || 0));
       localStorage.setItem("neonHighwayDifficulty", snapshot.difficulty || "normal"); localStorage.setItem(STORAGE.mode, snapshot.mode || "career"); localStorage.setItem(STORAGE.environment, snapshot.environment || "neon"); localStorage.setItem("neonHighwayPaint", snapshot.paint || "#087cff"); localStorage.setItem("neonHighwayLevel", snapshot.level || "1"); localStorage.setItem("neonHighwayBest", snapshot.best || "0");
       if ($("difficultySelect")) $("difficultySelect").value = snapshot.difficulty || "normal"; modeSelect.value = snapshot.mode || "career"; environmentSelect.value = snapshot.environment || "neon";
+      if ($("paintSelect")) $("paintSelect").value = snapshot.paint || "#087cff";
       document.dispatchEvent(new CustomEvent("neon:paint-change", { detail: { color: snapshot.paint || "#087cff" } })); applyEnvironment(); applyUpgrades(); persistProfile(); openSaveLoad(); toast("Saved progress loaded.");
     });
   };
