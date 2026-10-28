@@ -2259,3 +2259,9 @@ body {
 
 /* Keep the home logo accessible above in-game feature panels. */
 .home-logo-button { z-index: 190; }
+
+/* Racing engine HUD additions */
+.race-position{color:#2cffb0;font-weight:900;letter-spacing:.06em;text-align:center;white-space:nowrap}
+body[data-weather="rain"] #canvasContainer canvas{filter:saturate(.9) contrast(1.04)}
+body[data-weather="snow"] #canvasContainer canvas{filter:brightness(1.04) saturate(.82)}
+@media(max-width:480px){.level-progress-top{gap:8px;flex-wrap:wrap}.race-position{font-size:10px}}

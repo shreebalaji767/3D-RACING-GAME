@@ -6,7 +6,8 @@
     profile: "neonHighwayProfileV2",
     save: "neonHighwayManualSaveV1",
     mode: "neonHighwayMode",
-    environment: "neonHighwayEnvironment"
+    environment: "neonHighwayEnvironment",
+    weather: "neonHighwayWeather"
   };
   const cars = [
     { id: "starter", name: "NEON GT", type: "Starter coupe", price: 0, color: "#087cff", speed: 1, handling: 1 },
@@ -44,7 +45,7 @@
   modeSelect.id = "raceModeSelect"; modeSelect.className = "difficulty-select";
   const modeLabel = document.createElement("label");
   modeLabel.className = "field-label"; modeLabel.htmlFor = modeSelect.id; modeLabel.textContent = "RACE MODE";
-  [["career","CAREER · Unlock levels"],["endless","ENDLESS · No finish line"],["time-trial","TIME TRIAL · 90 seconds"],["traffic","TRAFFIC CHALLENGE · Collect coins"],["drift","DRIFT RUN · Score while steering"],["police","POLICE PURSUIT · Dense traffic"]].forEach(([v,l]) => addOption(modeSelect,v,l));
+  [["career","CAREER · Unlock levels"],["rival","RIVAL SPRINT · Beat 3 racers"],["endless","ENDLESS · No finish line"],["time-trial","TIME TRIAL · 90 seconds"],["traffic","TRAFFIC CHALLENGE · Collect coins"],["drift","DRIFT RUN · Score while steering"],["police","POLICE PURSUIT · Dense traffic"]].forEach(([v,l]) => addOption(modeSelect,v,l));
   modeSelect.value = localStorage.getItem(STORAGE.mode) || "career";
   const environmentSelect = document.createElement("select");
   environmentSelect.id = "environmentSelect"; environmentSelect.className = "difficulty-select";
@@ -52,9 +53,15 @@
   environmentLabel.className = "field-label"; environmentLabel.htmlFor = environmentSelect.id; environmentLabel.textContent = "ROAD ATMOSPHERE";
   [["neon","NEON CITY"],["sunset","SUNSET DRIVE"],["arctic","ARCTIC NIGHT"],["emerald","EMERALD GRID"]].forEach(([v,l]) => addOption(environmentSelect,v,l));
   environmentSelect.value = localStorage.getItem(STORAGE.environment) || "neon";
+  const weatherSelect = document.createElement("select");
+  weatherSelect.id = "weatherSelect"; weatherSelect.className = "difficulty-select";
+  const weatherLabel = document.createElement("label");
+  weatherLabel.className = "field-label"; weatherLabel.htmlFor = weatherSelect.id; weatherLabel.textContent = "WEATHER CONDITIONS";
+  [["clear","CLEAR SKIES"],["rain","RAIN · REDUCED GRIP"],["snow","SNOWFALL · LOW GRIP"],["fog","FOG · LOW VISIBILITY"]].forEach(([v,l]) => addOption(weatherSelect,v,l));
+  weatherSelect.value = localStorage.getItem(STORAGE.weather) || "clear";
   const modeHint = document.createElement("p");
   modeHint.className = "feature-hint";
-  modeHint.textContent = "Career unlocks levels · Endless removes the distance finish · Time Trial races the clock.";
+  modeHint.textContent = "Rival Sprint uses deterministic computer drivers. No AI models or paid services. Weather changes visibility and grip.";
   if (consoleBox) {
     const paint = $("paintSelect");
     if (paint) {
@@ -62,9 +69,11 @@
       consoleBox.insertBefore(modeSelect, paint);
       consoleBox.insertBefore(environmentLabel, paint);
       consoleBox.insertBefore(environmentSelect, paint);
+      consoleBox.insertBefore(weatherLabel, paint);
+      consoleBox.insertBefore(weatherSelect, paint);
       consoleBox.insertBefore(modeHint, paint);
     } else {
-      consoleBox.append(modeLabel, modeSelect, environmentLabel, environmentSelect, modeHint);
+      consoleBox.append(modeLabel, modeSelect, environmentLabel, environmentSelect, weatherLabel, weatherSelect, modeHint);
     }
   }
   modeSelect.addEventListener("change", () => {
@@ -75,6 +84,10 @@
     localStorage.setItem(STORAGE.environment, environmentSelect.value);
     document.dispatchEvent(new CustomEvent("neon:environment-change", { detail: { environment: environmentSelect.value } }));
     applyEnvironment();
+  });
+  weatherSelect.addEventListener("change", () => {
+    localStorage.setItem(STORAGE.weather, weatherSelect.value);
+    document.dispatchEvent(new CustomEvent("neon:weather-change", { detail: { weather: weatherSelect.value } }));
   });
   const style = document.createElement("style");
   style.textContent = ".feature-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.feature-actions .game-button{min-height:44px;font-size:10px}.feature-hint{margin-top:8px;color:var(--muted);font-size:10px;line-height:1.5}.feature-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(1,4,12,.86);backdrop-filter:blur(12px);overflow-y:auto}.feature-window{width:min(920px,100%);max-height:92dvh;overflow:auto;padding:clamp(17px,3vw,28px);border:1px solid rgba(66,245,255,.28);border-radius:20px;background:linear-gradient(145deg,#0d1930,#030711 75%);box-shadow:0 24px 90px #000}.feature-window-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.feature-window-head h2{font-size:clamp(20px,4vw,30px);letter-spacing:1px}.feature-close{min-width:44px;min-height:44px;border:1px solid #34506c;border-radius:10px;color:#fff;background:#111d32;font-size:20px}.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}.feature-card{padding:16px;border:1px solid rgba(104,159,230,.2);border-radius:14px;background:rgba(255,255,255,.035)}.feature-car-art{height:94px;display:grid;place-items:center;margin-bottom:12px;border-radius:10px;background:radial-gradient(ellipse,rgba(66,245,255,.11),transparent 72%)}.feature-car-art span{font-size:48px;filter:drop-shadow(0 0 16px currentColor)}.feature-card h3{font-size:15px;letter-spacing:1px}.feature-card p,.feature-muted{margin-top:7px;color:#96a9c6;font-size:12px;line-height:1.5}.feature-price{display:block;margin:12px 0;color:#ffd52f;font-size:12px;font-weight:800}.feature-card .game-button{width:100%;min-height:44px;margin-top:5px}.feature-stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.feature-stat{flex:1;min-width:110px;padding:12px;border:1px solid rgba(104,159,230,.17);border-radius:10px;background:rgba(255,255,255,.035)}.feature-stat span{display:block;color:#96a9c6;font-size:9px;letter-spacing:1px}.feature-stat strong{display:block;margin-top:5px;font-size:19px}.feature-progress{height:5px;margin-top:10px;border-radius:9px;background:#1c2a40;overflow:hidden}.feature-progress span{display:block;height:100%;background:linear-gradient(90deg,#087cff,#42f5ff)}.feature-save-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.feature-toast{position:fixed;z-index:180;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);max-width:calc(100vw - 24px);padding:12px 16px;border:1px solid rgba(66,245,255,.4);border-radius:12px;background:#071629;color:#fff;font-size:12px;text-align:center;box-shadow:0 8px 28px #000}.home-logo-button{pointer-events:auto}body[data-environment='sunset'] .hud-box{border-color:rgba(255,126,82,.45)}body[data-environment='arctic'] .hud-box{border-color:rgba(123,220,255,.45)}body[data-environment='emerald'] .hud-box{border-color:rgba(44,255,176,.4)}body[data-mode='police'] .hud-title{animation:policeFlash .7s steps(2,end) infinite alternate}@keyframes policeFlash{to{color:#ff3152;text-shadow:0 0 18px #ff3152}}@media(max-width:480px){.feature-actions{grid-template-columns:1fr 1fr}.feature-window{padding:15px;border-radius:15px}.feature-save-row{grid-template-columns:1fr}.feature-window-head{position:sticky;top:-1px;background:#0b162a;padding:5px 0;z-index:2}}";
@@ -151,7 +164,7 @@
     let hasSave = false; try { hasSave = Boolean(localStorage.getItem(STORAGE.save)); } catch {}
     showPanel("MANUAL SAVE / LOAD", '<p class="feature-muted">Save a snapshot when you choose. Loading restores the saved garage, upgrades, credits, selected mode, environment, difficulty, paint, and unlocked level on this device.</p><div class="feature-save-row"><button class="game-button primary" id="saveProfile">SAVE PROGRESS NOW</button><button class="game-button" id="loadProfile" ' + (hasSave ? "" : "disabled") + '>LOAD SAVED PROGRESS</button></div><p class="feature-hint">No cloud account is required. This save is local to this browser and device.</p>');
     $("saveProfile").addEventListener("click", () => {
-      const snapshot = { profile: JSON.parse(JSON.stringify(profile)), difficulty: $("difficultySelect")?.value || "normal", mode: modeSelect.value, environment: environmentSelect.value, paint: $("paintSelect")?.value || selectedCar().color, level: localStorage.getItem("neonHighwayLevel") || "1", best: localStorage.getItem("neonHighwayBest") || "0" };
+      const snapshot = { profile: JSON.parse(JSON.stringify(profile)), difficulty: $("difficultySelect")?.value || "normal", mode: modeSelect.value, environment: environmentSelect.value, weather: weatherSelect.value, paint: $("paintSelect")?.value || selectedCar().color, level: localStorage.getItem("neonHighwayLevel") || "1", best: localStorage.getItem("neonHighwayBest") || "0" };
       localStorage.setItem(STORAGE.save, JSON.stringify(snapshot)); $("loadProfile").disabled = false; toast("Progress snapshot saved on this device.");
     });
     $("loadProfile").addEventListener("click", () => {
@@ -159,8 +172,10 @@
       if (!snapshot || !snapshot.profile) { toast("No valid save found."); return; }
       profile = snapshot.profile; profile.upgrades = { ...defaultProfile().upgrades, ...(profile.upgrades || {}) };
       localStorage.setItem(STORAGE.profile, JSON.stringify(profile)); localStorage.setItem("neonHighwayCredits", String(profile.credits || 0));
-      localStorage.setItem("neonHighwayDifficulty", snapshot.difficulty || "normal"); localStorage.setItem(STORAGE.mode, snapshot.mode || "career"); localStorage.setItem(STORAGE.environment, snapshot.environment || "neon"); localStorage.setItem("neonHighwayPaint", snapshot.paint || "#087cff"); localStorage.setItem("neonHighwayLevel", snapshot.level || "1"); localStorage.setItem("neonHighwayBest", snapshot.best || "0");
-      if ($("difficultySelect")) $("difficultySelect").value = snapshot.difficulty || "normal"; modeSelect.value = snapshot.mode || "career"; environmentSelect.value = snapshot.environment || "neon";
+      localStorage.setItem("neonHighwayDifficulty", snapshot.difficulty || "normal"); localStorage.setItem(STORAGE.mode, snapshot.mode || "career"); localStorage.setItem(STORAGE.environment, snapshot.environment || "neon"); localStorage.setItem(STORAGE.weather, snapshot.weather || "clear"); localStorage.setItem("neonHighwayPaint", snapshot.paint || "#087cff"); localStorage.setItem("neonHighwayLevel", snapshot.level || "1"); localStorage.setItem("neonHighwayBest", snapshot.best || "0");
+      if ($("difficultySelect")) $("difficultySelect").value = snapshot.difficulty || "normal"; modeSelect.value = snapshot.mode || "career"; environmentSelect.value = snapshot.environment || "neon"; weatherSelect.value = snapshot.weather || "clear";
+       document.dispatchEvent(new CustomEvent("neon:mode-change", { detail: { mode: modeSelect.value } }));
+       document.dispatchEvent(new CustomEvent("neon:weather-change", { detail: { weather: weatherSelect.value } }));
       if ($("paintSelect")) $("paintSelect").value = snapshot.paint || "#087cff";
       document.dispatchEvent(new CustomEvent("neon:paint-change", { detail: { color: snapshot.paint || "#087cff" } })); applyEnvironment(); applyUpgrades(); persistProfile(); openSaveLoad(); toast("Saved progress loaded.");
     });

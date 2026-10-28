@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { createRacingEngine } from "./racing-engine.js";
 
 import {
     GLTFLoader
@@ -294,8 +295,9 @@ let scene;
 let camera;
 
 let renderer;
-
 let clock;
+let racingEngine = null;
+let racePosition = 4;
 
 
 /* =========================================================
@@ -382,6 +384,12 @@ window.addEventListener("neon:graphics-change", event => {
         renderer.setPixelRatio(ratio);
         renderer.shadowMap.enabled = quality === "high" && !isMobile;
     }
+});
+document.addEventListener("neon:weather-change", event => {
+    const weather = event.detail?.weather || "clear";
+    localStorage.setItem("neonHighwayWeather", weather);
+    racingEngine?.setWeather(weather);
+    document.body.dataset.weather = weather;
 });
 document.addEventListener("neon:environment-change", event => {
     const themes = {
@@ -532,6 +540,8 @@ async function init() {
 
 
     createScene();
+    racingEngine = createRacingEngine(THREE, scene, { isMobile });
+    racingEngine.setWeather(localStorage.getItem("neonHighwayWeather") || "clear");
 
 
     setLoading(
@@ -2713,8 +2723,8 @@ function createTraffic() {
     trafficGroup.clear();
 
 
-    const baseCount = isMobile ? 7 : 10;
-    const count = Math.max(4, Math.round(baseCount * difficultySettings().traffic) + Math.min(4, Math.floor((currentLevel - 1) / 5)));
+    const baseCount = raceMode === "rival" ? (isMobile ? 4 : 6) : (isMobile ? 7 : 10);
+    const count = Math.max(3, Math.round(baseCount * difficultySettings().traffic) + Math.min(4, Math.floor((currentLevel - 1) / 5)));
 
 
     for (
@@ -2733,6 +2743,14 @@ function createTraffic() {
 
         );
     }
+    if (raceMode === "rival") {
+        const rivals = [
+            { z: -90, lane: 1, speed: 31, color: 0xff3152, name: "SCARLET" },
+            { z: -155, lane: 2, speed: 35, color: 0x2cffb0, name: "VOLT" },
+            { z: -220, lane: 0, speed: 38, color: 0xa879ff, name: "PHANTOM" }
+        ];
+        rivals.forEach((rival, index) => spawnTrafficCar(rival.z, { ...rival, isRival: true, aiSeed: 701 + index * 97 }));
+    }
 }
 
 
@@ -2741,7 +2759,8 @@ function createTraffic() {
 ========================================================= */
 
 function spawnTrafficCar(
-    z
+    z,
+    options = {}
 ) {
 
     const lanes = [
@@ -2757,18 +2776,16 @@ function spawnTrafficCar(
     ];
 
 
-    const lane =
-        Math.floor(
-            Math.random() *
-            lanes.length
-        );
+    const lane = Number.isInteger(options.lane) ? options.lane : Math.floor((racingEngine?.random() ?? Math.random()) * lanes.length);
 
 
     const car =
         new THREE.Group();
 
 
-    if (
+    if (options.isRival) {
+        car.add(createDetailedCar(options.color || 0xff3152, false));
+    } else if (
         loadedTrafficTemplates.length >
         0
     ) {
@@ -2838,13 +2855,19 @@ function spawnTrafficCar(
     );
 
 
-    car.userData.lane =
-        lane;
-
+    car.userData.lane = lane;
+    car.userData.aiLane = lane;
+    car.userData.targetLane = lane;
+    car.userData.isRival = Boolean(options.isRival);
+    car.userData.rivalName = options.name || "";
+    car.userData.aiSeed = Number(options.aiSeed || Math.floor((racingEngine?.random() ?? Math.random()) * 100000) + car.id);
+    car.userData.aiTimer = 0.7 + (racingEngine?.random() ?? Math.random()) * 1.5;
 
     const levelTrafficBonus = Math.min(28, (currentLevel - 1) * 1.2);
     const pursuitTrafficBonus = raceMode === "police" ? 14 : 0;
-    car.userData.speed = (20 + Math.random() * 30 + levelTrafficBonus + pursuitTrafficBonus) * difficultySettings().speed;
+    car.userData.speed = Number.isFinite(options.speed)
+        ? options.speed
+        : (20 + (racingEngine?.random() ?? Math.random()) * 30 + levelTrafficBonus + pursuitTrafficBonus) * difficultySettings().speed;
 
 
     trafficGroup.add(
@@ -3132,6 +3155,7 @@ function resetGame() {
     const carProfile = window.neonHighwayProfile;
     const carSpeed = Number(carProfile?.selected ? (carProfile.selected === "zenith" ? 1.32 : carProfile.selected === "phantom" ? 1.22 : carProfile.selected === "volt" ? 1.16 : carProfile.selected === "goldline" ? 1.18 : carProfile.selected === "scarlet" ? 1.08 : 1) : 1);
     speed = CONFIG.startingSpeed * difficultySettings().speed * (1 + Number(performanceUpgrades.engine || 0) * 0.035) * Math.min(carSpeed, 1.32);
+    racePosition = 4;
     timeTrialRemaining = 90;
     armorRecoveryUsed = false;
     raceMode = localStorage.getItem("neonHighwayMode") || raceMode || "career";
@@ -3272,6 +3296,7 @@ function updateGame(
     updateTraffic(
         delta
     );
+    racingEngine?.updateWeather(delta, speed, player?.position.x || 0);
 
 
     if (
@@ -3475,11 +3500,14 @@ function updatePlayer(
         );
 
 
+    const grip = racingEngine?.updateSurfaceGrip(1) ?? 1;
     const movement =
 
         steeringInput *
 
         CONFIG.sidewaysSpeed *
+
+        grip *
 
         speedRatio *
 
@@ -3621,7 +3649,7 @@ function updateTraffic(
         const car of
         trafficGroup.children
     ) {
-
+        racingEngine?.updateCarAI(car, trafficGroup.children, player, delta, CONFIG.roadLimit, raceMode === "rival");
         car.position.z +=
 
             (
@@ -4179,7 +4207,9 @@ function completeLevel() {
     completeCoinsElement.textContent = coinsCollected.toLocaleString();
     document.getElementById("completeSubtitle").textContent = raceMode === "time-trial"
         ? "TIME TRIAL COMPLETE · SCORE " + Math.floor(score).toLocaleString()
-        : `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
+        : raceMode === "rival"
+            ? "RIVAL SPRINT COMPLETE · FINISHED " + racePosition + " / 4"
+            : `LEVEL ${currentLevel} COMPLETE · ${selectedDifficulty().toUpperCase()} MODE`;
     levelCompleteScreen.classList.remove("hidden");
     localStorage.setItem("neonHighwayLevel", String(currentLevel));
     document.dispatchEvent(new CustomEvent("neon:run-ended", { detail: { score: Math.floor(score), level: currentLevel, coins: coinsCollected, reason: "complete", mode: raceMode } }));
@@ -4193,6 +4223,13 @@ function advanceLevel() {
     startGame();
 }
 function updateHUD() {
+    const racePositionElement = document.getElementById("racePositionLabel");
+    if (racePositionElement) {
+        const rivals = trafficGroup?.children.filter(car => car.userData.isRival) || [];
+        racePosition = 1 + rivals.filter(car => car.position.z < (player?.position.z || 0)).length;
+        racePositionElement.classList.toggle("hidden", raceMode !== "rival");
+        racePositionElement.textContent = "POSITION " + racePosition + " / " + (rivals.length + 1);
+    }
     speedElement.textContent =
         Math.round(
             speed

@@ -69,6 +69,7 @@
     difficulty: $("difficultySelect")?.value || localStorage.getItem("neonHighwayDifficulty") || "normal",
     mode: $("raceModeSelect")?.value || localStorage.getItem("neonHighwayMode") || "career",
     environment: $("environmentSelect")?.value || localStorage.getItem("neonHighwayEnvironment") || "neon",
+    weather: $("weatherSelect")?.value || localStorage.getItem("neonHighwayWeather") || "clear",
     paint: $("paintSelect")?.value || localStorage.getItem("neonHighwayPaint") || "#087cff",
     level: localStorage.getItem("neonHighwayLevel") || "1",
     best: localStorage.getItem("neonHighwayBest") || "0",
@@ -91,6 +92,7 @@
       localStorage.setItem("neonHighwayDifficulty", snapshot.difficulty || "normal");
       localStorage.setItem("neonHighwayMode", snapshot.mode || "career");
       localStorage.setItem("neonHighwayEnvironment", snapshot.environment || "neon");
+      localStorage.setItem("neonHighwayWeather", snapshot.weather || "clear");
       localStorage.setItem("neonHighwayPaint", snapshot.paint || "#087cff");
       localStorage.setItem("neonHighwayLevel", snapshot.level || "1");
       localStorage.setItem("neonHighwayBest", snapshot.best || "0");

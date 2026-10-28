@@ -69,3 +69,12 @@ Progress snapshots are stored in the current browser only; they do not sync acro
 ### Enable GitHub Pages once
 
 In repository **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source if it is not already selected. The workflow then deploys automatically on pushes to `main`. The site uses the free GitHub Pages service for public repositories, subject to GitHub's current usage limits and terms. Three.js is loaded from jsDelivr, so first load still requires internet access.
+
+
+## Local JavaScript racing-engine layer
+
+- `racing-engine.js` contains deterministic computer-driver lane decisions, seeded local randomness, weather particles, and surface-grip modifiers.
+- **Rival Sprint** adds three rule-based opponents and race-position tracking. These are ordinary state machines and algorithms, not AI models or paid services.
+- Weather choices: clear, rain, snow, and fog. Rain and snow adjust handling grip; fog changes scene visibility.
+- The engine uses the free Three.js library for rendering. It requires no API key, AI provider, paid SDK, or backend.
+- No new paid assets or services are required.
