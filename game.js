@@ -3134,7 +3134,7 @@ function startGame() {
 
     resetGame();
     raceCountdownRemaining = raceMode === "championship" ? 3 : 0;
-    document.dispatchEvent(new CustomEvent("neon:race-start", { detail: { mode: raceMode, level: currentLevel } }));
+    document.dispatchEvent(new CustomEvent("neon:race-start", { detail: { mode: raceMode, level: currentLevel, difficulty: selectedDifficulty() } }));
 
     gameRunning =
         true;
