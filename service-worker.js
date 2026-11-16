@@ -1,7 +1,7 @@
 /* Neon Highway 3D offline cache. Cache failures never block normal online play. */
-const CACHE = "neon-highway-shell-v7";
+const CACHE = "neon-highway-shell-v8";
 const LOCAL_FILES = [
-  "./", "./index.html", "./style.css", "./game.js", "./upgrade.js",
+  "./", "./index.html", "./manifest.webmanifest", "./style.css", "./game.js", "./upgrade.js",
   "./feature-pack.js", "./championship-pack.js", "./fair-play.js", "./racing-engine.js",
   "./enhancement-pack.js", "./race-engineer.js", "./logo.svg", "./favicon.svg"
 ];
@@ -44,7 +44,7 @@ self.addEventListener("fetch", (event) => {
     }).catch(async () => (await caches.match(request, { ignoreSearch: true })) || (await caches.match("./index.html"))));
     return;
   }
-  event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+  event.respondWith(caches.match(request, { ignoreSearch: true }).then((cached) => cached || fetch(request).then((response) => {
     if (response.ok && (sameOrigin || response.type === "cors")) {
       const copy = response.clone();
       caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
