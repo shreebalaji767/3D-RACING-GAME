@@ -13,5 +13,5 @@ assert.ok(game.includes("roadTints"), "road surfaces should vary by track");
 assert.ok(game.includes("edgePalette"), "road barrier colors should vary by track");
 assert.ok(game.includes("createDistinctTrackScenery"), "track-specific roadside scenery should be generated");
 assert.ok(game.includes("roadGroup.clear();"), "switching track should rebuild the road");
-assert.ok(worker.includes("neon-highway-shell-v7"), "offline cache should refresh for track updates");
+assert.ok(worker.includes("neon-highway-shell-v9"), "offline cache should refresh for track updates");
 console.log("Track variety regression checks passed for 8 venues.");
