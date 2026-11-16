@@ -2265,3 +2265,15 @@ body {
 body[data-weather="rain"] #canvasContainer canvas{filter:saturate(.9) contrast(1.04)}
 body[data-weather="snow"] #canvasContainer canvas{filter:brightness(1.04) saturate(.82)}
 @media(max-width:480px){.level-progress-top{gap:8px;flex-wrap:wrap}.race-position{font-size:10px}}
+
+
+/* Dynamic viewport sizing keeps the game canvas aligned with mobile browser chrome. */
+@supports (height: 100dvh) {
+    html,
+    body,
+    #canvasContainer,
+    .screen,
+    .overlay {
+        height: 100dvh;
+    }
+}
