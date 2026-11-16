@@ -1,0 +1,19 @@
+{
+  "name": "Neon Highway 3D",
+  "short_name": "Neon Highway",
+  "description": "Free 3D night racing game.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
