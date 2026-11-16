@@ -28,9 +28,9 @@ The game loads Three.js from jsDelivr. This is free, but players need internet a
 
 ## 🚀 Live Demo
 
-🌐 **[Play Neon Highway 3D Online](https://threed-racing-game-8wvg.onrender.com/)**
+🌐 **[Play Neon Highway 3D on GitHub Pages](https://shreebalaji767.github.io/3D-RACING-GAME/)**
 
-> Try the game directly in your browser — no installation required.
+> Static GitHub Pages deployment — no server runtime or installation required. The first visit needs internet access to download Three.js.
 
 
 ## Upgrade branch: Neon Highway Complete
