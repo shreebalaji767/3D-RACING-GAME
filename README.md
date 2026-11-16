@@ -14,6 +14,8 @@ Free browser 3D racing game for GitHub Pages.
 - No backend or database
 
 ## GitHub Pages
+
+The project is a static, client-side site: GitHub Pages serves the HTML, CSS, JavaScript, manifest, and service worker directly. No server runtime, backend, database, or build step is required. The game registers its service worker automatically for best-effort offline shell caching. The first visit still needs a network connection to retrieve Three.js from jsDelivr; offline 3D availability depends on successful browser caching.
 1. Create a public GitHub repository, e.g. `neon-highway-3d`.
 2. Upload `index.html`, `style.css`, and `game.js`.
 3. Open **Settings → Pages**.
