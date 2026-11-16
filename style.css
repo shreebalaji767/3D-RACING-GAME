@@ -2277,3 +2277,110 @@ body[data-weather="snow"] #canvasContainer canvas{filter:brightness(1.04) satura
         height: 100dvh;
     }
 }
+
+
+/* Device-wide responsive finishing layer: preserves the existing game UI and controls. */
+:root {
+    --app-safe-top: env(safe-area-inset-top, 0px);
+    --app-safe-right: env(safe-area-inset-right, 0px);
+    --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --app-safe-left: env(safe-area-inset-left, 0px);
+}
+html, body { min-width: 280px; }
+#canvasContainer, #canvasContainer canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+.screen, .overlay { min-width: 0; }
+.overlay { overflow-y: auto; overscroll-behavior: contain; }
+.overlay-card {
+    width: min(100%, 560px);
+    max-height: calc(100dvh - 24px - var(--app-safe-top) - var(--app-safe-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.menu-screen {
+    padding-left: max(10px, var(--app-safe-left));
+    padding-right: max(10px, var(--app-safe-right));
+    padding-bottom: max(18px, var(--app-safe-bottom));
+}
+.menu-panel { min-width: 0; }
+.landing-screen {
+    min-height: 100dvh;
+    padding-left: max(16px, var(--app-safe-left));
+    padding-right: max(16px, var(--app-safe-right));
+    padding-bottom: max(20px, var(--app-safe-bottom));
+}
+.landing-brand img, .brand-logo-image, .home-logo-button img {
+    max-width: 100%;
+    height: auto;
+}
+.game-button, .difficulty-select, .steering-button, .action-button {
+    touch-action: manipulation;
+}
+button, select, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline-offset: 3px; }
+
+@media (max-width: 760px) {
+    .landing-nav { align-items: flex-start; }
+    .landing-brand { width: clamp(132px, 42vw, 205px); }
+    .landing-nav-status { max-width: 42%; text-align: right; }
+    .landing-hero { width: 100%; }
+    .landing-visual { width: 100%; min-height: clamp(230px, 62vw, 340px); }
+    .landing-actions { width: 100%; }
+    .landing-cta, .landing-secondary { flex: 1 1 100%; }
+    .landing-feature { min-width: 0; }
+    .level-progress { width: min(52vw, 300px); }
+    .home-logo-button {
+        width: clamp(76px, 17vw, 108px);
+        padding: 3px 5px;
+        border-radius: 9px;
+        top: max(7px, var(--app-safe-top));
+        left: max(7px, var(--app-safe-left));
+    }
+}
+@media (max-width: 520px) {
+    .menu-panel { width: min(100%, 560px); }
+    .launch-console, .preview-console { min-width: 0; }
+    .difficulty-select { min-width: 0; font-size: 12px; }
+    .hud-top { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hud-box { min-width: 0; }
+    .speed-value { gap: 3px; }
+    .level-progress { width: min(58vw, 260px); }
+    .landing-screen { padding-top: max(14px, var(--app-safe-top)); }
+    .landing-nav-status { font-size: 7px; }
+    .landing-copy h1 { overflow-wrap: anywhere; }
+    .landing-visual-label { left: 12px; right: 12px; font-size: 8px; }
+    .touch-control-note { display: none; }
+}
+@media (max-width: 360px) {
+    .menu-panel { padding: 14px; }
+    .landing-screen { padding-left: 12px; padding-right: 12px; }
+    .landing-brand { width: 126px; }
+    .landing-nav-status { letter-spacing: .5px; }
+    .landing-copy h1 { font-size: clamp(38px, 11vw, 48px); }
+    .hud-box { padding: 6px 5px; }
+    .hud-label { font-size: 8px; }
+    .speed-value strong { font-size: 16px; }
+    .steering-button { width: 60px; height: 60px; }
+    .action-button { width: 64px; min-height: 43px; }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+    .landing-screen { padding-top: max(10px, var(--app-safe-top)); }
+    .landing-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: auto; gap: 18px; padding-top: 16px; }
+    .landing-copy h1 { margin: 12px 0; font-size: clamp(30px, 6vw, 54px); }
+    .landing-description { font-size: 12px; line-height: 1.45; }
+    .landing-visual { min-height: 220px; }
+    .landing-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-feature { padding: 10px; }
+    .landing-feature p { font-size: 10px; }
+    .overlay-card { max-height: calc(100dvh - 12px - var(--app-safe-top) - var(--app-safe-bottom)); padding: 14px; }
+    .home-logo-button { width: 82px; }
+}
+@media (pointer: coarse) {
+    .game-button, .difficulty-select { min-height: 48px; }
+    .steering-button, .action-button { touch-action: none; }
+}
+@media (hover: none) {
+    .game-button:hover { transform: none; }
+}
